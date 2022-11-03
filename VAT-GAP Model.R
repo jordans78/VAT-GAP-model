@@ -6,7 +6,7 @@
 #         https://ec.europa.eu/eurostat/ramon/relations/index.cfm?TargetUrl=LST_REL&StrLanguageCode=EN&IntCurrentPage=6                                                                                                                                                           #
 
                     # 1.INPUT PARAMETERS FOR SIMULATION -----------------------------------------
-                          # 1.1 VAT STANDARD RATES --------------------------------------------------
+                          # 1.1 VAT STANDARD RATES ------------------------------------------------
 rm(list=(ls()))
     '1.CHANGING VAT RATES'          
                         
