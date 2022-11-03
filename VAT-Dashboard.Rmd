@@ -242,7 +242,7 @@ dat_ba<-revenue_vat_total_bu%>%
  dat<-left_join(dat_r,dat_ba,by = c("PRODUCT_INDUSTRY_CODE"))
 
 
-#dat <-as.data.table(PLOT_PLOTLY)
+
 colnames(dat) <- c('NACE', 'series1', 'series2')
 
 plt <- plot_ly(dat) %>% 
@@ -252,7 +252,7 @@ plt <- plot_ly(dat) %>%
        xaxis = list(title = '',font = t_8), 
     yaxis = list(title = ''),
     legend = list(x = 0.9, y = 0.99),
-    barmode = 'group'#,#,font = t_8
+    barmode = 'group'
     #legend = list(orientation = 'h')
      )
 

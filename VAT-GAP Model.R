@@ -1523,11 +1523,6 @@ rm(list=(ls()))
                               
                 #View(EFFECTIVE_VAT_RATES_BU)
                 
-                          # 8.2 Simulation -Total effective rate for : Industries,HH,NPISH and GOVERMENT -----------------------------------------
-                
-                
-                
-                
                   # 9. HSB Analysis ------------------------------------------------------------
                     # 3.5 Applying effectve VAT rates with HBS (data4_hbs2016_test)
                     
