@@ -10,7 +10,7 @@
 rm(list=(ls()))
 
 # Setting path to directory with  data 
-path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT"
+path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT" #<----Set your path here
 setwd(path)
 getwd()
 
