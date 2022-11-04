@@ -3,11 +3,18 @@
 #                                                   VAT GAP SIMULATOR MODEL                                                                                                    #
 #                                                                                                                                                                    #
 #                                                                                                                                                                    #
-#         https://ec.europa.eu/eurostat/ramon/relations/index.cfm?TargetUrl=LST_REL&StrLanguageCode=EN&IntCurrentPage=6                                                                                                                                                           #
+#       
 
                     # 1.INPUT PARAMETERS FOR SIMULATION -----------------------------------------
                           # 1.1 VAT STANDARD RATES ------------------------------------------------
 rm(list=(ls()))
+
+# Setting path to directory with  data 
+path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT"
+setwd(path)
+getwd()
+
+
     '1.CHANGING VAT RATES'          
                         
                         ' 
@@ -156,7 +163,7 @@ rm(list=(ls()))
     
                     # 2. LOAD LIBRARIES AND FUNCTIONS ----
                     
-                    gc(TRUE)
+                    
                     
                     library(data.table)
                     library(tidyr)
@@ -165,10 +172,7 @@ rm(list=(ls()))
                     library(reshape2)
                     library(rccmisc) 
                     
-                    # Setting path to data 
-                    path_1<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT"
-                    setwd(path_1)
-                    getwd()
+
                     
                     # Defining a custom function to extract only English names from SUTs
                     trim <- function (x) gsub("^\\s+|\\s+$", "", x) 
@@ -802,7 +806,7 @@ rm(list=(ls()))
                           PRODUCT_INDUSTRY_AGGREGATE$Use_VAT$Final_consumption_expenditure_by_government
                         
                         
-                          # 5.4 K_Shift_Map ----
+                          # 5.4 Capital Shift Map ----
                         
                         
                         PRODUCT_INDUSTRY_AGGREGATE$K_Shift_Map <- USE_NETPURCH %>% 
@@ -830,7 +834,7 @@ rm(list=(ls()))
                         PRODUCT_INDUSTRY_AGGREGATE$K_Shift_Map$Final_consumption_expenditure_NPISH = 0
                         PRODUCT_INDUSTRY_AGGREGATE$K_Shift_Map$Final_consumption_expenditure_by_government = 0
                         
-                          # 5.5 Use_K_NetPurch -----
+                          # 5.5 Use Capital net purchaser prices -----
                         
                         USE_K_NETPURCH <- K_SHIFT_MAP %>%
                           merge.data.frame(PRODUCT_INDUSTRY_AGGREGATE$Use_NetPurch, key = "PRODUCT_INDUSTRY_CODE") %>%
@@ -883,8 +887,7 @@ rm(list=(ls()))
                           merge.data.frame(INDUSTRY_AGGREGATE$Dom_Share, key = "INDUSTRY_CODE") %>%
                           dplyr::mutate(value = value*Domestic_Share_of_Output_Industry) %>%
                           dplyr::arrange(PRODUCT_INDUSTRY_CODE, INDUSTRY_CODE)
-                        
-                      
+                  
                         
                           # 5.7 Supply_Dom -----
                         
@@ -905,13 +908,11 @@ rm(list=(ls()))
     
                           # New  Aggregation for FINAL COICOP TABLE
                           SUPPLY_DOM_AGGREGATE_1<-SUPPLY_DOM%>%
-                            #dplyr::select(INDUSTRY_CODE,value)%>%
                             dplyr::select(PRODUCT_INDUSTRY_CODE,value)%>%
                             dplyr::group_by(PRODUCT_INDUSTRY_CODE)%>%
                             dplyr::summarize(value=sum(value,na.rm = TRUE))%>%
                             dplyr::arrange(PRODUCT_INDUSTRY_CODE)
-                           # View(SUPPLY_DOM_AGGREGATE_1)
-                          
+                           
                             SUPPLY_DOM_AGGREGATE_1$value[is.na(SUPPLY_DOM_AGGREGATE_1$value)] <- 0
                             
                           PRODUCT_INDUSTRY_AGGREGATE_1<-PRODUCT_INDUSTRY_AGGREGATE$Supply%>%
@@ -1006,10 +1007,7 @@ rm(list=(ls()))
                             dplyr::mutate(Simulated_Policy_Exempt = ifelse(is.na(Simulation_Toggles_Exempt), Current_Policy_Exempt, Simulation_Toggles_Exempt),
                                           Simulated_Policy_Reduced_Rate = ifelse(is.na(Simulation_Toggles_Reduced_Rate), Current_Policy_Reduced_Rate, Simulation_Toggles_Reduced_Rate),
                                           Simulated_Policy_Fully_Taxable = 1-Simulated_Policy_Exempt-Simulated_Policy_Reduced_Rate)
-                          
-                          #View(SIMULATION)
-                          
-    
+
                             # 6.1.3 Estimation of TE part -----------------------------------------------------
     '
     Warning
@@ -1034,7 +1032,7 @@ rm(list=(ls()))
                           SIMULATION_2 = copy(SIMULATION)
                           
                           SIMULATION_2$Simulation_Toggles_Reduced_Rate<-TE_EXEMPT
-                          #SIMULATION_2$Simulation_Toggles_Exempt<-TE_REDUCED_RATE # <--For calculation of effective VAT rate this not needed
+                        
                           
                           
                           SIMULATION_2 <- SIMULATION_2 %>%
@@ -1071,9 +1069,7 @@ rm(list=(ls()))
                           # I set NA as well as the value of industry "Imputed rents of owner-occupied dwellings" to zero following the excel document.
                           PRODUCT_INDUSTRY_AGGREGATE$BM_Rev$Final_Demand_Government[is.na(PRODUCT_INDUSTRY_AGGREGATE$BM_Rev$Final_Demand_Government)] <- 0
                           PRODUCT_INDUSTRY_AGGREGATE$BM_Rev$Final_Demand_Government[grepl("Imputed rents of owner-occupied dwellings", PRODUCT_INDUSTRY_AGGREGATE$BM_Rev$PRODUCT_INDUSTRY_NAME)] <- 0
-                          
-                          # sum(PRODUCT_INDUSTRY_AGGREGATE$BM_Rev$Final_Demand_Government,na.rm=TRUE) result 1256.934  Greska 17392.09  treba da bide
-                          
+                         
                           
                           # Make the Toal Final Demand
                           # Note that "Total Revenues from Intermediate Inputs" is not included in the "Final_Demand_Total" because the all values of "BM Rev" are zero
@@ -1163,9 +1159,7 @@ rm(list=(ls()))
                             INDUSTRY_AGGREGATE_2$Est.IS$Industry_Share <- INDUSTRY_AGGREGATE_2$Est.IS$Industry_Share/INDUSTRY_AGGREGATE_2$Supply_Dom$Total_output_by_industries_at_basic_prices
                             
                             INDUSTRY_AGGREGATE_2$Est.IS$Industry_Share[is.na(INDUSTRY_AGGREGATE_2$Est.IS$Industry_Share)] <- 0
-                            
-                            
-                            
+
                           # 6.4 Est Rev ----
                             # 6.4.1 Main estimation ----------------------------------------------------
                             EST_REV <- USE_K_DOM_NETPURCH %>% 
@@ -1316,23 +1310,18 @@ rm(list=(ls()))
                         
                         Results$VAT_Gap$Compliance_Gap.Prc <- Results$VAT_Gap$Compliance_Gap.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars
                         
-                        # Promena ovde !!!
                         Results$VAT_Gap$Calibration_Factor <- 0.755207774941413
     
                           
-                       #Results$VAT_Gap$VAT_Control_Total.M_of_denars/Results$VAT_Gap$Uncalibrated_VAT_Est.M_of_denars
                         
                         # Final output - Change in Revenues
                         
-                        #Results$Simulation <- as.data.frame(Results$VAT_Gap$Calibrated_VAT_Est.M_of_denars-Results$VAT_Gap$VAT_Control_Total.M_of_denars)
+                        
                         Results$Simulation <- as.data.frame(as.integer(Results$VAT_Gap$Calibrated_VAT_Est.M_of_denars-Results$VAT_Gap$VAT_Control_Total.M_of_denars))
                         colnames(Results$Simulation) <- "Simulated_Change_in_Revenues.M_of_denars"
                         
                         Results$Simulation$Simulated_Change_in_Revenues.Prc <- (Results$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars)*100
-                        #Results$Simulation$Simulated_Change_in_Revenues.Prc <- round(Results$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars,1)*100
-    
-                        
-                        #View(SIMULATION)
+
                         View(Results)
         
     
@@ -1366,30 +1355,20 @@ rm(list=(ls()))
                         
                         Results_1$VAT_Gap$Compliance_Gap.Prc <- Results_1$VAT_Gap$Compliance_Gap.M_of_denars/Results_1$VAT_Gap$VAT_Control_Total.M_of_denars
                         
-                        # Promena ovde !!!
+                        
                         Results_1$VAT_Gap$Calibration_Factor <- 0.755207774941413
                         
-                        
-                        #Results_1$VAT_Gap$VAT_Control_Total.M_of_denars/Results_1$VAT_Gap$Uncalibrated_VAT_Est.M_of_denars
-                        
+
                         # Final output - Change in Revenues
                         
-                        #Results_1$Simulation <- as.data.frame(Results_1$VAT_Gap$Calibrated_VAT_Est.M_of_denars-Results_1$VAT_Gap$VAT_Control_Total.M_of_denars)
+                        
                         Results_1$Simulation <- as.data.frame(as.integer(Results_1$VAT_Gap$Calibrated_VAT_Est.M_of_denars-Results_1$VAT_Gap$VAT_Control_Total.M_of_denars))
                         colnames(Results_1$Simulation) <- "Simulated_Change_in_Revenues.M_of_denars"
                         
                         Results_1$Simulation$Simulated_Change_in_Revenues.Prc <- (Results_1$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results_1$VAT_Gap$VAT_Control_Total.M_of_denars)*100
-                        #Results_1$Simulation$Simulated_Change_in_Revenues.Prc <- round(Results_1$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results_1$VAT_Gap$VAT_Control_Total.M_of_denars,1)*100
                         
-                        
-                        #View(SIMULATION_1)
                         View(Results_1)
                     
-                        
-                        
-                        
-                        
-                        
                             # 7.1.3 Estimation of effective VAT RATE------------------------------
 
                         Results_2 <- as.list(c("VAT_Gap", "Simulation"))
@@ -1420,12 +1399,10 @@ rm(list=(ls()))
                         
                         Results_2$VAT_Gap$Compliance_Gap.Prc <- Results_2$VAT_Gap$Compliance_Gap.M_of_denars/Results_2$VAT_Gap$VAT_Control_Total.M_of_denars
                         
-                        # Promena ovde !!!
                         Results_2$VAT_Gap$Calibration_Factor <- 0.755207774941413
                         
                         
-                        #Results_2$VAT_Gap$VAT_Control_Total.M_of_denars/Results_2$VAT_Gap$Uncalibrated_VAT_Est.M_of_denars
-                        
+                       
                         # Final output - Change in Revenues
                         
                         #Results_2$Simulation <- as.data.frame(Results_2$VAT_Gap$Calibrated_VAT_Est.M_of_denars-Results_2$VAT_Gap$VAT_Control_Total.M_of_denars)
@@ -1433,13 +1410,6 @@ rm(list=(ls()))
                         colnames(Results_2$Simulation) <- "Simulated_Change_in_Revenues.M_of_denars"
                         
                         Results_2$Simulation$Simulated_Change_in_Revenues.Prc <- (Results_2$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results_2$VAT_Gap$VAT_Control_Total.M_of_denars)*100
-                        #Results_2$Simulation$Simulated_Change_in_Revenues.Prc <- round(Results_2$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results_2$VAT_Gap$VAT_Control_Total.M_of_denars,1)*100
-                        
-                        
-                        #View(SIMULATION_2)
-                        #View(Results_2)                        
-                        
-                        
                         
                             # 7.1.4 Other files -------------------------------------------------------
                         # 9.1 Result from main estimation
@@ -1511,38 +1481,23 @@ rm(list=(ls()))
                               EFFECTIVE_VAT_RATES_HH<-EFFECTIVE_VAT_RATES%>%
                                 dplyr::select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_HH)
                               
-                              
-                              # 
-                              # df<-EFFECTIVE_VAT_RATES%>%
-                              #   dplyr::select(PRODUCT_INDUSTRY_CODE,Standard_VAT_Rate )
-                              #   
-                              # 9.3  Result from of effective VAT RATE
-                              
+        
                               effective_vat_rates<-EFFECTIVE_VAT_RATES
                               
                               
                 #View(EFFECTIVE_VAT_RATES_BU)
                 
                   # 9. HSB Analysis ------------------------------------------------------------
-                    # 3.5 Applying effectve VAT rates with HBS (data4_hbs2016_test)
-                    
-                    # Ova dole da odi
-                    
-                    #  Suffix _BR mean before revenues or or in other words denotes revenue before the reform
-                    #  Suffix _R mean revenues after or in other words denotes revenue before the reform
-                    
-                        
-                        
+                          # 9.1 Applying effective VAT rates with HBS ------------------------------------
+                'In this part, only VAT base from households are used.
+
+                These bases come from the SUT table and are distributed by CPA (64 NACE divisions).
+                Because of this, the COICOP structure was first calculated, and then the same percentages were applied to VAT Revenues from CPA. 
+                In the end, revenues were distributed and the sum was the same and effective VAT rate are applied.
+                '
                         Revenue_VAT_TOTAL_HH<-Revenue_VAT_TOTAL%>%
                           dplyr::select(PRODUCT_INDUSTRY_CODE,Final_Demand_HH)
-                        
-                        str(CPA_COICOP_CONCORDANCE)
-                        
-                        
-                       # Revenue_VAT_TOTAL_HH_CONCORDANCE<-left_join(Revenue_VAT_TOTAL_HH,CPA_COICOP_CONCORDANCE,by = c("PRODUCT_INDUSTRY_CODE"="CPA_COICOP"))
-                        
-                       
-                        
+
                         VAT_COICOP_PROPORTIONS<-VAT_COICOP_FINAL_RAW %>%
                           dplyr::select(Two_digits,FC,EX,Reduced_Rate_5,Standard_Rate_18) %>%
                           dplyr::group_by(Two_digits) %>%
@@ -1555,17 +1510,9 @@ rm(list=(ls()))
                           
                         VAT_COICOP_PROPORTIONS<-left_join(VAT_COICOP_PROPORTIONS,CPA_COICOP_CONCORDANCE,by = c("Two_digits"="COICOP_Division"))
                         
-                        # # Concordance
-                        # VAT_COICOP_PROPORTIONS_CPA<-left_join(VAT_COICOP_PROPORTIONS,CPA_COICOP_CONCORDANCE,by = c("Two_digits"="COICOP_Division"))%>%
-                        #   dplyr::select(Two_digits,VAT_BASE_COICOP_5_18,CPA_COICOP)%>%
-                        #   dplyr::group_by(Two_digits) %>%
-                        #   dplyr::mutate(PCT = VAT_BASE_COICOP_5_18/sum(VAT_BASE_COICOP_5_18)) %>% 
-                        #   ungroup
-                        # # EFFECTIVE BASE RATE BY CPA
-                        
+                     
                         EFFECTIVE_VAT_RATES_HH_BASE<-EFFECTIVE_VAT_RATES%>%
                           dplyr::select(PRODUCT_INDUSTRY_CODE,tax_base_HH,EFFECTIVE_VAT_RATE_HH)
-                        
                         
                         
                         # Concordance
@@ -1574,106 +1521,52 @@ rm(list=(ls()))
                           dplyr::group_by(CPA_COICOP) %>%
                           dplyr::mutate(PCT = VAT_BASE_COICOP_5_18/sum(VAT_BASE_COICOP_5_18))%>% 
                           ungroup
+
                         
-                        
-                        # Test. Works well !!
-                        VAT_COICOP_PROPORTIONS_CPA%>%
-                          filter(CPA_COICOP=='01')
-                        
-                        
-                        #View(VAT_COICOP_PROPORTIONS_CPA)
-                        
-                        
-                        # Sum of VAT for household 49334.2
-                        
+                        # Sum of VAT 
                         Revenue_VAT_TOTAL_HH_CONCORDANCE_FINAL<-VAT_COICOP_PROPORTIONS_CPA%>%
                           dplyr::mutate(ARTEFICIAL_BASE_HH=tax_base_HH*PCT)%>%
                           dplyr::mutate(VAT_ESTIMATED=ARTEFICIAL_BASE_HH*EFFECTIVE_VAT_RATE_HH)%>%
                           dplyr::group_by(Two_digits)%>%
                           dplyr::summarise(ARTEFICIAL_BASE_HH = sum(ARTEFICIAL_BASE_HH, na.rm = T),VAT_ESTIMATED = sum(VAT_ESTIMATED, na.rm = T),EFFECTIVE_VAT_RATE_HH=mean(EFFECTIVE_VAT_RATE_HH, na.rm = T))
                          
-                            
-                            
-                        # # Test. Works well !!
-                        # Revenue_VAT_TOTAL_HH_CONCORDANCE_FINAL%>%
-                        #   filter(CPA_COICOP=='01')
-                        # 
-                        # #Revenue_VAT_TOTAL_HH_CONCORDANCE<-left_join(VAT_COICOP_PROPORTIONS,EFFECTIVE_VAT_RATES_HH,by = c("PRODUCT_INDUSTRY_CODE"="PRODUCT_INDUSTRY_CODE"))
-                        # 
-                        # sum(Revenue_VAT_TOTAL_HH_CONCORDANCE_FINAL$VAT_ESTIMATED)
-                        # 
-                        # # write.xlsx(as.data.frame(Revenue_VAT_TOTAL_HH_CONCORDANCE), file="TEST_data.xlsx", sheetName="HH", row.names=FALSE)
-                        # # write.xlsx(as.data.frame(EFFECTIVE_VAT_RATES_HH_BASE), file="TEST_data.xlsx", sheetName="HBS", row.names=FALSE,append=TRUE)
-                        # # write.xlsx(as.data.frame(VAT_COICOP_PROPORTIONS_CPA), file="TEST_data.xlsx", sheetName="NEW", row.names=FALSE,append=TRUE)
-                        # 
-                        # 
-                        
-                        # Do ovde !!! 
-                        # Da se prodolzi taka sto na vaka sobranite bazi ke se primeni efektivnata stapka koja e veke presmetana 
-                        # vo pogornata tabla EFFECTIVE_VAT_RATES
-                        
-                        
-                        
-                        
-                        # VAT_COICOP_PROPORTIONS<-VAT_COICOP_FINAL_RAW %>%
-                        #   dplyr::select(Two_digits,FC,EX,Reduced_Rate_5,Standard_Rate_18) %>%
-                        #   dplyr::group_by(Two_digits) %>%
-                        #   dplyr::summarise(FC = sum(FC, na.rm = T),
-                        #                    VAT_BASE_COICOP_EX= sum(EX, na.rm = T),
-                        #                    VAT_BASE_COICOP__5 = sum(Reduced_Rate_5, na.rm = T),
-                        #                    VAT_BASE_COICOP_18 = sum(Standard_Rate_18, na.rm = T)
-                        #   )
-                        
-                        
+
                         data4_hbs2016_long_merged<-left_join(data4_hbs2016_long,Revenue_VAT_TOTAL_HH_CONCORDANCE_FINAL,by = c("COICOP_section"="Two_digits"))%>%
                         dplyr::select(-c(ARTEFICIAL_BASE_HH,VAT_ESTIMATED))%>%
                         dplyr::mutate(VAT_BASE_HH=Expenditures/(1+EFFECTIVE_VAT_RATE_HH),
                                       VAT_REVENUES_HH=VAT_BASE_HH*EFFECTIVE_VAT_RATE_HH)
                                       
+
+                          # 9.2 Merging with HBS Available assets --------------------------------------------------------
+
+                  '
+                  In this section, in order to determine decile groups, it is used avilable assets.
+                  The sample is unweighted.
                         
-                        # # Wider 
-                        # data4_hbs2016_wider_merged<-data4_hbs2016_long_merged%>%
-                        # #pivot_wider(names_from = COICOP_section , values_from = Expenditures ,values_fill = 0)
-                        #   pivot_wider(
-                        #     names_from = COICOP_section,
-                        #     values_from = c(Expenditures, moe)
-                        #       )
-                        
-                        
-                        
-                        
-    # Merging with others databases
-                        
-                       
-                        #View(data3_hbs2016)
-                        
-                        
-                        data3_hbs2016<-data3_hbs2016%>%
+                  '
+
+                  data3_hbs2016<-data3_hbs2016%>%
                           dplyr:: rename(c(
                                           "number_hh"="RBR"))
                                       
                         
-                        #Available_asset_total (only column V09030)
-                        AVAILABLE_ASSET<-select(data3_hbs2016,number_hh,V09030)
-                        
+                  AVAILABLE_ASSET<-select(data3_hbs2016,number_hh,V09030)
                         colnames(AVAILABLE_ASSET)<-c("number_hh", 
                                                       "AVAILABLE_ASSET_BEFORE")
                         
                         
-                  # 4.1 Determination of threshold of decile and centiles groups, by used assets
+                  #  Determination of threshold of decile and centiles groups, by used assets
                         deciles_net <- quantile(AVAILABLE_ASSET$AVAILABLE_ASSET_BEFORE, seq(1, 10) / 10)
                         centile_net<-quantile(AVAILABLE_ASSET$AVAILABLE_ASSET_BEFORE, seq(1, 100) / 100)
                         
                         
-                    # 4.2 Importing deciles and centiles into FINAL_UNWEIGHTED_SAMPLE
+                    # Importing deciles and centiles into FINAL_UNWEIGHTED_SAMPLE
                         FINAL_UNWEIGHTED_SAMPLE<-mutate(AVAILABLE_ASSET,
-                                                        #DETERMINE THRESHOLD
                                                         DECILE_THRESHOLD=findInterval(AVAILABLE_ASSET_BEFORE, c(-Inf, deciles_net), rightmost.closed = TRUE),
                                                         CENTILE_THRESHOLD=findInterval(AVAILABLE_ASSET_BEFORE, c(-Inf, centile_net), rightmost.closed = TRUE),
                                                         DECILE_COUNT =1,
                                                         CENTILE_COUNT =1
                                                           )
-                        #View(FINAL_UNWEIGHTED_SAMPLE)
                         rm(centile_net,deciles_net)
                         
                         
@@ -1685,15 +1578,10 @@ rm(list=(ls()))
                 data4_hbs2016_wider_merged_deciles<-data4_hbs2016_long_merged_deciles%>%    
                 pivot_wider(
                   names_from = COICOP_section,
-                  values_from = c(VAT_REVENUES_HH)
-                            )%>%
+                  values_from = c(VAT_REVENUES_HH))%>%
                   dplyr::mutate(VAT_TOTAL=`01`+`02`+`03`+`04`+`05`+`06`+`07`+`08`+`09`+`10`+`11`+`12`)
                         
-                        
-                 # View(data4_hbs2016_wider_merged_deciles)
-                        
-                  
-                  
+                 
                         # 
                         # # Final sum of of TOTAL_UNWEIGHTED_SAMPLE in millions denars
                         # TOTAL_UNWEIGHTED_SAMPLE<-data.frame(
@@ -1749,27 +1637,9 @@ rm(list=(ls()))
                         # #View(TOTAL_FINAL_WEIGHTED_SAMPLE)
                         # #str(DECILE_FINAL)
                         # 
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-              
-                    
-                    
-               
-                    
-                    
-                    
-                    # rm(list=ls()[! ls() %in% c("data1_hbs2016","data2_hbs2016","data3_hbs2016","data4_hbs2016","Weight_hbs2016","path_2",
-                    #                           "path_1","SIMULATION","Results")])
+ 
                   # 10. EXPORT RESULTS IN EXCEL -----------------------------------------------
-                  
+                gc(TRUE)
                   library(xlsx)
                   # Export data for business as usual. Suffix for business as usual is 'bu'. Results are estimated without any changes in VAT Rates.
                   # For this data set this estimation is only need to done one time and after that this result can be compared as benchmark
@@ -1779,12 +1649,10 @@ rm(list=(ls()))
                   # write.xlsx(as.data.frame(effective_vat_rates_bu), file="export_data_bu.xlsx", sheetName="effective_vat_rates_bu",append=TRUE, row.names=FALSE)
                   # write.xlsx(as.data.frame(data4_hbs2016_wider_merged_deciles), file="export_data_bu.xlsx", sheetName="hbs_bu",append=TRUE, row.names=FALSE)
                   
-                  #Unweight sample
+                  # Unweight sample
                   write.xlsx(as.data.frame(Export_Main_Results), file="export_data.xlsx", sheetName="Main_Results", row.names=FALSE)
-                  
                   write.xlsx(as.data.frame(Revenue_VAT_TOTAL), file="export_data.xlsx", sheetName="Revenue_VAT_TOTAL", append=TRUE, row.names=FALSE)
                   write.xlsx(as.data.frame(Simulation_Results), file="export_data.xlsx", sheetName="Result_Simulation",append=TRUE, row.names=FALSE)
-                  
                   write.xlsx(as.data.frame(Simulation_Results_1), file="export_data.xlsx", sheetName="Results_1",append=TRUE, row.names=FALSE)
                   write.xlsx(as.data.frame(Est_Rev1), file="export_data.xlsx", sheetName="Est_Rev1",append=TRUE, row.names=FALSE)
                   write.xlsx(as.data.frame(effective_vat_rates), file="export_data.xlsx", sheetName="effective_vat_rates",append=TRUE, row.names=FALSE)

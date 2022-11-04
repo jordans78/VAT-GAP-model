@@ -30,32 +30,38 @@ library(reshape2)
 options(warn=-1)
 library(orca)
 
-
 # R PLOTLY COLORS
 # https://www.w3.org/TR/css-color-3/#svg-color 
 # https://www.angularjswiki.com/fontawesome/finance/
 
   #rm(list = ls())
 
+path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT"
+setwd(path)
+getwd()
+
+
 # Import data business as usual
-Results_1_bu <- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data_bu.xlsx",sheet="Results_1_bu")
-revenue_vat_total_bu <- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data_bu.xlsx",sheet="revenue_vat_total_bu")
-Est_Rev_bu<- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data_bu.xlsx",sheet="Est_Rev1_bu")
-effective_vat_rates_bu<- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data_bu.xlsx",sheet="effective_vat_rates_bu")
-hbs_bu<- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data_bu.xlsx",sheet="hbs_bu")
+Results_1_bu <- read_excel("export_data_bu.xlsx",sheet="Results_1_bu")
+revenue_vat_total_bu <- read_excel("export_data_bu.xlsx",sheet="revenue_vat_total_bu")
+Est_Rev_bu<- read_excel("export_data_bu.xlsx",sheet="Est_Rev1_bu")
+effective_vat_rates_bu<- read_excel("export_data_bu.xlsx",sheet="effective_vat_rates_bu")
+hbs_bu<- read_excel("export_data_bu.xlsx",sheet="hbs_bu")
 
 
 # Main result
-Main_Results <- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data.xlsx",sheet="Main_Results")
-Revenue_VAT_TOTAL <- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data.xlsx",sheet="Revenue_VAT_TOTAL")
-Result_Simulation <- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data.xlsx",sheet="Result_Simulation")
-Revenue_VAT_TOTAL <- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data.xlsx",sheet="Revenue_VAT_TOTAL")
-Results_1 <- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data.xlsx",sheet="Results_1")
-Est_Rev1<- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data.xlsx",sheet="Est_Rev1")
-effective_vat_rates<- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data.xlsx",sheet="effective_vat_rates")
-hbs<- read_excel("~/WB/VAT-GAP/3-New Version/0-VAT GAP IN R/DATA/INPUT/export_data.xlsx",sheet="hbs")
+Main_Results <- read_excel("export_data.xlsx",sheet="Main_Results")
+Revenue_VAT_TOTAL <- read_excel("export_data.xlsx",sheet="Revenue_VAT_TOTAL")
+Result_Simulation <- read_excel("export_data.xlsx",sheet="Result_Simulation")
+Revenue_VAT_TOTAL <- read_excel("export_data.xlsx",sheet="Revenue_VAT_TOTAL")
+Results_1 <- read_excel("export_data.xlsx",sheet="Results_1")
+Est_Rev1<- read_excel("export_data.xlsx",sheet="Est_Rev1")
+effective_vat_rates<- read_excel("export_data.xlsx",sheet="effective_vat_rates")
+hbs<- read_excel("export_data.xlsx",sheet="hbs")
 
 color_1 <- "#ba181b"
+
+
 
 # Define fonts
 t <- list(
@@ -81,16 +87,15 @@ t_10 <- list(
 
 # Intro
 
-This dashboard include several type of indicators:
+This dashboard include several types of results:
 
- - Revenues
- - Source of income
- - Kind of income
- - Wages
- - Tax expenditures
- - Income groups
- - Inequality
- - Effective rates etc.
+ - Decomposition of VAT GAP;
+ - Simulation results from reform;
+ - Structure of Non-refundable VAT;
+ - Tax expenditures;
+ - Effective VAT revenues;
+ - Deciles groups household and
+ - COICOP structure household.
 
 
 
@@ -295,7 +300,6 @@ dat_ba<-revenue_vat_total_bu%>%
  dat<-left_join(dat_r,dat_ba,by = c("PRODUCT_INDUSTRY_CODE"))
 
 
-#dat <-as.data.table(PLOT_PLOTLY)
 colnames(dat) <- c('NACE', 'series1', 'series2')
 
 dat$diff<-dat$series1-dat$series2
@@ -319,7 +323,7 @@ plt
 
 
 
-Structure of non-refundable VAT
+Structure of Non-refundable VAT
 =======================================================================
 
 Row {data-height=650}
@@ -460,10 +464,7 @@ valueBox(round(sum(df_plot$Final_Demand_NPISH),0),
 
     df<-melt(df)
 
-    #dat<-dat%>%
-    #   dplyr::mutate(value=round(value/1000000),0)
-    
-    df<-df%>%
+        df<-df%>%
       dplyr::mutate(value=round(value),0)
     
     df$SUT_division<-"NACE Divisions"
@@ -495,11 +496,6 @@ Row
 
 ### VAT revenues from Government
 ```{r,eval=TRUE}
-# df_plot<-Main_Results%>%
-#   dplyr::select(Policy_Gap.Prc)%>%
-#   data.table()
-# colnames(df_plot) <- c('Policy Gap')
-
 df_plot<-Revenue_VAT_TOTAL%>%
   dplyr::select(PRODUCT_INDUSTRY_CODE,Final_Demand_Government)
 
@@ -518,9 +514,6 @@ df<-Revenue_VAT_TOTAL%>%
 
     df<-melt(df)
 
-    #dat<-dat%>%
-    #   dplyr::mutate(value=round(value/1000000),0)
-    
     df<-df%>%
       dplyr::mutate(value=round(value),0)
     
