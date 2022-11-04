@@ -13,3 +13,20 @@ Some of the simulation results based on dummy data are available below
 ![photo](https://github.com/jordans78/VAT-GAP-model/blob/master/DOCUMENTATION/PICS/Capture.PNG?raw=true)
 
 
+
+![photo](https://github.com/jordans78/VAT-GAP-model/blob/master/DOCUMENTATION/PICS/Capture1.PNG?raw=true)
+
+
+
+![photo](https://github.com/jordans78/VAT-GAP-model/blob/master/DOCUMENTATION/PICS/Capture2.PNG?raw=true)
+
+
+
+![photo](https://github.com/jordans78/VAT-GAP-model/blob/master/DOCUMENTATION/PICS/Capture3.PNG?raw=true)
+
+
+
+
+
+
+
