@@ -1576,11 +1576,11 @@ getwd()
                 dplyr::select(number_hh,COICOP_section,VAT_REVENUES_HH,DECILE_THRESHOLD,CENTILE_THRESHOLD)
                           
                 data4_hbs2016_wider_merged_deciles<-data4_hbs2016_long_merged_deciles%>%    
-                pivot_wider(
-                  names_from = COICOP_section,
-                  values_from = c(VAT_REVENUES_HH))%>%
-                  dplyr::mutate(VAT_TOTAL=`01`+`02`+`03`+`04`+`05`+`06`+`07`+`08`+`09`+`10`+`11`+`12`)
-                        
+                      pivot_wider(
+                        names_from = COICOP_section,
+                        values_from = c(VAT_REVENUES_HH))%>%
+                        dplyr::mutate(VAT_TOTAL=`01`+`02`+`03`+`04`+`05`+`06`+`07`+`08`+`09`+`10`+`11`+`12`)
+                              
                  
                         # 
                         # # Final sum of of TOTAL_UNWEIGHTED_SAMPLE in millions denars
