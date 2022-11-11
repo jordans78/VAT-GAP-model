@@ -1,23 +1,80 @@
-#VAT SIMULATOR########################################################################################################################################################
+# VAT SIMULATOR########################################################################################################################################################
 #                                                                                                                                                                    #
 #                                                   VAT GAP SIMULATOR MODEL                                                                                                    #
 #                                                                                                                                                                    #
 #                                                                                                                                                                    #
 #       
 
-                    # 1.INPUT PARAMETERS FOR SIMULATION -----------------------------------------
-                          # 1.1 VAT STANDARD RATES ------------------------------------------------
 rm(list=(ls()))
 
-# Setting path to directory with  data 
+# Setting up path to directory with data 
+
 path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT" #<----Set your path here
 setwd(path)
 getwd()
 
+# Setting up of the VAT MODEL
 
-    '1.CHANGING VAT RATES'          
-                        
-                        ' 
+library(DataEditR)
+library(data.table)
+library(tidyr)
+library(readxl)
+library(dplyr)
+library(reshape2)
+library(rccmisc) 
+
+version_vat_model<-c("VAT_Model_v9.15b.xlsx")
+
+
+                    # 1.INPUT PARAMETERS FOR SIMULATION -----------------------------------------
+
+                    benchmark_tax_rate <- 0.18
+                    RC_prc_of_Constructions_and_construction_works = 0.3
+                    Locked_Calibration_Factor <-0.872971938101163     #0.873014218989503 #0.755207774941413 
+                    standard_VAT_rate = 0.18
+                    preferential_VAT_rate = 0.05
+                    vat_rate_on_residential_construction = 0.05
+                    
+                    TAXABLE_PROPORTION_IMPORT <- read_excel(version_vat_model, sheet = "Simulation", col_names = F)[c(-1,-2,-3),] %>%
+                      data.frame()
+                    
+                    
+                    # This is apply only on share on import 
+                    
+                    TAXABLE_PROPORTION_IMPORT<-TAXABLE_PROPORTION_IMPORT%>%
+                      dplyr::select("...1","...10","...11","...12")%>%
+                      dplyr:: rename(c("PRODUCT_INDUSTRY_CODE"= "...1",
+                                       "Current_Policy_Exempt"="...10",
+                                       "Current_Policy_Reduced_Rate"= "...11",
+                                       "Current_Policy_Fully_Taxable"="...12"))%>%
+                      dplyr::arrange(PRODUCT_INDUSTRY_CODE)
+                    
+                    
+                    TAXABLE_PROPORTION_IMPORT[2:4]<-as.numeric(unlist(TAXABLE_PROPORTION_IMPORT[2:4]))
+                    
+                    # Warning !!! This line only is applied for data for import              
+                    SIMULATION<-TAXABLE_PROPORTION_IMPORT
+                    
+                    SIMULATION$Current_Policy_Exempt[41] = 0 # This is the industry: Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
+                    # The number 41 should be replace by the name of the industry in the future
+                    
+                    SIMULATION$Standard_VAT_Rate = standard_VAT_rate
+                    SIMULATION$Standard_VAT_Rate[41] = 0 # This is the industry: Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
+                    SIMULATION$Preferential_VAT_Rate = preferential_VAT_rate
+                    
+                    SIMULATION$Simulation_Toggles_Exempt = NA
+                    
+                    SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == 85] = 1
+                    SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == 86] = 1
+                    
+                    SIMULATION$Simulation_Toggles_Reduced_Rate = NA
+                    
+                    
+                          # 1.1 Changing simulation parameters------------------------------------------------
+                    
+                    '1.CHANGING VAT RATES'          
+                    
+                    ' 
                         A. Selection of NACE divisions for simulation:
                         
                         For simulation purposes you will be able to choose one of the listed industries :
@@ -31,148 +88,30 @@ getwd()
                               One NACE industry can be selected only once.For example if choose 35 this means that we have selected NACE division 35-Electricity, gas, steam and air-conditioning.)
                         
                         '
-                        Change_Industry_CR_1<-'01'  # <-----Input here 
-                        Change_Industry_CR_2<-'10-12'
-                        Change_Industry_CR_3<-'21'
-                        
-                        Standard_Rate_VAT_1<-0.18
-                        Standard_Rate_VAT_2<-0.18
-                        Standard_Rate_VAT_3<-0.18
-                        
-                        Preferential_Rate_VAT_1<-0.05
-                        Preferential_Rate_VAT_2<-0.05
-                        Preferential_Rate_VAT_3<-0.05
-    
-                        ' 
-                        B.Input taxable proportion for simulation:
-                        
-                        If you enter 1, it means that all goods and services for the selected sector will be 100% exempt from VAT and vice versa 0 (0%)
-                        
-                        For example if choose 0.8 that means that 80% of goods and services will be exempted from VAT)
-                        Hint: Values for a taxable proportion will be activated only after the fulfillment of two conditions. First is a selection of the NACE division and second with entering of value for percentage (e.g. 0.8 means 80%)
-                        
-                        '
-                        Taxable_proportion_ex_industires_1<-1 # <-----Input here
-                        Taxable_proportion_ex_industires_2<-1
-                        Taxable_proportion_ex_industires_3<-1
-    
-                          # 1.2 VAT EXEMPTIONS ------------------------------------------------------
-    
-                        
-                        
-    '2.VAT EXEMPTIONS'          
-                        
-                        ' 
-                        A. Selection of NACE divisions for simulation:
-                        
-                        For simulation purposes you will be able to choose one of the listed industries :
-                        
-                        01,02,03,10-12,13-15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31-32,33,
-                        35,36,37-39,45,46,47,49,50,51,52,53,58,59-60,61,62-63,64,65,66,68A,68B,71,72,
-                        73,74-75,77,78,79,80-82,84,85,86,87-88,90-92,93,94,95,96,B,F,I,T
-                        
-                        Hint: Select one of the divisions of NACE industries and copy-paste to the next code line. 
-                              If the selection is zero, it means that no NACE division is selected and the code will not perform a simulation.
-                              One NACE industry can be selected only once.For example if choose 35 this means that we have selected NACE division 35-Electricity, gas, steam and air-conditioning.)
-                        
-                        '
-                        Exempt_Select_Industry_1<-'0'  # <-----Input here 
-                        Exempt_Select_Industry_2<-'0'
-                        Exempt_Select_Industry_3<-'0'
-                        
-                        
-                        ' 
-                        B.Input taxable proportion for simulation:
-                        
-                        If you enter 1, it means that all goods and services for the selected sector will be 100% exempt from VAT and vice versa 0 (0%)
-                        
-                        For example if choose 0.8 that means that 80% of goods and services will be exempted from VAT)
-                        Hint: Values for a taxable proportion will be activated only after the fulfillment of two conditions. First is a selection of the NACE division and second with entering of value for percentage (e.g. 0.8 means 80%)
-                        
-                        '
-                        Taxable_proportion_ex_industires_1<-1 # <-----Input here
-                        Taxable_proportion_ex_industires_2<-1
-                        Taxable_proportion_ex_industires_3<-1
-                        
-    
-                          # 1.3 VAT REDUCED RATE ---------------------------------------------
-    
-    
-    '3.VAT REDUCED RATE'          
-                        
-                        ' 
-                        A. Selection of NACE divisions for simulation:
-                        
-                        For simulation purposes you will be able to choose one of the listed industries :
-                        
-                        01,02,03,10-12,13-15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31-32,33,
-                        35,36,37-39,45,46,47,49,50,51,52,53,58,59-60,61,62-63,64,65,66,68A,68B,71,72,
-                        73,74-75,77,78,79,80-82,84,85,86,87-88,90-92,93,94,95,96,B,F,I,T
-                        
-                        Hint: Select one of the divisions of NACE industries and copy-paste to the next code line. 
-                              If the selection is zero, it means that no NACE division is selected and the code will not perform a simulation.
-                              One NACE industry can be selected only once.
-                        
-                        '       
-                        Reduced_Rate_Select_Industry_1<-'0' # (e.g For example if choose 35 this means that we have selected NACE division 35-Electricity, gas, steam and air-conditioning.)
-                        Reduced_Rate_Select_Industry_2<-'0'
-                        Reduced_Rate_Select_Industry_3<-'0'
-                        
-                        ' 
-                        B.Input taxable proportion for simulation:
-                        
-                        If you enter 1, it means that all goods and services for the selected sector will be 100% will be taxed with reduced VAT rate and vice versa 0 (0%)
-                        
-                        Hint: Values for a taxable proportion will be activated only after the fulfillment of two conditions. First is a selection of the NACE division and second with entering of value for percentage (e.g. 0.8 means 80%)
-                        
-                        '
-                        Taxable_proportion_reduced_industires_1<-0
-                        Taxable_proportion_reduced_industires_2<-0
-                        Taxable_proportion_reduced_industires_3<-0
-                        
-    
-                          # 1.4 ESTIMATION OF TAX EXPENDITURES ------------------------------------------
-    
-    
-    '4.ESTIMATION OF TAX EXPENDITURES'  
-                        
-                        ' 
-                        
-                        Hint: This function must be This feature should be activated independently without the previously listed features
-                        
-                        '
-    
-    
-                        #ACTIVED_TE<-1
-                        TE_EXEMPT<-0.00
-                        TE_REDUCED_RATE<-0.00
-    
-    
-                          # 1.5 SETTING MODEL PARAMETARS -------------------------------------------
-    
-    
-                                            
-    '5.SETTING MODEL PARAMETARS'                     
-                        benchmark_tax_rate <- 0.18
-                        RC_prc_of_Constructions_and_construction_works = 0.3
-                        Locked_Calibration_Factor <- 0.755207774941413
-                        standard_VAT_rate = 0.18
-                        preferential_VAT_rate = 0.05
-                        vat_rate_on_residential_construction = 0.05
-                       
-    
-                    # 2. LOAD LIBRARIES AND FUNCTIONS ----
+                    
+                    #ACTIVED_TE<-1
+                    TE_EXEMPT<-0.00
+                    TE_REDUCED_RATE<-0.00
                     
                     
+                    # SIMULATION<-SIMULATION %>%
+                    #   mutate(
+                    #     Current_Policy_Exempt = round(Current_Policy_Exempt, 4),
+                    #     Current_Policy_Reduced_Rate = round(Current_Policy_Reduced_Rate, 4),
+                    #     Current_Policy_Fully_Taxable = round(Current_Policy_Fully_Taxable, 4),
+                    #   )
                     
-                    library(data.table)
-                    library(tidyr)
-                    library(readxl)
-                    library(dplyr)
-                    library(reshape2)
-                    library(rccmisc) 
+                    SIMULATION<-data_edit(SIMULATION) 
                     
-
+                        
+                    # 2. Define FUNCTIONS ----
+                    
+                    SIMULATION <- SIMULATION %>%
+                      dplyr::mutate(Simulated_Policy_Exempt = ifelse(is.na(Simulation_Toggles_Exempt), Current_Policy_Exempt, Simulation_Toggles_Exempt),
+                                    Simulated_Policy_Reduced_Rate = ifelse(is.na(Simulation_Toggles_Reduced_Rate), Current_Policy_Reduced_Rate, Simulation_Toggles_Reduced_Rate),
+                                    Simulated_Policy_Fully_Taxable = 1-Simulated_Policy_Exempt-Simulated_Policy_Reduced_Rate)
+                    
+                    
                     
                     # Defining a custom function to extract only English names from SUTs
                     trim <- function (x) gsub("^\\s+|\\s+$", "", x) 
@@ -213,8 +152,7 @@ getwd()
                       return(data)
                       
                     }
-                    
-                    
+                  
                     
                     # 3. RAW DATA IMPORT AND PREPROCESS  ----- 
                     ' 
@@ -230,39 +168,42 @@ getwd()
     
                         # This data are stored in the Excel file  from VAT_Model_v9.15a
                         
-                        SUPPLY <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "Supply", col_names = F)[c(-1,-2,-3,-4),] %>% 
+                        # SUPPLY <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "Supply", col_names = F)[c(-1,-2,-3,-4),] %>%
+                        #   input_output_matrix_to_long_data()
+                        
+                    SUPPLY <- read_excel(version_vat_model, sheet = "Supply", col_names = F)[c(-1,-2,-3,-4),] %>%
+                      input_output_matrix_to_long_data()
+                    
+                        USE_PURCHASER <- read_excel(version_vat_model, sheet = "Use_Purchaser", col_names = F)[c(-1,-2,-3,-4),] %>%
                           input_output_matrix_to_long_data()
                         
-                        USE_PURCHASER <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "Use_Purchaser", col_names = F)[c(-1,-2,-3,-4),] %>%
+                        USE_VAT <- read_excel(version_vat_model, sheet = "Use_VAT", col_names = F)[c(-1,-2,-3,-4),] %>%
                           input_output_matrix_to_long_data()
                         
-                        USE_VAT <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "Use_VAT", col_names = F)[c(-1,-2,-3,-4),] %>%
+                        USE_SUBSIDIES <- read_excel(version_vat_model, sheet = "Use_Subsidies", col_names = F)[c(-1,-2,-3,-4),] %>%
                           input_output_matrix_to_long_data()
                         
-                        USE_SUBSIDIES <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "Use_Subsidies", col_names = F)[c(-1,-2,-3,-4),] %>%
+                        USE_OTHERTAXES <- read_excel(version_vat_model, sheet = "Use_OtherTaxes", col_names = F)[c(-1,-2,-3,-4),] %>%
                           input_output_matrix_to_long_data()
                         
-                        USE_OTHERTAXES <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "Use_OtherTaxes", col_names = F)[c(-1,-2,-3,-4),] %>%
+                        USE_BASIC <- read_excel(version_vat_model, sheet = "Use_Basic", col_names = F)[c(-1,-2,-3,-4),] %>%
                           input_output_matrix_to_long_data()
                         
-                        USE_BASIC <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "Use_Basic", col_names = F)[c(-1,-2,-3,-4),] %>%
-                          input_output_matrix_to_long_data()
-                        
-                        USE_IMPORTS <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "Use_Imports", col_names = F)[c(-1,-2,-3,-4),] %>%
+                        USE_IMPORTS <- read_excel(version_vat_model, sheet = "Use_Imports", col_names = F)[c(-1,-2,-3,-4),] %>%
                           input_output_matrix_to_long_data()
                  
-                        
+                      
 
                           # 3.2 COICOP table ------------------------------------------------------------
 
                         
                         ## Data from COICOP table
                         
-                        VAT_COICOP_NAMES <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "COICOP", col_names = F)[-c(1:2),c(2)]
+                        VAT_COICOP_NAMES <- read_excel(version_vat_model, sheet = "COICOP", col_names = F)[-c(1:2),c(2)]
                         VAT_COICOP_NAMES<-VAT_COICOP_NAMES[1:178,1]
                  
                         
-                        VAT_COICOP_FC <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "COICOP", col_names = F)[-c(1:2),c(4:9)]
+                        VAT_COICOP_FC <- read_excel(version_vat_model, sheet = "COICOP", col_names = F)[-c(1:2),c(4:9)]
                         VAT_COICOP_FC<-VAT_COICOP_FC[1:178,1:6]
                         
                         
@@ -296,7 +237,7 @@ getwd()
                         
                         ## Input raw concordance table
                         
-                        VAT_Concordance <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "Concordance", col_names = T)
+                        VAT_Concordance <- read_excel(version_vat_model, sheet = "Concordance", col_names = T)
                         
                         # Merging table
                         VAT_COICOP_FINAL<-left_join(VAT_COICOP_FINAL_RAW,VAT_Concordance,by = c("COICOP_Descriptions"))
@@ -304,7 +245,7 @@ getwd()
                       
                         # Adjustment of CPA codes with Concordance table
                         
-                        COICOP <- read_excel("VAT_Model_v9.15a.xlsx", sheet = "COICOP", col_names = F)[-c(1,2),-c(1:19)]
+                        COICOP <- read_excel(version_vat_model, sheet = "COICOP", col_names = F)[-c(1,2),-c(1:19)]
                         COICOP[1,1] <- "PRODUCT_INDUSTRY_CODE"
                         COICOP[1,5] <- "Negative"
                         
@@ -322,9 +263,27 @@ getwd()
     
                           # Input structure by CPA and HS
                         
-                        Merged_VAT_data <- read_excel("Merged_VAT_data.xlsx", sheet = "VAT_IMPORT_HS")
+                           Merged_VAT_data <- read_excel("Merged_VAT_data.xlsx", sheet = "VAT_IMPORT_HS")
                         
-                          # 3.4 Concordance table NACE_SUT ----------------------------------
+# Do tuka !!!!! 11/05/2022
+                           # 
+                           # Predefined_scenario<-Merged_VAT_data%>%
+                           #   dplyr::select(cpa_code,mkd_import,simulation_scenarios)%>%
+                           #   dplyr::filter(simulation_scenarios==selected_scenario)%>%
+                           #   dplyr::group_by(cpa_code) %>%
+                           #   dplyr::summarise(Total_import = sum(mkd_import, na.rm = T))
+                           #   
+                             
+                        
+                          # 3.4 Taxable proportion -------------------------------------------
+                          'This table will change taxabile proportion for estimation. Data here are estimated from 
+                           data from import for goods and from data from COICOP for services
+                          '
+                          # ovde
+                          # TAXABLE_PROPORTION_IMPORT <- read_excel(version_vat_model, sheet = "Simulation", col_names = F)[c(-1,-2,-3),] %>%
+                          # data.frame()
+                        
+                          # 3.5 Concordance table NACE_SUT ----------------------------------
     
                         NACE_SUT_table <- read_excel("NACE_SUT_table.xlsx", sheet = "NACE")
                         
@@ -393,33 +352,12 @@ getwd()
                         
                         # View(VAT_STRUCTURE_FINAL)
                         # write.xlsx(as.data.frame(VAT_STRUCTURE_FINAL), file="VAT_STRUCTURE_FINAL.xlsx", sheetName="VAT_STRUCTURE_FINAL",append=TRUE, row.names=FALSE)
-                          # 3.5 HBS  ----------------------------------------
+                          # 3.6 HBS  ----------------------------------------
                         # Import data
                         data4_hbs2016 <- read_excel("HSB/2016/data4_hbs2016.xls")
-                        
                         data3_hbs2016<- read_excel("HSB/2016/data3_hbs2016.xls")
-                        
-                        
-                        
-                        #  Estimation of effective VAT rates by COICOP classification
-                        
-                        # VAT_COICOP_SIMULATION_FINAL1<-VAT_COICOP_SIMULATION%>%
-                        #   group_by(Item) %>%
-                        #   summarize(Consumption=sum(Consumption),TOTAL_VAT_EXISTING=sum(TOTAL_VAT_EXISTING),TOTAL_VAT_SIMULATION=sum(TOTAL_VAT_SIMULATION))
-                        # 
-                        # VAT_COICOP_SIMULATION_FINAL2<-mutate(VAT_COICOP_SIMULATION_FINAL1,
-                        #                                      #Effective_rate=TOTAL_VAT_REVENUE/Consumption
-                        #                                      EFFECTIVE_RATES_EXISTING=round(TOTAL_VAT_EXISTING/Consumption,3),
-                        #                                      EFFECTIVE_RATES_NEW=round(TOTAL_VAT_SIMULATION/Consumption,3))
-                        # #Effective_rate=TOTAL_VAT_REVENUE/Consumption)
-                        # #VAT_COICOP_SIMULATION_FINAL3<-VAT_COICOP_SIMULATION_FINAL2[-1, ]
-                        # VAT_COICOP_SIMULATION_FINAL3<-VAT_COICOP_SIMULATION_FINAL2  #OVA da se proveri dali e tocno 01-08-2020
-                        # #View(VAT_COICOP_SIMULATION_FINAL3)
-                        
+
                         # Setting columns names
-                        
-                       
-                        
                         data4_hbs2016<-data4_hbs2016%>%
                           dplyr::select(-c('kvartal','Year'))
                         
@@ -957,56 +895,109 @@ getwd()
                           COICOP_MERGED$Reduced_Rate_Capped_perc<-pmax(pmin(COICOP_MERGED$Reduced_Rate_Raw_perc,1),0)
                          
                           COICOP_MERGED[is.na(COICOP_MERGED)] <- 0
+                # i OVA
+                          # SIMULATION <- COICOP_MERGED %>%
+                          #   dplyr::select(PRODUCT_INDUSTRY_CODE, Exempt_Capped_perc, Reduced_Rate_Capped_perc) %>%
+                          #   dplyr::mutate(Current_Policy_Fully_Taxable = 1-Exempt_Capped_perc-Reduced_Rate_Capped_perc) %>%
+                          #   dplyr::rename(Current_Policy_Exempt = Exempt_Capped_perc,
+                          #                 Current_Policy_Reduced_Rate = Reduced_Rate_Capped_perc)%>%
+                          #   dplyr::arrange(PRODUCT_INDUSTRY_CODE)
                           
-                          SIMULATION <- COICOP_MERGED %>%
-                            dplyr::select(PRODUCT_INDUSTRY_CODE, Exempt_Capped_perc, Reduced_Rate_Capped_perc) %>%
-                            dplyr::mutate(Current_Policy_Fully_Taxable = 1-Exempt_Capped_perc-Reduced_Rate_Capped_perc) %>%
-                            dplyr::rename(Current_Policy_Exempt = Exempt_Capped_perc,
-                                          Current_Policy_Reduced_Rate = Reduced_Rate_Capped_perc)%>%
-                            dplyr::arrange(PRODUCT_INDUSTRY_CODE)
+# This is apply only on share on import 
+                          # Ovde pa se nadole
                           
-                          
-                          SIMULATION$Current_Policy_Exempt[41] = 0 # This is the industry: Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
-                          # The number 41 should be replace by the name of the industry in the future
-                          
-                          SIMULATION$Standard_VAT_Rate = standard_VAT_rate
-                          SIMULATION$Standard_VAT_Rate[41] = 0 # This is the industry: Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
-                          SIMULATION$Preferential_VAT_Rate = preferential_VAT_rate
-                          
-                          SIMULATION$Simulation_Toggles_Exempt = NA
-                          
-                          SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == 85] = 1
-                          SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == 86] = 1
-                          
-                          SIMULATION$Simulation_Toggles_Reduced_Rate = NA
-    
-    
-                            # 6.1.2 Simulation toggles changing VAT rates and affected industries ------------
-    
-                      # Changing standard VAT rates
-                          SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_1] = Standard_Rate_VAT_1
-                          SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_2] = Standard_Rate_VAT_2
-                          SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_3] = Standard_Rate_VAT_3
-                          
-                          ## Changing preferential VAT rates
-                          SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_1] = Preferential_Rate_VAT_1
-                          SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_2] = Preferential_Rate_VAT_2
-                          SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_3] = Preferential_Rate_VAT_3
-    
-                      # Input Exempted Industries 
-                          SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_1] = Taxable_proportion_ex_industires_1 
-                          SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_2] = Taxable_proportion_ex_industires_2 
-                          SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_3] = Taxable_proportion_ex_industires_3
-                          
-                      # Input Reduced Industries 
-                          SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_1] = Taxable_proportion_reduced_industires_1
-                          SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_2] = Taxable_proportion_reduced_industires_2
-                          SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_3] = Taxable_proportion_reduced_industires_3
-    
-                          SIMULATION <- SIMULATION %>%
-                            dplyr::mutate(Simulated_Policy_Exempt = ifelse(is.na(Simulation_Toggles_Exempt), Current_Policy_Exempt, Simulation_Toggles_Exempt),
-                                          Simulated_Policy_Reduced_Rate = ifelse(is.na(Simulation_Toggles_Reduced_Rate), Current_Policy_Reduced_Rate, Simulation_Toggles_Reduced_Rate),
-                                          Simulated_Policy_Fully_Taxable = 1-Simulated_Policy_Exempt-Simulated_Policy_Reduced_Rate)
+#                           TAXABLE_PROPORTION_IMPORT<-TAXABLE_PROPORTION_IMPORT%>%
+#                             dplyr::select("...1","...10","...11","...12")%>%
+#                             dplyr:: rename(c("PRODUCT_INDUSTRY_CODE"= "...1",
+#                                              "Current_Policy_Exempt"="...10",
+#                                              "Current_Policy_Reduced_Rate"= "...11",
+#                                              "Current_Policy_Fully_Taxable"="...12"))%>%
+#                           dplyr::arrange(PRODUCT_INDUSTRY_CODE)
+# 
+#                           
+#                           TAXABLE_PROPORTION_IMPORT[2:4]<-as.numeric(unlist(TAXABLE_PROPORTION_IMPORT[2:4]))
+#                           
+# # Warning !!! This line only is applied for data for import              
+#                           SIMULATION<-TAXABLE_PROPORTION_IMPORT
+#                           
+#                           SIMULATION$Current_Policy_Exempt[41] = 0 # This is the industry: Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
+#                           # The number 41 should be replace by the name of the industry in the future
+#                           
+#                           SIMULATION$Standard_VAT_Rate = standard_VAT_rate
+#                           SIMULATION$Standard_VAT_Rate[41] = 0 # This is the industry: Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
+#                           SIMULATION$Preferential_VAT_Rate = preferential_VAT_rate
+#                           
+#                           SIMULATION$Simulation_Toggles_Exempt = NA
+#                           
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == 85] = 1
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == 86] = 1
+#                           
+#                           SIMULATION$Simulation_Toggles_Reduced_Rate = NA
+#     
+#     
+#                             # 6.1.2 Simulation toggles changing VAT rates and affected industries ------------
+#     
+#                       # Changing standard VAT rates
+#                           SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_1] = Standard_Rate_VAT_1
+#                           SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_2] = Standard_Rate_VAT_2
+#                           SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_3] = Standard_Rate_VAT_3
+#                           SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_4] = Standard_Rate_VAT_4
+#                           SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_5] = Standard_Rate_VAT_5
+#                           SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_6] = Standard_Rate_VAT_6
+#                           SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_7] = Standard_Rate_VAT_7
+#                           SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_8] = Standard_Rate_VAT_8
+#                           SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_9] = Standard_Rate_VAT_9
+#                           SIMULATION$Standard_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_10] = Standard_Rate_VAT_10
+#                           
+#                           
+#                       # Changing preferential VAT rates
+#                           SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_1] = Preferential_Rate_VAT_1
+#                           SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_2] = Preferential_Rate_VAT_2
+#                           SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_3] = Preferential_Rate_VAT_3
+#                           SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_4] = Preferential_Rate_VAT_4
+#                           SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_5] = Preferential_Rate_VAT_5
+#                           SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_6] = Preferential_Rate_VAT_6
+#                           SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_7] = Preferential_Rate_VAT_7
+#                           SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_8] = Preferential_Rate_VAT_8
+#                           SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_9] = Preferential_Rate_VAT_9
+#                           SIMULATION$Preferential_VAT_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Change_Industry_CR_10] = Preferential_Rate_VAT_10
+#                           
+#                       # Input Exempted Industries 
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_1] = Taxable_proportion_ex_industires_1 
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_2] = Taxable_proportion_ex_industires_2 
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_3] = Taxable_proportion_ex_industires_3
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_4] = Taxable_proportion_ex_industires_4 
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_5] = Taxable_proportion_ex_industires_5 
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_6] = Taxable_proportion_ex_industires_6
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_7] = Taxable_proportion_ex_industires_7
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_8] = Taxable_proportion_ex_industires_8 
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_9] = Taxable_proportion_ex_industires_9
+#                           SIMULATION$Simulation_Toggles_Exempt[SIMULATION$PRODUCT_INDUSTRY_CODE == Exempt_Select_Industry_10] = Taxable_proportion_ex_industires_10
+#                           
+#                           
+#                       # Input Reduced Industries 
+#                           SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_1] = Taxable_proportion_reduced_industires_1
+#                           SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_2] = Taxable_proportion_reduced_industires_2
+#                           SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_3] = Taxable_proportion_reduced_industires_3
+#                           SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_4] = Taxable_proportion_reduced_industires_4
+#                           SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_5] = Taxable_proportion_reduced_industires_5
+#                           SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_6] = Taxable_proportion_reduced_industires_6
+#                           SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_7] = Taxable_proportion_reduced_industires_7
+#                           SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_8] = Taxable_proportion_reduced_industires_8
+#                           SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_9] = Taxable_proportion_reduced_industires_9
+#                           SIMULATION$Simulation_Toggles_Reduced_Rate[SIMULATION$PRODUCT_INDUSTRY_CODE == Reduced_Rate_Select_Industry_10] = Taxable_proportion_reduced_industires_10
+#                           
+#                       # Simulation toggle
+#     
+#  # Data Edit R                         
+#                           
+#                           #SIMULATION<-data_edit(SIMULATION)
+#                           #gc(TRUE)
+#                           
+#                           SIMULATION <- SIMULATION %>%
+#                             dplyr::mutate(Simulated_Policy_Exempt = ifelse(is.na(Simulation_Toggles_Exempt), Current_Policy_Exempt, Simulation_Toggles_Exempt),
+#                                           Simulated_Policy_Reduced_Rate = ifelse(is.na(Simulation_Toggles_Reduced_Rate), Current_Policy_Reduced_Rate, Simulation_Toggles_Reduced_Rate),
+#                                           Simulated_Policy_Fully_Taxable = 1-Simulated_Policy_Exempt-Simulated_Policy_Reduced_Rate)
 
                             # 6.1.3 Estimation of TE part -----------------------------------------------------
     '
@@ -1017,15 +1008,15 @@ getwd()
                           
                           SIMULATION_1 = copy(SIMULATION)
                           
-                          SIMULATION_1$Simulation_Toggles_Reduced_Rate<-TE_EXEMPT
-                          SIMULATION_1$Simulation_Toggles_Exempt<-TE_REDUCED_RATE
-                   
-                          
-                          SIMULATION_1 <- SIMULATION_1 %>%
-                            dplyr::mutate(Simulated_Policy_Exempt = ifelse(is.na(Simulation_Toggles_Exempt), Current_Policy_Exempt, Simulation_Toggles_Exempt),
-                                          Simulated_Policy_Reduced_Rate = ifelse(is.na(Simulation_Toggles_Reduced_Rate), Current_Policy_Reduced_Rate, Simulation_Toggles_Reduced_Rate),
-                                          Simulated_Policy_Fully_Taxable = 1-Simulated_Policy_Exempt-Simulated_Policy_Reduced_Rate)
-                          
+                          # SIMULATION_1$Simulation_Toggles_Reduced_Rate<-TE_EXEMPT
+                          # SIMULATION_1$Simulation_Toggles_Exempt<-TE_REDUCED_RATE
+                          # 
+                          # 
+                          # SIMULATION_1 <- SIMULATION_1 %>%
+                          #   dplyr::mutate(Simulated_Policy_Exempt = ifelse(is.na(Simulation_Toggles_Exempt), Current_Policy_Exempt, Simulation_Toggles_Exempt),
+                          #                 Simulated_Policy_Reduced_Rate = ifelse(is.na(Simulation_Toggles_Reduced_Rate), Current_Policy_Reduced_Rate, Simulation_Toggles_Reduced_Rate),
+                          #                 Simulated_Policy_Fully_Taxable = 1-Simulated_Policy_Exempt-Simulated_Policy_Reduced_Rate)
+                          # 
 
                             # 6.1.4 Estimation of effective VAT RATE ----------------------------------------------------------
                           
@@ -1200,6 +1191,11 @@ getwd()
                             
                             # Note that the variable "Final_Demand_HH" for industry "Constructions and construction works" is caclulated using different formula in the excel document.
                           
+          # Test for calibration factor
+                            
+                            #sum(PRODUCT_INDUSTRY_AGGREGATE$Est_Rev$Final_Demand_Total,na.rm = TRUE)/sum(PRODUCT_INDUSTRY_AGGREGATE$BM_Rev$Final_Demand_Total,na.rm = TRUE)
+                            
+                           
       
                             # 6.4.2 Estimation of TE part ---------------------------------------------------
                             USE_K_DOM_NETPURCH_1 = copy(USE_K_DOM_NETPURCH)
@@ -1300,7 +1296,7 @@ getwd()
                         
                         # Manual input 
                         
-                        Results$VAT_Gap$Policy_Gap.M_of_denars <- 14803  # <------- Manual input in simulation
+                        Results$VAT_Gap$Policy_Gap.M_of_denars <- 24407  # <------- Manual input in simulation
                           
                       
                         
@@ -1310,7 +1306,7 @@ getwd()
                         
                         Results$VAT_Gap$Compliance_Gap.Prc <- Results$VAT_Gap$Compliance_Gap.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars
                         
-                        Results$VAT_Gap$Calibration_Factor <- 0.755207774941413
+                        Results$VAT_Gap$Calibration_Factor <- Locked_Calibration_Factor #0.755207774941413
     
                           
                         
@@ -1347,7 +1343,7 @@ getwd()
                         
                         # Manual input 
                         
-                        Results_1$VAT_Gap$Policy_Gap.M_of_denars <- 14803  # <------- Manual input in simulation
+                        Results_1$VAT_Gap$Policy_Gap.M_of_denars <- 24407  # <------- Manual input in simulation
                        
                         Results_1$VAT_Gap$Policy_Gap.Prc <- Results_1$VAT_Gap$Policy_Gap.M_of_denars/Results_1$VAT_Gap$VAT_Control_Total.M_of_denars
                         
@@ -1356,7 +1352,7 @@ getwd()
                         Results_1$VAT_Gap$Compliance_Gap.Prc <- Results_1$VAT_Gap$Compliance_Gap.M_of_denars/Results_1$VAT_Gap$VAT_Control_Total.M_of_denars
                         
                         
-                        Results_1$VAT_Gap$Calibration_Factor <- 0.755207774941413
+                        Results_1$VAT_Gap$Calibration_Factor <- Locked_Calibration_Factor #0.755207774941413
                         
 
                         # Final output - Change in Revenues
@@ -1367,7 +1363,7 @@ getwd()
                         
                         Results_1$Simulation$Simulated_Change_in_Revenues.Prc <- (Results_1$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results_1$VAT_Gap$VAT_Control_Total.M_of_denars)*100
                         
-                        View(Results_1)
+                        #View(Results_1)
                     
                             # 7.1.3 Estimation of effective VAT RATE------------------------------
 
@@ -1391,7 +1387,7 @@ getwd()
                         
                         # Manual input 
                         
-                        Results_2$VAT_Gap$Policy_Gap.M_of_denars <- 14803  # <------- Manual input in simulation
+                        Results_2$VAT_Gap$Policy_Gap.M_of_denars <- 24407  # <------- Manual input in simulation
                         
                         Results_2$VAT_Gap$Policy_Gap.Prc <- Results_2$VAT_Gap$Policy_Gap.M_of_denars/Results_2$VAT_Gap$VAT_Control_Total.M_of_denars
                         
@@ -1399,7 +1395,7 @@ getwd()
                         
                         Results_2$VAT_Gap$Compliance_Gap.Prc <- Results_2$VAT_Gap$Compliance_Gap.M_of_denars/Results_2$VAT_Gap$VAT_Control_Total.M_of_denars
                         
-                        Results_2$VAT_Gap$Calibration_Factor <- 0.755207774941413
+                        Results_2$VAT_Gap$Calibration_Factor <- Locked_Calibration_Factor #0.755207774941413
                         
                         
                        
@@ -1427,6 +1423,8 @@ getwd()
                         # Result 1
                         
                         Simulation_Results_1<-Results_1$Simulation
+                        Simulation_Results_1_te<-Results_1$VAT_Gap$Policy_Gap.M_of_denars
+                        
                         Est_Rev1<-PRODUCT_INDUSTRY_AGGREGATE_1$Est_Rev
                         
                        
@@ -1484,7 +1482,7 @@ getwd()
         
                               effective_vat_rates<-EFFECTIVE_VAT_RATES
                               
-                              
+                              effective_vat_rates_bu<-effective_vat_rates
                 #View(EFFECTIVE_VAT_RATES_BU)
                 
                   # 9. HSB Analysis ------------------------------------------------------------
@@ -1493,7 +1491,7 @@ getwd()
 
                 These bases come from the SUT table and are distributed by CPA (64 NACE divisions).
                 Because of this, the COICOP structure was first calculated, and then the same percentages were applied to VAT Revenues from CPA. 
-                In the end, revenues were distributed and the sum was the same and effective VAT rate are applied.
+                In the end, effective VAT rates are applied.
                 '
                         Revenue_VAT_TOTAL_HH<-Revenue_VAT_TOTAL%>%
                           dplyr::select(PRODUCT_INDUSTRY_CODE,Final_Demand_HH)
@@ -1582,72 +1580,20 @@ getwd()
                         dplyr::mutate(VAT_TOTAL=`01`+`02`+`03`+`04`+`05`+`06`+`07`+`08`+`09`+`10`+`11`+`12`)
                               
                  
-                        # 
-                        # # Final sum of of TOTAL_UNWEIGHTED_SAMPLE in millions denars
-                        # TOTAL_UNWEIGHTED_SAMPLE<-data.frame(
-                        #   Total_used_assets=round((sum(FINAL_UNWEIGHTED_SAMPLE$USED_ASSETS_BEFORE))/1000000),
-                        #   Total_used_assets1=round((sum(FINAL_UNWEIGHTED_SAMPLE$USED_ASSETS_AFTER))/1000000),
-                        #   Total_VAT=round((sum(FINAL_UNWEIGHTED_SAMPLE$VAT_REVENUE_BEFORE))/1000000),
-                        #   Total_VAT1=round((sum(FINAL_UNWEIGHTED_SAMPLE$VAT_REVENUE_AFTER))/1000000),
-                        #   GINI_USED_ASSETS=round(ineq(FINAL_UNWEIGHTED_SAMPLE$USED_ASSETS_BEFORE,type="Gini",na.rm = TRUE),4),
-                        #   GINI_USED_ASSETS1=round(ineq(FINAL_UNWEIGHTED_SAMPLE$USED_ASSETS_AFTER,type="Gini",na.rm = TRUE),4),
-                        #   GINI_AVAILABLE_ASSET1=round(ineq(FINAL_UNWEIGHTED_SAMPLE$AVAILABLE_ASSET_BEFORE,type="Gini",na.rm = TRUE),4),
-                        #   GINI_AVAILABLE_ASSET2=round(ineq(FINAL_UNWEIGHTED_SAMPLE$AVAILABLE_ASSET_AFTER,type="Gini",na.rm = TRUE),4))
-                        # #View(TOTAL_UNWEIGHTED_SAMPLE)
-                        # 
-                        # # (b)  Weighted_sample
-                        # 
-                        # #4.2 Estimate deciles groups for ploting
-                        # #VAT_BASE_HBS_2016_3= WEIGHTED_SAMPLE OVAA ZAMENA E NAPRAVENA
-                        # #WEIGHTING
-                        # 
-                        # # Merging database
-                        # WEIGHTED_SAMPLE<-inner_join(VAT_BASE_HBS_2016_2,Weight_hbs2016,by = c("number_hh"))
-                        # WEIGHTED_SAMPLE<-WEIGHTED_SAMPLE[,-52:-53]
-                        # 
-                        # # Rounding weights
-                        # WEIGHTED_SAMPLE$weight<-round(WEIGHTED_SAMPLE$weight,0)
-                        # 
-                        # #Expanding database according weights
-                        # WEIGHTED_SAMPLE1<-WEIGHTED_SAMPLE[rep(row.names(WEIGHTED_SAMPLE), WEIGHTED_SAMPLE$weight), 1:53]
-                        # 
-                        # 
-                        # # Final_weighted_sample in accordance with expenditures (not by income)
-                        # deciles_net <- quantile(WEIGHTED_SAMPLE1$USED_ASSETS_BEFORE, seq(1, 10) / 10)
-                        # centile_net<-quantile(WEIGHTED_SAMPLE1$USED_ASSETS_BEFORE, seq(1, 100) / 100)
-                        # FINAL_WEIGHTED_SAMPLE<-mutate(WEIGHTED_SAMPLE1,
-                        #                               #DETERMINE THRESHOLD
-                        #                               DECILE_THRESHOLD=findInterval(USED_ASSETS_BEFORE, c(-Inf, deciles_net), rightmost.closed = TRUE),
-                        #                               CENTILE_THRESHOLD=findInterval(USED_ASSETS_BEFORE, c(-Inf, centile_net), rightmost.closed = TRUE),
-                        #                               DECILE_COUNT =1,
-                        #                               CENTILE_COUNT =1)
-                        # rm(centile_net,deciles_net)
-                        # 
-                        # 
-                        # #  Total weighted table (in millions denars)
-                        # TOTAL_FINAL_WEIGHTED_SAMPLE<-data.frame(
-                        #   Total_used_assets=round((sum(FINAL_WEIGHTED_SAMPLE$USED_ASSETS_BEFORE))/1000000),
-                        #   Total_used_assets1=round((sum(FINAL_WEIGHTED_SAMPLE$USED_ASSETS_AFTER))/1000000),
-                        #   Total_VAT=round((sum(FINAL_WEIGHTED_SAMPLE$VAT_REVENUE_BEFORE))/1000000),
-                        #   Total_VAT1=round((sum(FINAL_WEIGHTED_SAMPLE$VAT_REVENUE_AFTER))/1000000),
-                        #   GINI_USED_ASSETS=round(ineq(FINAL_WEIGHTED_SAMPLE$USED_ASSETS_BEFORE,type="Gini",na.rm = TRUE),4),
-                        #   GINI_USED_ASSETS1=round(ineq(FINAL_WEIGHTED_SAMPLE$USED_ASSETS_AFTER,type="Gini",na.rm = TRUE),4),
-                        #   GINI_AVAILABLE_ASSET1=round(ineq(FINAL_WEIGHTED_SAMPLE$AVAILABLE_ASSET_BEFORE,type="Gini",na.rm = TRUE),4),
-                        #   GINI_AVAILABLE_ASSET2=round(ineq(FINAL_WEIGHTED_SAMPLE$AVAILABLE_ASSET_AFTER,type="Gini",na.rm = TRUE),4))
-                        # #View(TOTAL_FINAL_WEIGHTED_SAMPLE)
-                        # #str(DECILE_FINAL)
-                        # 
+ 
  
                   # 10. EXPORT RESULTS IN EXCEL -----------------------------------------------
                 gc(TRUE)
                   library(xlsx)
-                  # Export data for business as usual. Suffix for business as usual is 'bu'. Results are estimated without any changes in VAT Rates.
-                  # For this data set this estimation is only need to done one time and after that this result can be compared as benchmark
-                  #write.xlsx(as.data.frame(Revenue_VAT_TOTAL), file="export_data_bu.xlsx", sheetName="Revenue_VAT_TOTAL_BA", append=TRUE, row.names=FALSE)
-                  # write.xlsx(as.data.frame(Simulation_Results_1), file="export_data_bu.xlsx", sheetName="Results_1_bu",append=TRUE, row.names=FALSE)
-                  # write.xlsx(as.data.frame(Est_Rev1), file="export_data_bu.xlsx", sheetName="Est_Rev1_bu",append=TRUE, row.names=FALSE)
-                  # write.xlsx(as.data.frame(effective_vat_rates_bu), file="export_data_bu.xlsx", sheetName="effective_vat_rates_bu",append=TRUE, row.names=FALSE)
-                  # write.xlsx(as.data.frame(data4_hbs2016_wider_merged_deciles), file="export_data_bu.xlsx", sheetName="hbs_bu",append=TRUE, row.names=FALSE)
+                  # # Export data for business as usual. Suffix for business as usual is 'bu'. Results are estimated without any changes in VAT Rates.
+                  # # For this data set this estimation is only need to done one time and after that this result can be compared as benchmark
+                  #  write.xlsx(as.data.frame(Simulation_Results_1), file="export_data_bu.xlsx", sheetName="Results_1_bu", row.names=FALSE)
+                  #  write.xlsx(as.data.frame(Est_Rev1), file="export_data_bu.xlsx", sheetName="Est_Rev1_bu",append=TRUE, row.names=FALSE)
+                  #  write.xlsx(as.data.frame(effective_vat_rates_bu), file="export_data_bu.xlsx", sheetName="effective_vat_rates_bu",append=TRUE, row.names=FALSE)
+                  #  write.xlsx(as.data.frame(data4_hbs2016_wider_merged_deciles), file="export_data_bu.xlsx", sheetName="hbs_bu",append=TRUE, row.names=FALSE)
+                  #  write.xlsx(as.data.frame(Revenue_VAT_TOTAL), file="export_data_bu.xlsx", sheetName="revenue_vat_total_bu",append=TRUE, row.names=FALSE)
+                  #  write.xlsx(as.data.frame(Simulation_Results_1_te), file="export_data_bu.xlsx", sheetName="te_bu",append=TRUE, row.names=FALSE)
+
                   
                   # Unweight sample
                   write.xlsx(as.data.frame(Export_Main_Results), file="export_data.xlsx", sheetName="Main_Results", row.names=FALSE)
@@ -1657,5 +1603,7 @@ getwd()
                   write.xlsx(as.data.frame(Est_Rev1), file="export_data.xlsx", sheetName="Est_Rev1",append=TRUE, row.names=FALSE)
                   write.xlsx(as.data.frame(effective_vat_rates), file="export_data.xlsx", sheetName="effective_vat_rates",append=TRUE, row.names=FALSE)
                   write.xlsx(as.data.frame(data4_hbs2016_wider_merged_deciles), file="export_data.xlsx", sheetName="hbs",append=TRUE, row.names=FALSE)
+                  #write.xlsx(as.data.frame(SIMULATION), file="simulation.xlsx", sheetName="hbs",append=TRUE, row.names=FALSE)
+                  
                   
                   
