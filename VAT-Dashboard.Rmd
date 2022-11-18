@@ -15,7 +15,6 @@ library(data.table)
 library(tidyr)
 library(dplyr)
 library(tidyverse)
-library(tidyverse)
 library(knitr)
 library(DT)
 library(rpivotTable)
@@ -27,7 +26,6 @@ library(DataCombine)
 library(viridisLite)
 library(readxl)
 library(reshape2)
-library(DataEditR)
 options(warn=-1)
 library(orca)
 
@@ -1345,62 +1343,7 @@ valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.Prc),2),
 
 ```{r,eval=TRUE}
 
-dat_r<-hbs%>%
-  dplyr::select(DECILE_THRESHOLD,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
-colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
-                              "Alcoholic Beverages Tobacco and Narcotics",
-                              "Clothing and footwear",
-                              "Housing Water,Electricity,Gas and Other Fuels",
-                              "Furnishings Household Equipment etc.",
-                              "Health",
-                              "Transport",
-                              "Communication",
-                              "Recreation and Culture",
-                              "Education",
-                              "Restaurants and Hotels",
-                              "Miscellaneous Goods and Services")
-
-
-dat_r1<-dat_r%>%
-  dplyr::group_by(DECILE_THRESHOLD)%>%
-  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
-                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
-                   `Clothing and footwear` = sum(`Clothing and footwear`),
-                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
-                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
-                   `Health` = sum(`Health`),
-                   `Transport` = sum(`Transport`),
-                   `Communication` = sum(`Communication`),
-                   `Recreation and Culture` = sum(`Recreation and Culture`),
-                   `Education` = sum(`Education`),
-                   `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
-                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
-
-
-
-t_df1<-melt(dat_r1, id.vars = c("DECILE_THRESHOLD"))
-t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
-                                                 "chartreuse","orange","purple", "gold","tomato",
-                                                 "darkturquoise", "forestgreen"))
-
-
-Expenditure_chart <- plot_ly(t_df1, x = ~DECILE_THRESHOLD, y = ~value,
-                             type = 'bar',
-                             marker = list(color = ~color), name = ~variable) %>%
-                              layout(
-                                xaxis = list(title = ''
-                                ),
-                                yaxis = list(title = ''),
-                                legend = list(x = 0.01, y = 0.99,font = t_10),
-                                tickfont = list(size = 5),
-                                barmode = 'stack')
-
-
-Expenditure_chart
-
-# 
-# 
-# dat_r<-hbs_bu%>%
+# dat_r<-hbs%>%
 #   dplyr::select(DECILE_THRESHOLD,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
 # colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
 #                               "Alcoholic Beverages Tobacco and Narcotics",
@@ -1439,107 +1382,162 @@ Expenditure_chart
 #                                                  "darkturquoise", "forestgreen"))
 # 
 # 
-# # Expenditure_chart <- plot_ly(t_df1, x = ~DECILE_THRESHOLD, y = ~value,
-# #                              type = 'bar',
-# #                              marker = list(color = ~color), name = ~variable) %>%
-# #   layout(
-# #     xaxis = list(title = ''
-# #     ),
-# #     yaxis = list(title = ''),
-# #     legend = list(x = 0.01, y = 0.99,font = t_10),
-# #     tickfont = list(size = 5),
-# #     barmode = 'stack')
-# 
-# #Expenditure_chart
+# Expenditure_chart <- plot_ly(t_df1, x = ~DECILE_THRESHOLD, y = ~value,
+#                              type = 'bar',
+#                              marker = list(color = ~color), name = ~variable) %>%
+#                               layout(
+#                                 xaxis = list(title = ''
+#                                 ),
+#                                 yaxis = list(title = ''),
+#                                 legend = list(x = 0.01, y = 0.99,font = t_10),
+#                                 tickfont = list(size = 5),
+#                                 barmode = 'stack')
 # 
 # 
-# dat_r<-hbs%>%
-#   dplyr::select(DECILE_THRESHOLD,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
-# colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
-#                               "Alcoholic Beverages Tobacco and Narcotics",
-#                               "Clothing and footwear",
-#                               "Housing Water,Electricity,Gas and Other Fuels",
-#                               "Furnishings Household Equipment etc.",
-#                               "Health",
-#                               "Transport",
-#                               "Communication",
-#                               "Recreation and Culture",
-#                               "Education",
-#                               "Restaurants and Hotels",
-#                               "Miscellaneous Goods and Services")
+# Expenditure_chart
+
 # 
 # 
-# dat_r1<-dat_r%>%
-#   dplyr::group_by(DECILE_THRESHOLD)%>%
-#   dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
-#                    `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
-#                    `Clothing and footwear` = sum(`Clothing and footwear`),
-#                    `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
-#                    `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
-#                    `Health` = sum(`Health`),
-#                    `Transport` = sum(`Transport`),
-#                    `Communication` = sum(`Communication`),
-#                    `Recreation and Culture` = sum(`Recreation and Culture`),
-#                    `Education` = sum(`Education`),
-#                    `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
-#                    `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
-# 
-# 
-# 
-# t_df2<-melt(dat_r1, id.vars = c("DECILE_THRESHOLD"))
-# t_df2$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
-#                                                  "chartreuse","orange","purple", "gold","tomato",
-#                                                  "darkturquoise", "forestgreen"))
-# 
-# #
-# # Expenditure_chart <- plot_ly(t_df2, x = ~DECILE_THRESHOLD, y = ~value,
-# #                              type = 'bar',
-# #                              marker = list(color = ~color), name = ~variable) %>%
-# #   layout(
-# #     xaxis = list(title = ''
-# #     ),
-# #     yaxis = list(title = ''),
-# #     legend = list(x = 0.01, y = 0.99,font = t_10),
-# #     tickfont = list(size = 5),
-# #     barmode = 'stack')
-# #
-# #
-# # Expenditure_chart
-# 
-# #colnames(t_df3)
-# #
-# 
-# t_df3<-left_join(t_df1,t_df2,by = c("variable"))
-# 
-# t_df1<-t_df1%>%
-#   dplyr:: rename(c("variable.x"= "variable",
-#                    "value.x"="value",
-#                    "color.x"="color"
-# 
-#   ))
-# 
-# 
-# 
-# t_df3<-cbind(t_df1,t_df2)
-# 
-# #View(t_df3)
-# #colnames(t_df3)
-# 
-# 
-# 
-# 
-# plt <- plot_ly(t_df3) %>%
-#   add_trace(x = ~DECILE_THRESHOLD, y = ~value.x, type = 'bar',name = 'Before reform',marker = list(color = ~color.x), name = ~variable.x) %>%
-#   add_trace(x = ~DECILE_THRESHOLD, y = ~value, type = 'bar',name = 'After reform', marker = list(color = ~color), name = ~variable) %>%
+dat_r<-hbs_bu%>%
+  dplyr::select(DECILE_THRESHOLD,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
+colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
+                              "Alcoholic Beverages Tobacco and Narcotics",
+                              "Clothing and footwear",
+                              "Housing Water,Electricity,Gas and Other Fuels",
+                              "Furnishings Household Equipment etc.",
+                              "Health",
+                              "Transport",
+                              "Communication",
+                              "Recreation and Culture",
+                              "Education",
+                              "Restaurants and Hotels",
+                              "Miscellaneous Goods and Services")
+
+
+dat_r1<-dat_r%>%
+  dplyr::group_by(DECILE_THRESHOLD)%>%
+  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
+                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
+                   `Clothing and footwear` = sum(`Clothing and footwear`),
+                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
+                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
+                   `Health` = sum(`Health`),
+                   `Transport` = sum(`Transport`),
+                   `Communication` = sum(`Communication`),
+                   `Recreation and Culture` = sum(`Recreation and Culture`),
+                   `Education` = sum(`Education`),
+                   `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
+                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
+
+
+
+t_df1<-melt(dat_r1, id.vars = c("DECILE_THRESHOLD"))
+t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+                                                 "chartreuse","orange","purple", "gold","tomato",
+                                                 "darkturquoise", "forestgreen"))
+
+
+# Expenditure_chart <- plot_ly(t_df1, x = ~DECILE_THRESHOLD, y = ~value,
+#                              type = 'bar',
+#                              marker = list(color = ~color), name = ~variable) %>%
 #   layout(
-#     xaxis = list(title = '',font = t_8),
+#     xaxis = list(title = ''
+#     ),
 #     yaxis = list(title = ''),
 #     legend = list(x = 0.01, y = 0.99,font = t_10),
-#     barmode = 'bar'#,#,font = t_8
-#   )
-# 
-# 
-# plt
+#     tickfont = list(size = 5),
+#     barmode = 'stack')
+
+#Expenditure_chart
+
+
+dat_r<-hbs%>%
+  dplyr::select(DECILE_THRESHOLD,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
+colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
+                              "Alcoholic Beverages Tobacco and Narcotics",
+                              "Clothing and footwear",
+                              "Housing Water,Electricity,Gas and Other Fuels",
+                              "Furnishings Household Equipment etc.",
+                              "Health",
+                              "Transport",
+                              "Communication",
+                              "Recreation and Culture",
+                              "Education",
+                              "Restaurants and Hotels",
+                              "Miscellaneous Goods and Services")
+
+
+dat_r1<-dat_r%>%
+  dplyr::group_by(DECILE_THRESHOLD)%>%
+  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
+                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
+                   `Clothing and footwear` = sum(`Clothing and footwear`),
+                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
+                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
+                   `Health` = sum(`Health`),
+                   `Transport` = sum(`Transport`),
+                   `Communication` = sum(`Communication`),
+                   `Recreation and Culture` = sum(`Recreation and Culture`),
+                   `Education` = sum(`Education`),
+                   `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
+                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
+
+
+
+t_df2<-melt(dat_r1, id.vars = c("DECILE_THRESHOLD"))
+t_df2$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+                                                 "chartreuse","orange","purple", "gold","tomato",
+                                                 "darkturquoise", "forestgreen"))
+
+#
+# Expenditure_chart <- plot_ly(t_df2, x = ~DECILE_THRESHOLD, y = ~value,
+#                              type = 'bar',
+#                              marker = list(color = ~color), name = ~variable) %>%
+#   layout(
+#     xaxis = list(title = ''
+#     ),
+#     yaxis = list(title = ''),
+#     legend = list(x = 0.01, y = 0.99,font = t_10),
+#     tickfont = list(size = 5),
+#     barmode = 'stack')
+#
+#
+# Expenditure_chart
+
+#colnames(t_df3)
+#
+
+t_df3<-left_join(t_df1,t_df2,by = c("variable"))
+
+t_df1<-t_df1%>%
+  dplyr:: rename(c("variable.x"= "variable",
+                   "value.x"="value",
+                   "color.x"="color"
+
+  ))
+
+
+
+t_df3<-cbind(t_df1,t_df2)
+
+#View(t_df3)
+#colnames(t_df3)
+
+
+
+
+plt <- plot_ly(t_df3) %>%
+  add_trace(x = ~DECILE_THRESHOLD, y = ~value.x, type = 'bar',name = 'Before reform',marker = list(color = ~color.x), name = ~variable.x) %>%
+  add_trace(x = ~DECILE_THRESHOLD, y = ~value, type = 'bar',name = 'After reform', marker = list(color = ~color), name = ~variable) %>%
+  layout(
+    xaxis = list(title = '',font = t_8),
+    yaxis = list(title = ''),
+    legend = list(x = 0.01, y = 0.99,font = t_10),
+    barmode = 'bar'#,#,font = t_8
+  )
+
+
+plt
 
 
 ```
