@@ -485,127 +485,7 @@ plt
 
 
 
-Effective VAT rates
-=======================================================================
 
-Row {data-height=850}
------------------------------------------------------------------------
-
-### Fiscal impact of simulation
-```{r,eval=TRUE}
-
-df_plot<-Result_Simulation%>%
-  dplyr::select(Simulated_Change_in_Revenues.M_of_denars)
-
-
-valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.M_of_denars),0),
-         icon="fa-chart-area",
-          color = "blue")
-```
-
-
-
-
-### Effective VAT rates accross NACE division
-
-```{r,eval=TRUE}
-
- dat_r<-effective_vat_rates%>%
-  dplyr::select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL)%>%
-  data.table()
-
-dat_te<-effective_vat_rates_bu%>%
-  dplyr::select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL)%>%
-  data.table()
-
-
- dat<-left_join(dat_r,dat_te,by = c("PRODUCT_INDUSTRY_CODE"))%>%
-   select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL.y,EFFECTIVE_VAT_RATE_TOTAL.x)
-  dat[is.na(dat)] <- 0
-
-colnames(dat) <- c('NACE', 'efective_VAT_bu','efective_VAT_r')
-
-plt <- plot_ly(dat) %>% 
-  add_trace(x = ~NACE, y = ~efective_VAT_bu, type = 'bar', name = 'Before reform') %>% 
-  add_trace(x = ~NACE, y = ~efective_VAT_r, type = 'bar', name = 'After reform') %>% 
-    layout(
-    #     xaxis = #list(title = '',font = t_8)
-    #    tickfont = list(size = 5), 
-    # yaxis = list(title = ''),
-    # legend = list(x = 0.9, y = 0.99),
-    # barmode = 'group'#,#,font = t_8
-      xaxis = list(title = ''#,
-               #  tickfont = list(size = 8) # <<<<<< HERE
-                 ), 
-    yaxis = list(title = ''),
-    legend = list(x = 0.9, y = 0.99),
-    barmode = 'group'
-     )
-
-# plt <- plt%>% layout(
-#                      legend = list(font=list(size = 8),orientation = 'h'))
-
-
-plt
-    
-```
-
-Row
------------------------------------------------------------------------
-
-
-### Percentage change in VAT revenues
-```{r,eval=TRUE}
-
-df_plot<-Result_Simulation%>%
-  dplyr::select(Simulated_Change_in_Revenues.Prc)
-
-
-valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.Prc),2),
-         icon="fa-chart-pie",
-          color = "red")
-```
-
-
-
-###  Effective VAT rates difference (before and after reform)
-
-
-```{r,eval=TRUE}
-
-dat_r<-effective_vat_rates%>%
-  dplyr::select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL)%>%
-  data.table()
-
-dat_te<-effective_vat_rates_bu%>%
-  dplyr::select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL)%>%
-  data.table()
-
-
- dat<-left_join(dat_r,dat_te,by = c("PRODUCT_INDUSTRY_CODE"))%>%
-   select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL.x,EFFECTIVE_VAT_RATE_TOTAL.y)
-  dat[is.na(dat)] <- 0
-
-  dat<-dat%>%
-    dplyr::mutate(diff_effective_rate=EFFECTIVE_VAT_RATE_TOTAL.x-EFFECTIVE_VAT_RATE_TOTAL.y)%>%
-    dplyr::select(PRODUCT_INDUSTRY_CODE,diff_effective_rate)
-  
-colnames(dat) <- c('NACE', 'diff_effective_rate')
-
-plt <- plot_ly(dat) %>% 
-  add_trace(x = ~NACE, y = ~diff_effective_rate, type = 'bar', name = 'Before reform') %>% 
-  #add_trace(x = ~NACE, y = ~efective_VAT_r, type = 'bar', name = 'After reform') %>% 
-    layout(
-       xaxis = list(title = '',font = t_8), 
-    yaxis = list(title = ''),
-    legend = list(x = 0.9, y = 0.99),
-    barmode = 'group'#,#,font = t_8
-     )
-
-
-plt
-                    
-```
 
 
 
@@ -1070,7 +950,127 @@ df<-Revenue_VAT_TOTAL%>%
 
 ```
 
+Effective VAT rates
+=======================================================================
 
+Row {data-height=850}
+-----------------------------------------------------------------------
+
+### Fiscal impact of simulation
+```{r,eval=TRUE}
+
+df_plot<-Result_Simulation%>%
+  dplyr::select(Simulated_Change_in_Revenues.M_of_denars)
+
+
+valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.M_of_denars),0),
+         icon="fa-chart-area",
+          color = "blue")
+```
+
+
+
+
+### Effective VAT rates accross NACE division
+
+```{r,eval=TRUE}
+
+ dat_r<-effective_vat_rates%>%
+  dplyr::select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL)%>%
+  data.table()
+
+dat_te<-effective_vat_rates_bu%>%
+  dplyr::select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL)%>%
+  data.table()
+
+
+ dat<-left_join(dat_r,dat_te,by = c("PRODUCT_INDUSTRY_CODE"))%>%
+   select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL.y,EFFECTIVE_VAT_RATE_TOTAL.x)
+  dat[is.na(dat)] <- 0
+
+colnames(dat) <- c('NACE', 'efective_VAT_bu','efective_VAT_r')
+
+plt <- plot_ly(dat) %>% 
+  add_trace(x = ~NACE, y = ~efective_VAT_bu, type = 'bar', name = 'Before reform') %>% 
+  add_trace(x = ~NACE, y = ~efective_VAT_r, type = 'bar', name = 'After reform') %>% 
+    layout(
+    #     xaxis = #list(title = '',font = t_8)
+    #    tickfont = list(size = 5), 
+    # yaxis = list(title = ''),
+    # legend = list(x = 0.9, y = 0.99),
+    # barmode = 'group'#,#,font = t_8
+      xaxis = list(title = ''#,
+               #  tickfont = list(size = 8) # <<<<<< HERE
+                 ), 
+    yaxis = list(title = ''),
+    legend = list(x = 0.9, y = 0.99),
+    barmode = 'group'
+     )
+
+# plt <- plt%>% layout(
+#                      legend = list(font=list(size = 8),orientation = 'h'))
+
+
+plt
+    
+```
+
+Row
+-----------------------------------------------------------------------
+
+
+### Percentage change in VAT revenues
+```{r,eval=TRUE}
+
+df_plot<-Result_Simulation%>%
+  dplyr::select(Simulated_Change_in_Revenues.Prc)
+
+
+valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.Prc),2),
+         icon="fa-chart-pie",
+          color = "red")
+```
+
+
+
+###  Effective VAT rates difference (before and after reform)
+
+
+```{r,eval=TRUE}
+
+dat_r<-effective_vat_rates%>%
+  dplyr::select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL)%>%
+  data.table()
+
+dat_te<-effective_vat_rates_bu%>%
+  dplyr::select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL)%>%
+  data.table()
+
+
+ dat<-left_join(dat_r,dat_te,by = c("PRODUCT_INDUSTRY_CODE"))%>%
+   select(PRODUCT_INDUSTRY_CODE,EFFECTIVE_VAT_RATE_TOTAL.x,EFFECTIVE_VAT_RATE_TOTAL.y)
+  dat[is.na(dat)] <- 0
+
+  dat<-dat%>%
+    dplyr::mutate(diff_effective_rate=EFFECTIVE_VAT_RATE_TOTAL.x-EFFECTIVE_VAT_RATE_TOTAL.y)%>%
+    dplyr::select(PRODUCT_INDUSTRY_CODE,diff_effective_rate)
+  
+colnames(dat) <- c('NACE', 'diff_effective_rate')
+
+plt <- plot_ly(dat) %>% 
+  add_trace(x = ~NACE, y = ~diff_effective_rate, type = 'bar', name = 'Before reform') %>% 
+  #add_trace(x = ~NACE, y = ~efective_VAT_r, type = 'bar', name = 'After reform') %>% 
+    layout(
+       xaxis = list(title = '',font = t_8), 
+    yaxis = list(title = ''),
+    legend = list(x = 0.9, y = 0.99),
+    barmode = 'group'#,#,font = t_8
+     )
+
+
+plt
+                    
+```
 
 COICOP 
 =======================================================================
