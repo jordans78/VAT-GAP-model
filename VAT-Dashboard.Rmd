@@ -29,11 +29,6 @@ library(reshape2)
 options(warn=-1)
 library(orca)
 
-# R PLOTLY COLORS
-# https://www.w3.org/TR/css-color-3/#svg-color 
-# https://www.angularjswiki.com/fontawesome/finance/
-
-  #rm(list = ls())
 
 path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT"
 setwd(path)
@@ -134,10 +129,6 @@ df<-df%>%
                   "Standard Rate Share (%)"= "Simulated_Policy_Fully_Taxable"
   ))
 
-
-
-
-
 #df$`Reduced Rate Share`<-round(df$`Reduced Rate Share`,4)
 #df$`Standard Rate Share`<-round(df$`Standard Rate Share`,4)
 
@@ -199,16 +190,6 @@ df_plot<-Main_Results%>%
   data.table()
 colnames(df_plot) <- c('Total_VAT_Gap')
 
-# gauge(round((df_plot$Total_VAT_Gap),
-#           digits = 2),
-#             min = 0,
-#             max = 1,
-#            gaugeSectors(success = c(0, 0.15),
-#                          warning = c(0.15, 0.20),
-#                          danger = c(0.3, 1),
-#                          colors = c("green", "yellow", "red")))
-
-
 gg.gauge <- function(pos,breaks=c(0,30,70,100)) {
   require(ggplot2)
   get.poly <- function(a,b,r1=0.5,r2=1.0) {
@@ -247,16 +228,6 @@ df_plot<-Main_Results%>%
   dplyr::select(Policy_Gap.Prc)%>%
   data.table()
 colnames(df_plot) <- c('Policy Gap')
-
-# gauge(round((df_plot$`Policy Gap`),
-#           digits = 2),
-#             min = 0,
-#             max = 1,
-#            gaugeSectors(success = c(0, 0.15),
-#                          warning = c(0.15, 0.20),
-#                          danger = c(0.3, 1),
-#                          colors = c("green", "yellow", "red")))
-
 
 gg.gauge <- function(pos,breaks=c(0,30,70,100)) {
   require(ggplot2)
@@ -332,16 +303,6 @@ df_plot<-Main_Results%>%
   data.table()
 colnames(df_plot) <- c('Compliance VAT Gap')
 
-# gauge(round((df_plot$`Compliance VAT Gap`),
-#             digits = 2),
-#             min = 0,
-#             max = 1,
-#             gaugeSectors(success = c(0, 0.15),
-#                          warning = c(0.15, 0.20),
-#                          danger = c(0.3, 1),
-#                          colors = c("green", "yellow", "red")))
-
-
 gg.gauge <- function(pos,breaks=c(0,30,70,100)) {
   require(ggplot2)
   get.poly <- function(a,b,r1=0.5,r2=1.0) {
@@ -384,17 +345,6 @@ NOMINAL_GDP2019<- 550683
 
 C_EFFICIENCY<-(VAT_COLLECTION2019/(NOMINAL_GDP2019*0.18))
 
-# gauge(round((C_EFFICIENCY),
-#             digits = 2),
-#             min = 0,
-#             max = 1,
-#             gaugeSectors(success = c(0, 0.15),
-#                          warning = c(0.15, 0.20),
-#                          danger = c(0.3, 1),
-#                          colors = c("green", "yellow", "red")))
-
-
-
 gg.gauge <- function(pos,breaks=c(0,30,70,100)) {
   require(ggplot2)
   get.poly <- function(a,b,r1=0.5,r2=1.0) {
@@ -435,9 +385,7 @@ Row {data-height=650}
 ### Total tax expenditures
 ```{r,eval=TRUE}
 
-df_plot<-Simulation_Results_1_te #%>%
-  #dplyr::select(Simulated_Change_in_Revenues.M_of_denars)
-
+df_plot<-Simulation_Results_1_te
 
 valueBox(round(sum(df_plot$Simulation_Results_1_te),0),
          icon="fa-chart-line",
@@ -459,11 +407,9 @@ dat_te<-revenue_vat_total_bu%>%
 
 
  dat<-left_join(dat_r,dat_te,by = c("PRODUCT_INDUSTRY_CODE"))%>%
-   #dplyr::mutate(te=Final_Demand_Total.y-Final_Demand_Total.x)%>%
-   select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total.y,Final_Demand_Total.x)
+    select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total.y,Final_Demand_Total.x)
 
 
-#dat <-as.data.table(PLOT_PLOTLY)
 colnames(dat) <- c('NACE', 'vat_revenue_before','vat_revenue_after')
 
 plt <- plot_ly(dat) %>% 
@@ -473,7 +419,7 @@ plt <- plot_ly(dat) %>%
        xaxis = list(title = '',font = t_8), 
     yaxis = list(title = ''),
     legend = list(x = 0.9, y = 0.99),
-    barmode = 'group'#,#,font = t_8
+    barmode = 'group'
      )
 
 
@@ -488,12 +434,6 @@ Row
 
 ### Percentage change in VAT revenues
 ```{r,eval=TRUE}
-
-# df_plot<-Simulation_Results_1%>%
-#   dplyr::select(Simulated_Change_in_Revenues.Prc)
-# df_plot$Simulation_Results_1_te
-# Main_Results$Calibrated_VAT_Est.M_of_denars
-
 valueBox(round((df_plot$Simulation_Results_1_te/Main_Results$Calibrated_VAT_Est.M_of_denars)*100,2),
          icon="fa-chart-pie",
           color = "red")
@@ -517,8 +457,6 @@ dat_te<-revenue_vat_total_bu%>%
    dplyr::mutate(te=Final_Demand_Total.y-Final_Demand_Total.x)%>%
    select(PRODUCT_INDUSTRY_CODE,te)
 
-
-#dat <-as.data.table(PLOT_PLOTLY)
 colnames(dat) <- c('NACE', 'te')
 
 plt <- plot_ly(dat) %>% 
@@ -583,7 +521,6 @@ plt <- plot_ly(dat) %>%
     yaxis = list(title = ''),
     legend = list(x = 0.9, y = 0.99),
     barmode = 'group'
-    #legend = list(orientation = 'h')
      )
 
 
@@ -631,13 +568,11 @@ dat$diff<-dat$series1-dat$series2
 
 plt <- plot_ly(dat) %>% 
   add_trace(x = ~NACE, y = ~diff, type = 'bar', name = 'Before reform') %>% 
- # add_trace(x = ~NACE, y = ~series1, type = 'bar', name = 'After reform') %>% 
   layout(
        xaxis = list(title = '',font = t_8), 
     yaxis = list(title = ''),
     legend = list(x = 0.9, y = 0.99),
-    barmode = 'group'#,#,font = t_8
-    #legend = list(orientation = 'h')
+    barmode = 'group'
      )
 
 
@@ -645,14 +580,6 @@ plt
 
 
 ```
-
-
-
-
-
-
-
-
 
 
 Industries
@@ -1157,22 +1084,12 @@ plt <- plot_ly(dat) %>%
   add_trace(x = ~NACE, y = ~efective_VAT_bu, type = 'bar', name = 'Before reform') %>% 
   add_trace(x = ~NACE, y = ~efective_VAT_r, type = 'bar', name = 'After reform') %>% 
     layout(
-    #     xaxis = #list(title = '',font = t_8)
-    #    tickfont = list(size = 5), 
-    # yaxis = list(title = ''),
-    # legend = list(x = 0.9, y = 0.99),
-    # barmode = 'group'#,#,font = t_8
-      xaxis = list(title = ''#,
-               #  tickfont = list(size = 8) # <<<<<< HERE
+      xaxis = list(title = ''
                  ), 
     yaxis = list(title = ''),
     legend = list(x = 0.9, y = 0.99),
     barmode = 'group'
      )
-
-# plt <- plt%>% layout(
-#                      legend = list(font=list(size = 8),orientation = 'h'))
-
 
 plt
     
@@ -1222,12 +1139,11 @@ colnames(dat) <- c('NACE', 'diff_effective_rate')
 
 plt <- plot_ly(dat) %>% 
   add_trace(x = ~NACE, y = ~diff_effective_rate, type = 'bar', name = 'Before reform') %>% 
-  #add_trace(x = ~NACE, y = ~efective_VAT_r, type = 'bar', name = 'After reform') %>% 
     layout(
        xaxis = list(title = '',font = t_8), 
     yaxis = list(title = ''),
     legend = list(x = 0.9, y = 0.99),
-    barmode = 'group'#,#,font = t_8
+    barmode = 'group'
      )
 
 
@@ -1259,7 +1175,6 @@ valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.M_of_denars),0),
 ```{r,eval=TRUE}
 
 dat_r<-hbs_bu%>%
-  #dplyr::select(DECILE_THRESHOLD,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
   dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
 colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
                               "Alcoholic Beverages Tobacco and Narcotics",
@@ -1276,7 +1191,6 @@ colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
                               
 
 dat_r1<-dat_r%>%
-  #dplyr::group_by(DECILE_THRESHOLD)%>%
   dplyr::group_by(deciles)%>%
   dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
                    `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
@@ -1293,7 +1207,6 @@ dat_r1<-dat_r%>%
                    
                    
     
-#t_df1<-melt(dat_r1, id.vars = c("DECILE_THRESHOLD"))
 t_df1<-melt(dat_r1, id.vars = c("deciles"))
 t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
                                                  "chartreuse","orange","purple", "gold","tomato",
@@ -1314,12 +1227,7 @@ t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorang
                                 showarrow = F,
                                 xref='paper',
                                 yref='paper'),font = t)
-    # fig <- fig%>% layout(
-    #                  legend = list(font=list(size = 8)))
-                     
-                     
-            
-        
+
     fig
 
 
@@ -1347,7 +1255,6 @@ valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.Prc),2),
 ```{r,eval=TRUE}
 
 dat_r<-hbs%>%
-  #dplyr::select(DECILE_THRESHOLD,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
   dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
 colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
                               "Alcoholic Beverages Tobacco and Narcotics",
@@ -1364,7 +1271,6 @@ colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
                               
 
 dat_r1<-dat_r%>%
-  #dplyr::group_by(DECILE_THRESHOLD)%>%
   dplyr::group_by(deciles)%>%
   dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
                    `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
@@ -1379,9 +1285,7 @@ dat_r1<-dat_r%>%
                    `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
                    `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
                    
-                   
-    
-#t_df1<-melt(dat_r1, id.vars = c("DECILE_THRESHOLD"))
+                 
 t_df1<-melt(dat_r1, id.vars = c("deciles"))
 t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
                                                  "chartreuse","orange","purple", "gold","tomato",
@@ -1434,7 +1338,6 @@ valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.M_of_denars),0),
 
 # Original
 dat_r<-hbs_bu%>%
-  #dplyr::select(DECILE_THRESHOLD,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
   dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
 colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
                               "Alcoholic Beverages Tobacco and Narcotics",
@@ -1451,7 +1354,6 @@ colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
 
 
 dat_r1<-dat_r%>%
-  #dplyr::group_by(DECILE_THRESHOLD)%>%
   dplyr::group_by(deciles)%>%
   dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
                    `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
@@ -1467,15 +1369,11 @@ dat_r1<-dat_r%>%
                    `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
 
 
-
-#t_df1<-melt(dat_r1, id.vars = c("DECILE_THRESHOLD"))
 t_df1<-melt(dat_r1, id.vars = c("deciles"))
 t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
                                                  "chartreuse","orange","purple", "gold","tomato",
                                                  "darkturquoise", "forestgreen"))
 
-
-#Expenditure_chart <- plot_ly(t_df1, x = ~DECILE_THRESHOLD, y = ~value,
 Expenditure_chart <- plot_ly(t_df1, x = ~deciles, y = ~value,
                              type = 'bar',
                              marker = list(color = ~color), name = ~variable) %>%
@@ -1488,11 +1386,6 @@ Expenditure_chart <- plot_ly(t_df1, x = ~deciles, y = ~value,
                                 barmode = 'stack')
 
 Expenditure_chart
-# 
-# 
-
-
-
 
 ```
 
@@ -1516,63 +1409,7 @@ valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.Prc),2),
 
 ```{r,eval=TRUE}
 
-# dat_r<-hbs%>%
-#   dplyr::select(DECILE_THRESHOLD,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
-# colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
-#                               "Alcoholic Beverages Tobacco and Narcotics",
-#                               "Clothing and footwear",
-#                               "Housing Water,Electricity,Gas and Other Fuels",
-#                               "Furnishings Household Equipment etc.",
-#                               "Health",
-#                               "Transport",
-#                               "Communication",
-#                               "Recreation and Culture",
-#                               "Education",
-#                               "Restaurants and Hotels",
-#                               "Miscellaneous Goods and Services")
-# 
-# 
-# dat_r1<-dat_r%>%
-#   dplyr::group_by(DECILE_THRESHOLD)%>%
-#   dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
-#                    `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
-#                    `Clothing and footwear` = sum(`Clothing and footwear`),
-#                    `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
-#                    `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
-#                    `Health` = sum(`Health`),
-#                    `Transport` = sum(`Transport`),
-#                    `Communication` = sum(`Communication`),
-#                    `Recreation and Culture` = sum(`Recreation and Culture`),
-#                    `Education` = sum(`Education`),
-#                    `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
-#                    `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
-# 
-# 
-# 
-# t_df1<-melt(dat_r1, id.vars = c("DECILE_THRESHOLD"))
-# t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
-#                                                  "chartreuse","orange","purple", "gold","tomato",
-#                                                  "darkturquoise", "forestgreen"))
-# 
-# 
-# Expenditure_chart <- plot_ly(t_df1, x = ~DECILE_THRESHOLD, y = ~value,
-#                              type = 'bar',
-#                              marker = list(color = ~color), name = ~variable) %>%
-#                               layout(
-#                                 xaxis = list(title = ''
-#                                 ),
-#                                 yaxis = list(title = ''),
-#                                 legend = list(x = 0.01, y = 0.99,font = t_10),
-#                                 tickfont = list(size = 5),
-#                                 barmode = 'stack')
-# 
-# 
-# Expenditure_chart
-
-# 
-# 
 dat_r<-hbs_bu%>%
-  #dplyr::select(DECILE_THRESHOLD,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
   dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
 colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
                               "Alcoholic Beverages Tobacco and Narcotics",
@@ -1589,7 +1426,6 @@ colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
 
 
 dat_r1<-dat_r%>%
-  #dplyr::group_by(DECILE_THRESHOLD)%>%-
   dplyr::group_by(deciles)%>%
   dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
                    `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
@@ -1605,30 +1441,13 @@ dat_r1<-dat_r%>%
                    `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
 
 
-
-#t_df1<-melt(dat_r1, id.vars = c("DECILE_THRESHOLD"))
 t_df1<-melt(dat_r1, id.vars = c("deciles"))
 t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
                                                  "chartreuse","orange","purple", "gold","tomato",
                                                  "darkturquoise", "forestgreen"))
 
 
-# Expenditure_chart <- plot_ly(t_df1, x = ~DECILE_THRESHOLD, y = ~value,
-#                              type = 'bar',
-#                              marker = list(color = ~color), name = ~variable) %>%
-#   layout(
-#     xaxis = list(title = ''
-#     ),
-#     yaxis = list(title = ''),
-#     legend = list(x = 0.01, y = 0.99,font = t_10),
-#     tickfont = list(size = 5),
-#     barmode = 'stack')
-
-#Expenditure_chart
-
-
 dat_r<-hbs%>%
-  #dplyr::select(DECILE_THRESHOLD,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
   dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
 colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
                               "Alcoholic Beverages Tobacco and Narcotics",
@@ -1645,7 +1464,6 @@ colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
 
 
 dat_r1<-dat_r%>%
-  #dplyr::group_by(DECILE_THRESHOLD)%>%
   dplyr::group_by(deciles)%>%
   dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
                    `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
@@ -1661,30 +1479,11 @@ dat_r1<-dat_r%>%
                    `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
 
 
-
-#t_df2<-melt(dat_r1, id.vars = c("DECILE_THRESHOLD"))
 t_df2<-melt(dat_r1, id.vars = c("deciles"))
 t_df2$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
                                                  "chartreuse","orange","purple", "gold","tomato",
                                                  "darkturquoise", "forestgreen"))
 
-#
-# Expenditure_chart <- plot_ly(t_df2, x = ~DECILE_THRESHOLD, y = ~value,
-#                              type = 'bar',
-#                              marker = list(color = ~color), name = ~variable) %>%
-#   layout(
-#     xaxis = list(title = ''
-#     ),
-#     yaxis = list(title = ''),
-#     legend = list(x = 0.01, y = 0.99,font = t_10),
-#     tickfont = list(size = 5),
-#     barmode = 'stack')
-#
-#
-# Expenditure_chart
-
-#colnames(t_df3)
-#
 
 t_df3<-left_join(t_df1,t_df2,by = c("variable"))
 
@@ -1699,12 +1498,6 @@ t_df1<-t_df1%>%
 
 t_df3<-cbind(t_df1,t_df2)
 
-#View(t_df3)
-#colnames(t_df3)
-
-
-
-
 plt <- plot_ly(t_df3) %>%
   add_trace(x = ~deciles, y = ~value.x, type = 'bar',name = 'Before reform',marker = list(color = ~color.x), name = ~variable.x) %>%
   add_trace(x = ~deciles, y = ~value, type = 'bar',name = 'After reform', marker = list(color = ~color), name = ~variable) %>%
@@ -1712,7 +1505,7 @@ plt <- plot_ly(t_df3) %>%
     xaxis = list(title = '',font = t_8),
     yaxis = list(title = ''),
     legend = list(x = 0.01, y = 0.99,font = t_10),
-    barmode = 'bar'#,#,font = t_8
+    barmode = 'bar'
   )
 
 
