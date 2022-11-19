@@ -20,6 +20,7 @@ library(DataEditR)
 library(data.table)
 library(tidyr)
 library(readxl)
+library(xlsx)
 library(dplyr)
 options(dplyr.summarise.inform = FALSE)
 library(reshape2)
@@ -100,14 +101,11 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
                   
                     SIMULATION<-data_edit(SIMULATION) #<---------- Select lines from begging until this line and press Run
                     
+
+                    source(file=paste(path1,"/Simulation-Module.R",sep=""),local=TRUE)
                     
-                    setwd(path1)
-                    getwd()
-                    
-                    source("Simulation-Module.R")
-                    setwd(path1)
-                    getwd()
-                    source("Export-Module.R")
+
+                    source(file=paste(path1,"/Export-Module.R",sep=""),local=TRUE)
                     
                     # 2. Define FUNCTIONS ----
                     
