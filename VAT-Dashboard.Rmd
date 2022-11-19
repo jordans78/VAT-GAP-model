@@ -59,7 +59,11 @@ effective_vat_rates<-read_excel("export_data.xlsx",sheet="effective_vat_rates")
 hbs<- read_excel("export_data.xlsx",sheet="hbs")
 
 Simulation_Results_1<- read_excel("export_data.xlsx",sheet="Results_1")
-Simulation<- read_excel("simulation.xlsx",sheet="hbs")
+Simulation<- read_excel("simulation.xlsx",sheet="simulation")
+NACE_NAMES<- read_excel("simulation.xlsx",sheet="NACE_NAMES")
+
+
+
 
 
 color_1 <- "#ba181b"
@@ -100,7 +104,53 @@ This dashboard include several types of results:
  - Deciles groups household and
  - COICOP structure household.
 
+Simulation parametars
+=======================================================================
 
+
+Row  {.tabset}
+-----------------------------------------------------------------------
+
+### Simulation parametars
+```{r,eval=TRUE}
+
+df<-Simulation%>%
+  select(PRODUCT_INDUSTRY_CODE,Standard_VAT_Rate,Preferential_VAT_Rate,Simulated_Policy_Exempt,Simulated_Policy_Reduced_Rate,Simulated_Policy_Fully_Taxable)
+
+df<-left_join(NACE_NAMES,df,by = c("PRODUCT_INDUSTRY_CODE"))%>%
+dplyr::arrange(PRODUCT_INDUSTRY_CODE)
+
+
+df<-df%>%
+  dplyr::rename(c("NACE Division"= "PRODUCT_INDUSTRY_CODE",
+                  "Description"= "PRODUCT_INDUSTRY_NAME",
+                    "Standard Rate"="Standard_VAT_Rate",
+                    "Preferential rate"="Preferential_VAT_Rate",
+                    "Exempted Share(%)"="Simulated_Policy_Exempt",
+                  "Reduced Rate Share (%)"= "Simulated_Policy_Reduced_Rate",
+                  "Standard Rate Share (%)"= "Simulated_Policy_Fully_Taxable"
+  ))
+
+
+
+
+df$`Reduced Rate Share (%)`<-round(df$`Reduced Rate Share (%)`,4)
+df$`Standard Rate Share (%)`<-round(df$`Standard Rate Share (%)`,4)
+
+datatable(df,
+          caption = "Simulation parametars",
+          rownames = T,
+          filter = "top",
+         extensions='Buttons',
+          options = list(pageLength = 64,
+
+          dom = 'Blfrtip',
+          buttons=c('copy','csv','excel','print'),
+          lengthMenu = list(c(10,25,50,-1),c(10,25,50,"All"))))
+
+```
+
+### Notes
 
 Decomposition of VAT GAP
 =======================================================================
@@ -371,7 +421,115 @@ gg.gauge(round(C_EFFICIENCY*100,2),breaks=c(0,35,70,100))
 ```
 
 
+Tax expenditures
+=======================================================================
 
+Row {data-height=650}
+-----------------------------------------------------------------------
+
+### Total tax expenditures
+```{r,eval=TRUE}
+
+df_plot<-Simulation_Results_1_te #%>%
+  #dplyr::select(Simulated_Change_in_Revenues.M_of_denars)
+
+
+valueBox(round(sum(df_plot$Simulation_Results_1_te),0),
+         icon="fa-chart-line",
+          color = "blue")
+```
+
+
+### Tax expenditures accross NACE divisions
+
+```{r,eval=TRUE}
+ 
+dat_r<-Est_Rev_bu%>%
+  dplyr::select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total)%>%
+  data.table()
+
+dat_te<-revenue_vat_total_bu%>%
+  dplyr::select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total)%>%
+  data.table()
+
+
+ dat<-left_join(dat_r,dat_te,by = c("PRODUCT_INDUSTRY_CODE"))%>%
+   #dplyr::mutate(te=Final_Demand_Total.y-Final_Demand_Total.x)%>%
+   select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total.y,Final_Demand_Total.x)
+
+
+#dat <-as.data.table(PLOT_PLOTLY)
+colnames(dat) <- c('NACE', 'vat_revenue_before','vat_revenue_after')
+
+plt <- plot_ly(dat) %>% 
+  add_trace(x = ~NACE, y = ~vat_revenue_before, type = 'bar', name = 'With current VAT rates') %>% 
+  add_trace(x = ~NACE, y = ~vat_revenue_after, type = 'bar', name = 'With standard VAT rates') %>% 
+    layout(
+       xaxis = list(title = '',font = t_8), 
+    yaxis = list(title = ''),
+    legend = list(x = 0.9, y = 0.99),
+    barmode = 'group'#,#,font = t_8
+     )
+
+
+plt
+
+
+
+```
+
+Row
+-----------------------------------------------------------------------
+
+### Percentage change in VAT revenues
+```{r,eval=TRUE}
+
+# df_plot<-Simulation_Results_1%>%
+#   dplyr::select(Simulated_Change_in_Revenues.Prc)
+# df_plot$Simulation_Results_1_te
+# Main_Results$Calibrated_VAT_Est.M_of_denars
+
+valueBox(round((df_plot$Simulation_Results_1_te/Main_Results$Calibrated_VAT_Est.M_of_denars)*100,2),
+         icon="fa-chart-pie",
+          color = "red")
+```
+
+
+### Tax expenditures
+
+```{r,eval=TRUE}
+
+dat_r<-Est_Rev_bu%>%
+  dplyr::select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total)%>%
+  data.table()
+
+dat_te<-revenue_vat_total_bu%>%
+  dplyr::select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total)%>%
+  data.table()
+
+
+ dat<-left_join(dat_r,dat_te,by = c("PRODUCT_INDUSTRY_CODE"))%>%
+   dplyr::mutate(te=Final_Demand_Total.y-Final_Demand_Total.x)%>%
+   select(PRODUCT_INDUSTRY_CODE,te)
+
+
+#dat <-as.data.table(PLOT_PLOTLY)
+colnames(dat) <- c('NACE', 'te')
+
+plt <- plot_ly(dat) %>% 
+  add_trace(x = ~NACE, y = ~te, type = 'bar', name = 'Before reform') %>% 
+    layout(
+       xaxis = list(title = '',font = t_8), 
+    yaxis = list(title = ''),
+    legend = list(x = 0.9, y = 0.99),
+    barmode = 'group'#,#,font = t_8
+     )
+
+
+plt
+
+
+```
 
 
 Simulation results
@@ -1535,116 +1693,6 @@ plt <- plot_ly(t_df3) %>%
     legend = list(x = 0.01, y = 0.99,font = t_10),
     barmode = 'bar'#,#,font = t_8
   )
-
-
-plt
-
-
-```
-
-Tax expenditures
-=======================================================================
-
-Row {data-height=650}
------------------------------------------------------------------------
-
-### Total tax expenditures
-```{r,eval=TRUE}
-
-df_plot<-Simulation_Results_1_te #%>%
-  #dplyr::select(Simulated_Change_in_Revenues.M_of_denars)
-
-
-valueBox(round(sum(df_plot$Simulation_Results_1_te),0),
-         icon="fa-chart-line",
-          color = "orangered")
-```
-
-
-### Tax expenditures accross NACE divisions
-
-```{r,eval=TRUE}
- 
-dat_r<-Est_Rev_bu%>%
-  dplyr::select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total)%>%
-  data.table()
-
-dat_te<-revenue_vat_total_bu%>%
-  dplyr::select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total)%>%
-  data.table()
-
-
- dat<-left_join(dat_r,dat_te,by = c("PRODUCT_INDUSTRY_CODE"))%>%
-   #dplyr::mutate(te=Final_Demand_Total.y-Final_Demand_Total.x)%>%
-   select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total.y,Final_Demand_Total.x)
-
-
-#dat <-as.data.table(PLOT_PLOTLY)
-colnames(dat) <- c('NACE', 'vat_revenue_before','vat_revenue_after')
-
-plt <- plot_ly(dat) %>% 
-  add_trace(x = ~NACE, y = ~vat_revenue_before, type = 'bar', name = 'With current VAT rates') %>% 
-  add_trace(x = ~NACE, y = ~vat_revenue_after, type = 'bar', name = 'With standard VAT rates') %>% 
-    layout(
-       xaxis = list(title = '',font = t_8), 
-    yaxis = list(title = ''),
-    legend = list(x = 0.9, y = 0.99),
-    barmode = 'group'#,#,font = t_8
-     )
-
-
-plt
-
-
-
-```
-
-Row
------------------------------------------------------------------------
-
-### Percentage change in VAT revenues
-```{r,eval=TRUE}
-
-# df_plot<-Simulation_Results_1%>%
-#   dplyr::select(Simulated_Change_in_Revenues.Prc)
-# df_plot$Simulation_Results_1_te
-# Main_Results$Calibrated_VAT_Est.M_of_denars
-
-valueBox(round((df_plot$Simulation_Results_1_te/Main_Results$Calibrated_VAT_Est.M_of_denars)*100,2),
-         icon="fa-chart-pie",
-          color = "dodgerblue")
-```
-
-
-### Tax expenditures
-
-```{r,eval=TRUE}
-
-dat_r<-Est_Rev_bu%>%
-  dplyr::select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total)%>%
-  data.table()
-
-dat_te<-revenue_vat_total_bu%>%
-  dplyr::select(PRODUCT_INDUSTRY_CODE,Final_Demand_Total)%>%
-  data.table()
-
-
- dat<-left_join(dat_r,dat_te,by = c("PRODUCT_INDUSTRY_CODE"))%>%
-   dplyr::mutate(te=Final_Demand_Total.y-Final_Demand_Total.x)%>%
-   select(PRODUCT_INDUSTRY_CODE,te)
-
-
-#dat <-as.data.table(PLOT_PLOTLY)
-colnames(dat) <- c('NACE', 'te')
-
-plt <- plot_ly(dat) %>% 
-  add_trace(x = ~NACE, y = ~te, type = 'bar', name = 'Before reform') %>% 
-    layout(
-       xaxis = list(title = '',font = t_8), 
-    yaxis = list(title = ''),
-    legend = list(x = 0.9, y = 0.99),
-    barmode = 'group'#,#,font = t_8
-     )
 
 
 plt
