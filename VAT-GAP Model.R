@@ -20,6 +20,7 @@ library(data.table)
 library(tidyr)
 library(readxl)
 library(dplyr)
+options(dplyr.summarise.inform = FALSE)
 library(reshape2)
 library(rccmisc) 
 
@@ -110,7 +111,17 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
                     
                     
                     
-                    # Defining a custom function to extract only English names from SUTs
+                    #  The function creates an ntile group vector:
+                    qgroup = function(numvec, n, na.rm=TRUE){
+                      qtile = quantile(numvec, probs = seq(0, 1, 1/n), na.rm)  # will pick up the value from the default setting
+                      out = sapply(numvec, function(x) sum(x >= qtile[-(n+1)]))
+                      return(out)
+                    }
+                    
+                    
+                    
+                    
+                    #  to extract only English names from SUTs
                     trim <- function (x) gsub("^\\s+|\\s+$", "", x) 
                     input_output_matrix_to_long_data <- function(matrix){
                       
@@ -1701,7 +1712,7 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
                               effective_vat_rates<-EFFECTIVE_VAT_RATES
                               
                               effective_vat_rates_bu=effective_vat_rates
-                  # 9. HSB Analysis ------------------------------------------------------------
+                  # 9. HBS Analysis ------------------------------------------------------------
                           # 9.1 Applying effective VAT rates with HBS ------------------------------------
                 'In this part, only VAT base from households are used.
 
@@ -1788,47 +1799,62 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
 
                           # 9.2 Merging with HBS Available assets --------------------------------------------------------
 
-                  '
-                  In this section, in order to determine decile groups, it is used avilable assets.
-                  The sample is unweighted.
-                        
-                  '
-
-                  data3_hbs2016<-data3_hbs2016%>%
-                          dplyr:: rename(c(
-                                          "number_hh"="NUMBER_HH"))
-                                      
-                        
-                  AVAILABLE_ASSET<-select(data3_hbs2016,number_hh,V09030)
-                        colnames(AVAILABLE_ASSET)<-c("number_hh", 
-                                                      "AVAILABLE_ASSET_BEFORE")
-                        
-                        
-                  #  Determination of threshold of decile and centiles groups, by used assets
-                        deciles_net <- quantile(AVAILABLE_ASSET$AVAILABLE_ASSET_BEFORE, seq(1, 10) / 10)
-                        centile_net<-quantile(AVAILABLE_ASSET$AVAILABLE_ASSET_BEFORE, seq(1, 100) / 100)
-                        
-                        
-                    # Importing deciles and centiles into FINAL_UNWEIGHTED_SAMPLE
-                        FINAL_UNWEIGHTED_SAMPLE<-mutate(AVAILABLE_ASSET,
-                                                        DECILE_THRESHOLD=findInterval(AVAILABLE_ASSET_BEFORE, c(-Inf, deciles_net), rightmost.closed = TRUE),
-                                                        CENTILE_THRESHOLD=findInterval(AVAILABLE_ASSET_BEFORE, c(-Inf, centile_net), rightmost.closed = TRUE),
-                                                        DECILE_COUNT =1,
-                                                        CENTILE_COUNT =1
-                                                          )
-                        rm(centile_net,deciles_net)
+                  # '
+                  # In this section, in order to determine decile groups, it is used avilable assets.
+                  # The sample is unweighted.
+                  #       
+                  # '
+                  # 
+                  # data3_hbs2016<-data3_hbs2016%>%
+                  #         dplyr:: rename(c(
+                  #                         "number_hh"="NUMBER_HH"))
+                  #                     
+                  #       
+                  # AVAILABLE_ASSET<-select(data3_hbs2016,number_hh,V09030)
+                  #       colnames(AVAILABLE_ASSET)<-c("number_hh", 
+                  #                                     "AVAILABLE_ASSET_BEFORE")
+                  #       
+                  #       
+                  # #  Determination of threshold of decile and centiles groups, by used assets
+                  #       deciles_net <- quantile(AVAILABLE_ASSET$AVAILABLE_ASSET_BEFORE, seq(1, 10) / 10)
+                  #       centile_net<-quantile(AVAILABLE_ASSET$AVAILABLE_ASSET_BEFORE, seq(1, 100) / 100)
+                  #       
+                  #       
+                  #   # Importing deciles and centiles into FINAL_UNWEIGHTED_SAMPLE
+                  #       FINAL_UNWEIGHTED_SAMPLE<-mutate(AVAILABLE_ASSET,  # <--- oVDE DA SE INTERVENIRA
+                  #                                       DECILE_THRESHOLD=findInterval(AVAILABLE_ASSET_BEFORE, c(-Inf, deciles_net), rightmost.closed = TRUE),
+                  #                                       CENTILE_THRESHOLD=findInterval(AVAILABLE_ASSET_BEFORE, c(-Inf, centile_net), rightmost.closed = TRUE),
+                  #                                       DECILE_COUNT =1,
+                  #                                       CENTILE_COUNT =1
+                  #                                         )
+                  #       rm(centile_net,deciles_net)
                         
                         
       #  Merging with other base
-                       
-                data4_hbs2016_long_merged_deciles<-left_join(data4_hbs2016_long_merged,FINAL_UNWEIGHTED_SAMPLE,by = c("number_hh"="number_hh"))%>%
-                dplyr::select(number_hh,COICOP_section,VAT_REVENUES_HH,DECILE_THRESHOLD,CENTILE_THRESHOLD)
+                
+                # Adding new
+                        data4_hbs2016$Consumption_own<-NULL
                           
-                data4_hbs2016_wider_merged_deciles<-data4_hbs2016_long_merged_deciles%>%    
+                        
+                        data4_hbs2016<-data4_hbs2016%>%
+                        dplyr::mutate(total_consumption=`01`+`02`+`03`+`04`+`05`+`06`+`07`+`08`+`09`+`10`+`11`+`12`)
+                  
+                # Adding centiles and deciles groups 
+                FINAL_UNWEIGHTED_SAMPLE<-mutate(data4_hbs2016,
+                                                deciles=qgroup(total_consumption, 10),
+                                                centiles=qgroup(total_consumption, 100),
+                                                )
+                #       
+                               
+                data4_hbs2016_long_merged_deciles<-left_join(data4_hbs2016_long_merged,FINAL_UNWEIGHTED_SAMPLE,by = c("number_hh"="number_hh"))%>%
+                            dplyr::select(number_hh,COICOP_section,VAT_REVENUES_HH,centiles,deciles,total_consumption)
+                          
+                data4_hbs2016_wider_merged_deciles1<-data4_hbs2016_long_merged_deciles%>%    
                       pivot_wider(
                         names_from = COICOP_section,
                         values_from = c(VAT_REVENUES_HH))%>%
-                        dplyr::mutate(VAT_TOTAL=`01`+`02`+`03`+`04`+`05`+`06`+`07`+`08`+`09`+`10`+`11`+`12`)
+                        dplyr::mutate(VAT_TOTAL=`01`+`02`+`03`+`04`+`05`+`06`+`07`+`08`+`09`+`10`+`11`+`12`)%>%
+                        dplyr::select(-c("Consumption_own"))
                               
                  
  
@@ -1838,13 +1864,13 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
                   library(xlsx)
                  # Export data for business as usual. Suffix for business as usual is 'bu'. Results are estimated without any changes in VAT Rates.
                   #For this data set this estimation is only need to done one time and after that this result can be compared as benchmark
-                  # write.xlsx(as.data.frame(Simulation_Results_1), file="export_data_bu.xlsx", sheetName="Results_1_bu", row.names=FALSE)
-                  # write.xlsx(as.data.frame(Est_Rev1), file="export_data_bu.xlsx", sheetName="Est_Rev1_bu",append=TRUE, row.names=FALSE)
-                  # write.xlsx(as.data.frame(effective_vat_rates_bu), file="export_data_bu.xlsx", sheetName="effective_vat_rates_bu",append=TRUE, row.names=FALSE)
-                  # write.xlsx(as.data.frame(data4_hbs2016_wider_merged_deciles), file="export_data_bu.xlsx", sheetName="hbs_bu",append=TRUE, row.names=FALSE)
-                  # write.xlsx(as.data.frame(Revenue_VAT_TOTAL), file="export_data_bu.xlsx", sheetName="revenue_vat_total_bu",append=TRUE, row.names=FALSE)
-                  # write.xlsx(as.data.frame(Simulation_Results_1_te), file="export_data_bu.xlsx", sheetName="te_bu",append=TRUE, row.names=FALSE)
-
+                   # write.xlsx(as.data.frame(Simulation_Results_1), file="export_data_bu.xlsx", sheetName="Results_1_bu", row.names=FALSE)
+                   # write.xlsx(as.data.frame(Est_Rev1), file="export_data_bu.xlsx", sheetName="Est_Rev1_bu",append=TRUE, row.names=FALSE)
+                   # write.xlsx(as.data.frame(effective_vat_rates_bu), file="export_data_bu.xlsx", sheetName="effective_vat_rates_bu",append=TRUE, row.names=FALSE)
+                   # write.xlsx(as.data.frame(data4_hbs2016_wider_merged_deciles1), file="export_data_bu.xlsx", sheetName="hbs_bu",append=TRUE, row.names=FALSE)
+                   # write.xlsx(as.data.frame(Revenue_VAT_TOTAL), file="export_data_bu.xlsx", sheetName="revenue_vat_total_bu",append=TRUE, row.names=FALSE)
+                   # write.xlsx(as.data.frame(Simulation_Results_1_te), file="export_data_bu.xlsx", sheetName="te_bu",append=TRUE, row.names=FALSE)
+                   # 
 
                   # Unweight sample
                   write.xlsx(as.data.frame(Export_Main_Results), file="export_data.xlsx", sheetName="Main_Results", row.names=FALSE)
@@ -1853,7 +1879,7 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
                   write.xlsx(as.data.frame(Simulation_Results_1), file="export_data.xlsx", sheetName="Results_1",append=TRUE, row.names=FALSE)
                   write.xlsx(as.data.frame(Est_Rev1), file="export_data.xlsx", sheetName="Est_Rev1",append=TRUE, row.names=FALSE)
                   write.xlsx(as.data.frame(effective_vat_rates), file="export_data.xlsx", sheetName="effective_vat_rates",append=TRUE, row.names=FALSE)
-                  write.xlsx(as.data.frame(data4_hbs2016_wider_merged_deciles), file="export_data.xlsx", sheetName="hbs",append=TRUE, row.names=FALSE)
+                  write.xlsx(as.data.frame(data4_hbs2016_wider_merged_deciles1), file="export_data.xlsx", sheetName="hbs",append=TRUE, row.names=FALSE)
                   write.xlsx(as.data.frame(SIMULATION), file="simulation.xlsx", sheetName="simulation", row.names=FALSE)
                   write.xlsx(as.data.frame(NACE_NAMES), file="simulation.xlsx", sheetName="NACE_NAMES",append=TRUE, row.names=FALSE)
                   
