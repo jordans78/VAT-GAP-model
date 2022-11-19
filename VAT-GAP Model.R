@@ -9,7 +9,8 @@ rm(list=(ls()))
 
 # Setting up path to directory with data 
 
-path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT" #<----Set your path here
+path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT" #<----Set your path here for data 
+path1<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model" #<----Set your path here for data 
 setwd(path)
 getwd()
 
@@ -96,11 +97,17 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
                     
                     
 
-                    
-                    
+                  
                     SIMULATION<-data_edit(SIMULATION) #<---------- Select lines from begging until this line and press Run
                     
-                    # source("Test.R")
+                    
+                    setwd(path1)
+                    getwd()
+                    
+                    source("Simulation-Module.R")
+                    setwd(path1)
+                    getwd()
+                    source("Export-Module.R")
                     
                     # 2. Define FUNCTIONS ----
                     
@@ -1026,7 +1033,6 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
                             
                             INDUSTRY_AGGREGATE_2$Est.IS$Industry_Share[is.na(INDUSTRY_AGGREGATE_2$Est.IS$Industry_Share)] <- 0
 
-                            # 6.3.5 Estimation of effective VAT RATE 1 -------------------------------------------------------------------
                           # 6.4 Est Rev ----
                             # 6.4.1 Main estimation ----------------------------------------------------
                             EST_REV <- USE_K_DOM_NETPURCH %>% 
@@ -1152,9 +1158,6 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
                                                                                            PRODUCT_INDUSTRY_AGGREGATE_2$Est_Rev$Final_Demand_NPISH, 
                                                                                            PRODUCT_INDUSTRY_AGGREGATE_2$Est_Rev$Final_Demand_Government, na.rm = T) 
                            
-                            
-                            # 6.4.4 Estimation of effective VAT RATE 1----------------------------------
-                            
                             
                    # 7. SIMULATION RESULTS ----  
                             # 7.1.1 Main estimation --------------------------------------------------
