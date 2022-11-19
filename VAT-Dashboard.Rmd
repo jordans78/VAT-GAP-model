@@ -126,16 +126,27 @@ df<-df%>%
                   "Description"= "PRODUCT_INDUSTRY_NAME",
                     "Standard Rate"="Standard_VAT_Rate",
                     "Preferential rate"="Preferential_VAT_Rate",
+<<<<<<< HEAD
                     "Exempted Share"="Simulated_Policy_Exempt",
                   "Reduced Rate Share"= "Simulated_Policy_Reduced_Rate",
                   "Standard Rate Share"= "Simulated_Policy_Fully_Taxable"
+=======
+                    "Exempted Share(%)"="Simulated_Policy_Exempt",
+                  "Reduced Rate Share (%)"= "Simulated_Policy_Reduced_Rate",
+                  "Standard Rate Share (%)"= "Simulated_Policy_Fully_Taxable"
+>>>>>>> c5c9091fedddd91e30e9a255d682739a267d618e
   ))
 
 
 
 
+<<<<<<< HEAD
 df$`Reduced Rate Share`<-round(df$`Reduced Rate Share`,4)
 df$`Standard Rate Share`<-round(df$`Standard Rate Share`,4)
+=======
+df$`Reduced Rate Share (%)`<-round(df$`Reduced Rate Share (%)`,4)
+df$`Standard Rate Share (%)`<-round(df$`Standard Rate Share (%)`,4)
+>>>>>>> c5c9091fedddd91e30e9a255d682739a267d618e
 
 datatable(df,
           caption = "Simulation parametars",
@@ -1716,4 +1727,8 @@ plt
 
 ```
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c5c9091fedddd91e30e9a255d682739a267d618e
 
