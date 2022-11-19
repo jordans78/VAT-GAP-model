@@ -124,29 +124,23 @@ dplyr::arrange(PRODUCT_INDUSTRY_CODE)
 df<-df%>%
   dplyr::rename(c("NACE Division"= "PRODUCT_INDUSTRY_CODE",
                   "Description"= "PRODUCT_INDUSTRY_NAME",
-                    "Standard Rate"="Standard_VAT_Rate",
-                    "Preferential rate"="Preferential_VAT_Rate",
-<<<<<<< HEAD
-                    "Exempted Share"="Simulated_Policy_Exempt",
+                  "Standard Rate"="Standard_VAT_Rate",
+                  "Preferential rate"="Preferential_VAT_Rate",
+                  "Exempted Share"="Simulated_Policy_Exempt",
                   "Reduced Rate Share"= "Simulated_Policy_Reduced_Rate",
-                  "Standard Rate Share"= "Simulated_Policy_Fully_Taxable"
-=======
-                    "Exempted Share(%)"="Simulated_Policy_Exempt",
+                  "Standard Rate Share"= "Simulated_Policy_Fully_Taxable",
+                  "Exempted Share(%)"="Simulated_Policy_Exempt",
                   "Reduced Rate Share (%)"= "Simulated_Policy_Reduced_Rate",
                   "Standard Rate Share (%)"= "Simulated_Policy_Fully_Taxable"
->>>>>>> c5c9091fedddd91e30e9a255d682739a267d618e
   ))
 
 
 
 
-<<<<<<< HEAD
-df$`Reduced Rate Share`<-round(df$`Reduced Rate Share`,4)
-df$`Standard Rate Share`<-round(df$`Standard Rate Share`,4)
-=======
-df$`Reduced Rate Share (%)`<-round(df$`Reduced Rate Share (%)`,4)
-df$`Standard Rate Share (%)`<-round(df$`Standard Rate Share (%)`,4)
->>>>>>> c5c9091fedddd91e30e9a255d682739a267d618e
+
+#df$`Reduced Rate Share`<-round(df$`Reduced Rate Share`,4)
+#df$`Standard Rate Share`<-round(df$`Standard Rate Share`,4)
+
 
 datatable(df,
           caption = "Simulation parametars",
@@ -1727,8 +1721,5 @@ plt
 
 ```
 
-<<<<<<< HEAD
-=======
 
->>>>>>> c5c9091fedddd91e30e9a255d682739a267d618e
 
