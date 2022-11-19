@@ -351,12 +351,12 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
                         # write.xlsx(as.data.frame(VAT_STRUCTURE_FINAL), file="VAT_STRUCTURE_FINAL.xlsx", sheetName="VAT_STRUCTURE_FINAL",append=TRUE, row.names=FALSE)
                           # 3.6 HBS  ----------------------------------------
                         # Import data
-                        data4_hbs2016 <- read_excel("HSB/2016/data4_hbs2016.xls")
-                        data3_hbs2016<- read_excel("HSB/2016/data3_hbs2016.xls")
-# 
-#                         data4_hbs2016 <- read_excel("HSB/2016/Data4_hbs2019.xlsx")
-#                         data3_hbs2016<- read_excel("HSB/2016/Data3_hbs2019.xlsx")
-                        
+                         #data4_hbs2016 <- read_excel("HSB/2016/data4_hbs2016.xls")
+                         #data3_hbs2016<- read_excel("HSB/2016/data3_hbs2016.xls")
+ 
+                        data4_hbs2016 <- read_excel("HSB/2016/Data4_hbs2019.xlsx")
+                        data3_hbs2016<- read_excel("HSB/2016/Data3_hbs2019.xlsx")
+
                         # Setting columns names
                         data4_hbs2016<-data4_hbs2016%>%
                           dplyr::select(-c('kvartal','Year'))
@@ -368,19 +368,7 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
                         
                         data4_hbs2016_long<-data4_hbs2016%>%
                           pivot_longer(!number_hh, names_to = "COICOP_section", values_to = "Expenditures")
-                        
-                                            # data4_hbs2016_group<-data4_hbs2016%>%
-                        #   dplyr::group_by(number_hh) %>%
-                        #   dplyr::summarise()
-                        
-                        # Ova da se proveri ne mi e sigurno 28-12-2019
-                        #SO OGLED DEKA STAVKITE SE AGREGATNI ODNOSNO SODRZAT PROIZVODI KOI SE OSLOBODENI ILI SE ODANOCUVAAT SO 5% I 18% VO OVAA KALKULACIJA SE KORISTENI EFEKTIVNI DANOCNI STAPKI.ISTITE SE PRESMETANI 
-                        # SPORED COICOP BAZATA KAKO TRI GODISEN PROSEK (moze se misli samo na struktura)
-                        # CUDIM ? Da se proveri dali e bash tri godisen prosek
-                       
-                        
-              
-                        
+            
                     # 4. AGGREGATE DATA IN LISTS -----
                       
                       PRODUCT_INDUSTRY_AGGREGATE <- as.list(c(1:4))
@@ -1808,7 +1796,7 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
 
                   data3_hbs2016<-data3_hbs2016%>%
                           dplyr:: rename(c(
-                                          "number_hh"="RBR"))
+                                          "number_hh"="NUMBER_HH"))
                                       
                         
                   AVAILABLE_ASSET<-select(data3_hbs2016,number_hh,V09030)
