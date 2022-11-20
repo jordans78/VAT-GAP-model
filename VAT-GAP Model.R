@@ -35,8 +35,6 @@
       library(reshape2)
       library(rccmisc) 
 
-                 
-
         # 1.INPUT PARAMETERS FOR SIMULATION -----------------------------------------
 
                     standard_VAT_rate = 0.18
@@ -95,14 +93,6 @@
                     rmarkdown::render((file=paste(path1,"/VAT-Dashboard.Rmd",sep="")),params=list(args = myarg))
                     
                    # rm(list=(ls()))
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+                 
                     
                     
