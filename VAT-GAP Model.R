@@ -382,6 +382,7 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
                       names(INDUSTRY_AGGREGATE) = c("Supply", "Use_Purchaser", "Use_VAT", "Use_Basic")
                       
                       
+                      
                           # 4.1 Supply matrix -----
                             
                             PRODUCT_INDUSTRY_AGGREGATE$Supply <- SUPPLY %>% 
@@ -1512,8 +1513,7 @@ version_vat_model<-c("VAT_Model_v9.15b.xlsx")
 
                   write.xlsx(as.data.frame(data4_hbs2016_wider_merged_deciles1), file="export_data.xlsx", sheetName="hbs",append=TRUE, row.names=FALSE)
 
-                  #write.xlsx(as.data.frame(data4_hbs2016_wider_merged_deciles), file="export_data.xlsx", sheetName="hbs",append=TRUE, row.names=FALSE)
-   
+              
                   write.xlsx(as.data.frame(SIMULATION), file="simulation.xlsx", sheetName="simulation", row.names=FALSE)
                   write.xlsx(as.data.frame(NACE_NAMES), file="simulation.xlsx", sheetName="NACE_NAMES",append=TRUE, row.names=FALSE)
                   

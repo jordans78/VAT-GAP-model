@@ -58,9 +58,6 @@ Simulation<- read_excel("simulation.xlsx",sheet="simulation")
 NACE_NAMES<- read_excel("simulation.xlsx",sheet="NACE_NAMES")
 
 
-
-
-
 color_1 <- "#ba181b"
 
 
