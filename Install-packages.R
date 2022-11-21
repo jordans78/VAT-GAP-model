@@ -1,13 +1,15 @@
 'Before starting the application, the following command installs the specified libraries. '
 
-
+packageurl <- "https://cran.r-project.org/src/contrib/Archive/rccmisc/rccmisc_0.3.7.tar.gz"
+install.packages(packageurl, repos=NULL, type="source")
 
 
 list.of.packages <- c("DataEditR", "data.table","tidyr","readxl","dplyr","reshape2","rccmisc","xlsx",
                       "flexdashboard","ggplot2","plotly","data.table","tidyverse","knitr","DT","rpivotTable",
-                      "forecast","openintro","highcharter","ggvis","DataCombine","viridisLite","readxl","reshape2","orca")
+                      "forecast","openintro","highcharter","ggvis","DataCombine","viridisLite","readxl","reshape2","orca","sass","vctrs","markdown")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
+
 
 
