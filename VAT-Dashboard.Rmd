@@ -58,6 +58,56 @@ hbs<- read_excel("export_data.xlsx",sheet="hbs")
 Simulation_Results_1<- read_excel("export_data.xlsx",sheet="Results_1")
 Simulation<- read_excel("simulation.xlsx",sheet="simulation")
 NACE_NAMES<- read_excel("simulation.xlsx",sheet="NACE_NAMES")
+VAT_FORECAST<- read_excel("simulation.xlsx",sheet="FINAL_VAT_REVENUES")
+
+
+# Structure of revenues
+
+DATA_PLOT3 <- read_excel("MACRO_FISCAL_INDICATORS.xlsx", 
+                                           sheet = "MediumTermForecast")
+                  
+                  DATA_PLOT3<-DATA_PLOT3[,1:14]
+                  DATA_PLOT3<-data.frame(lapply(DATA_PLOT3,as.integer)) 
+
+FINAL_FORECASTING_PLOTLY<-DATA_PLOT3%>%
+  select(Year,PIT,CIT,VAT_NET,EXCISE,CUSTOMS_DUTIES,SSC)
+
+t_df <- data.frame((FINAL_FORECASTING_PLOTLY[,-1]))
+t_df_pct <- t_df
+t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)] <-t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)]/rowSums(t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)])
+Years<-c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019")
+
+t_df_pct1<-cbind(Years ,t_df_pct)
+t_df_pct1<-t_df_pct1[1:20,]
+t_df_pct1$Years<- factor(t_df_pct1$Years, levels = c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+                                                     "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
+                                                     ))
+t_df_pct1$Years<- factor(t_df_pct1$Years)
+t_df_pct2<-melt(t_df_pct1, id.vars = c("Years"))
+t_df_pct2$color <- factor(t_df_pct2$variable, labels = c("forestgreen", "brown", "orange", "red", "cyan",
+                                                         "royalblue"))
+
+
+t_df_1_1 <- data.frame((FINAL_FORECASTING_PLOTLY[,-1]))
+t_df_1_pct <- t_df_1_1
+Years<-c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
+        )
+
+t_df_1_pct1<-cbind(Years ,t_df_1_pct)
+t_df_1_pct1<-t_df_1_pct1[1:20,]
+t_df_1_pct1$Years<- factor(t_df_1_pct1$Years, levels = c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+                                                         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
+                                                         ))
+t_df_1_pct1$Years<- factor(t_df_1_pct1$Years)
+t_df_1_pct2<-melt(t_df_1_pct1, id.vars = c("Years"))
+t_df_1_pct2$color <- factor(t_df_1_pct2$variable, labels = c("forestgreen", "brown", "orange", "red", "cyan",
+                                                             "royalblue"))
+
+
+
+
 
 
 color_1 <- "#ba181b"
@@ -1896,5 +1946,107 @@ fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform",
     legend = list(x = 0.01, y = 0.99)
   )
 fig
+                       
+```
+
+
+Forecast
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Revenue collection in nominal terms
+
+```{r}
+Compsition_TaxSSC_Revenues <- plot_ly(t_df_1_pct2, x = ~Years, y = ~value,
+                                      type = 'bar',
+                                      marker = list(color = ~color), name = ~variable) %>%
+  layout(title = " ",
+         yaxis = list(title = 'In millions denars'), barmode = 'stack')
+Compsition_TaxSSC_Revenues<-ggplotly(Compsition_TaxSSC_Revenues)
+Compsition_TaxSSC_Revenues <- Compsition_TaxSSC_Revenues %>% layout(legend = list(orientation = 'h'))           
+Compsition_TaxSSC_Revenues          
+
+
+```
+
+### Effective tax rate by housholds expenditures
+
+```{r,eval=TRUE}
+
+VAT_FORECAST_HISTORIC<-VAT_FORECAST%>%
+  dplyr::filter(Year<2020)%>%
+  dplyr::select(Year,Nominal_VAT_NET,share_gdp)
+  
+ VAT_FORECAST_HISTORIC$Nominal_VAT_NET<- (VAT_FORECAST_HISTORIC$Nominal_VAT_NET)*1000000
+                               # FINAL_FORECASTING_PLOTLY<-DATA_PLOT4[1:21,]%>%
+                               #    select(Year,GDP,TAX_SSC_pct)
+                               #    
+                                  
+                                  fig <- plot_ly(VAT_FORECAST_HISTORIC)
+                                  
+                                  fig <- fig %>% add_trace(x = ~Year, y = ~Nominal_VAT_NET, type = 'bar', name = 'GDP',
+                                                           marker = list(color = 'dodgerblue4'))#,
+                                                           #hoverinfo = "text")
+                                                          # text = ~paste(Wind, ' mph'))
+                                fig <- fig %>% add_trace(x = ~Year, y = ~share_gdp*100, type = 'scatter', mode = 'lines', name = 'Share of VAT in GDP', yaxis = 'y2',
+                                                         line = list(color = 'red'))#,
+                                                        # hoverinfo = "text")
+                                                        ## text = ~paste(Temp, '°F'))
+                                fig <- fig %>% layout(title = ' ',
+                                                      xaxis = list(title = ""),
+                                                      yaxis = list(side = 'left', title = 'Millions denars', showgrid = FALSE, zeroline = FALSE),
+                                                      yaxis2 = list(side = 'right', overlaying = "y", title = 'Percentage', showgrid = FALSE, zeroline = FALSE))
+                                #fig <- fig %>% layout(legend = list(x = 0.2, y = 0.95))
+                               # fig <- fig %>% layout(legend = list(orientation = 'h'))
+                                         
+                                   
+fig <- fig %>% layout(legend = list(orientation = 'h')) 
+   
+fig
+
+```
+
+Row
+-----------------------------------------------------------------------
+
+### Structure of tax and SSC
+
+```{r,eval=TRUE}
+ 
+Compsition_TaxSSC_Revenues <- plot_ly(t_df_pct2, x = ~Years, y = ~value,
+                                      type = 'bar',
+                                      marker = list(color = ~color), name = ~variable) %>%
+  layout(title = " ",
+         yaxis = list(title = 'Percentage'), barmode = 'stack')
+Compsition_TaxSSC_Revenues<-ggplotly(Compsition_TaxSSC_Revenues)
+Compsition_TaxSSC_Revenues <- Compsition_TaxSSC_Revenues %>% layout(legend = list(orientation = 'h'))           
+Compsition_TaxSSC_Revenues
+          
+```
+
+
+### Forecast of revenues
+
+```{r,eval=TRUE}
+
+VAT_FORECAST<-VAT_FORECAST%>%
+  dplyr::filter(Year>2018)
+
+VAT_FORECAST$Nominal_VAT_NET<-VAT_FORECAST$Nominal_VAT_NET*1000000
+VAT_FORECAST$New_Simulation_VAT<-VAT_FORECAST$New_Simulation_VAT*1000000
+
+
+fig <- plot_ly(VAT_FORECAST, x = ~Year , y = ~Nominal_VAT_NET, name = "Before reform", type = 'scatter', mode = 'lines',
+               line = list(dash = "solid"))
+fig <- fig %>% add_trace(y = ~New_Simulation_VAT, name = "After reform", line = list(dash = "dash"))%>%
+  layout(
+    xaxis = list(title = 'Years'),
+    yaxis = list(title = 'VAT revenues'),
+    legend = list(x = 0.01, y = 0.99)
+  )
+fig   
+   
                        
 ```

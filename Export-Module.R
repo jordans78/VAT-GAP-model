@@ -28,6 +28,7 @@ write.xlsx(as.data.frame(effective_vat_rates), file="export_data.xlsx", sheetNam
 write.xlsx(as.data.frame(data4_hbs_wider_merged_deciles1), file="export_data.xlsx", sheetName="hbs",append=TRUE, row.names=FALSE)
 write.xlsx(as.data.frame(SIMULATION), file="simulation.xlsx", sheetName="simulation", row.names=FALSE)
 write.xlsx(as.data.frame(NACE_NAMES), file="simulation.xlsx", sheetName="NACE_NAMES",append=TRUE, row.names=FALSE)
+write.xlsx(as.data.frame(FINAL_COMPARISON_VAT_REVENUES), file="simulation.xlsx", sheetName="FINAL_VAT_REVENUES",append=TRUE, row.names=FALSE)
 
 #rm(list=(ls()))
 

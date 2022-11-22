@@ -255,6 +255,9 @@ getwd()
                   data4_hbs_long<-data4_hbs%>%
                     pivot_longer(!number_hh, names_to = "COICOP_section", values_to = "Expenditures")
 
+            # 3.7 MACRO-FISCAL INDICATORS ---------------------------------------------
+                  MACRO_FISCAL_INDICATORS <- read_excel("MACRO_FISCAL_INDICATORS.xlsx")
+                  
         # 4. AGGREGATE DATA IN LISTS -----
 
                   CPA_PRODUCTS <- as.list(c(1:4))
