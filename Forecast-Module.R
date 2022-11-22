@@ -6,16 +6,12 @@
 setwd(path)
 getwd()
 
-# path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT" 
-# setwd(path)
-# getwd()
-# 
+
 
       DS<-Results$Simulation$Simulated_Change_in_Revenues.M_of_denars
       
-      #DS<-10000
-      
-     # MACRO_FISCAL_INDICATORS <- read_excel("MACRO_FISCAL_INDICATORS.xlsx")
+    
+
       
       
       # Adding new column
