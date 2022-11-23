@@ -241,7 +241,7 @@ getwd()
               
             # 3.6 HBS  ----------------------------------------
                   # Import data
-                  data4_hbs <- read_excel("HSB/2016/Data4_hbs2019.xlsx")
+                  data4_hbs <- read_excel("Data4_hbs2019.xlsx")
                   
                   
                   # Setting columns names
