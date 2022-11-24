@@ -2024,7 +2024,7 @@ VAT_FORECAST_HISTORIC<-VAT_FORECAST%>%
                                                             )#,
                                 fig <- fig %>% add_trace(x = ~Year, y = ~share_gdp*100, type = 'scatter', mode = 'lines', name = 'Share of VAT in GDP', yaxis = 'y2',
                                                          #line = list(color = 'red'))#,
-                                                         line = list(dash = "dash")
+                                                         line = list(dash = "dash",width=4)
                                                          
                                                          )
                                 fig <- fig %>% layout(title = ' ',
