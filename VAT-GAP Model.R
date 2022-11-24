@@ -1,8 +1,6 @@
 'VAT-GAP MODEL '          
 
 
-
-                        
       rm(list=(ls()))
 
 # Setting up path to directory with data 
