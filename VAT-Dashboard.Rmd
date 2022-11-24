@@ -32,7 +32,7 @@ library(sm)
 library(ks)
 
 
-#path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT"
+path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT"
 setwd(path)
 getwd()
 
@@ -1851,38 +1851,44 @@ vat_effective_bu<-hbs_bu%>%
   dplyr::select(total_consumption,VAT_TOTAL)%>%
   dplyr::mutate(effective_vat_before_reform=VAT_TOTAL/total_consumption) %>%
   dplyr::filter(total_consumption<=6500000)
- 
-# vat_effective<-hbs%>%
-#   dplyr::select(total_consumption,VAT_TOTAL)%>%
-#   dplyr::mutate(effective_vat_before_reform=VAT_TOTAL/total_consumption) %>%
-#   dplyr::filter(total_consumption<=6500000)
-#  
 
 
+vat_effective<-hbs%>%
+  dplyr::select(total_consumption,VAT_TOTAL)%>%
+  dplyr::mutate(effective_vat_after_reform=VAT_TOTAL/total_consumption) %>%
+  dplyr::filter(total_consumption<=6500000)
+vat_effective$total_consumption<-NULL
 
-fit <- sm.regression(vat_effective_bu$total_consumption, vat_effective_bu$effective_vat_before_reform, display="none")
+vat_effective_hbs<-cbind(vat_effective_bu,vat_effective)%>%
+  select(total_consumption,effective_vat_before_reform,effective_vat_after_reform)
 
-#fit1 <- sm.regression(vat_effective$total_consumption, vat_effective$effective_vat_before_reform, display="none")
 
-fig <- plot_ly(x = ~fit$eval.points, y = ~fit$estimate, name = "Kernel density", type = 'scatter', mode = 'lines',
+fit <- sm.regression(vat_effective_hbs$total_consumption, vat_effective_hbs$effective_vat_before_reform, display="none")
+
+
+fit1 <- sm.regression(vat_effective_hbs$total_consumption, vat_effective_hbs$effective_vat_after_reform, display="none")
+
+data_merged_plot<-data.frame(
+   total_consumption=fit$eval.points,
+   effective_vat_before_reform=fit$estimate,
+   effective_vat_after_reform=fit1$estimate)
+  
+
+
+fig <- plot_ly(data_merged_plot, x = ~total_consumption, y = ~effective_vat_before_reform, name = "Before reform", type = 'scatter', mode = 'lines',
                line = list(dash = "solid"))
+fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash"))%>%
+  layout(
+    xaxis = list(title = 'Expenditures in MKD million'),
+    yaxis = list(title = 'Effective VAT rate %'),
+    legend = list(x = 0.01, y = 0.99)
+  )
 
 
-
-
-
-# fig <- fig %>% add_trace(y = ~vat_effective, name = "After reform", line = list(dash = "dash"))%>%
-#   layout(
-#     xaxis = list(title = 'Centiles'),
-#     yaxis = list(title = 'Effective VAT rate %'),
-#     legend = list(x = 0.01, y = 0.99)
-#   )
-# fig
-
-
-fig <- fig %>% layout(title = ' ',
-                      xaxis = list(title = 'Total expenditures'),
-                      yaxis = list(title = 'Effective tax rate %'))
+# 
+# fig <- fig %>% layout(title = ' ',
+#                       xaxis = list(title = 'Total expenditures'),
+#                       yaxis = list(title = 'Effective tax rate %'))
 
 fig
          
@@ -2010,28 +2016,22 @@ VAT_FORECAST_HISTORIC<-VAT_FORECAST%>%
   dplyr::select(Year,Nominal_VAT_NET,share_gdp)
   
  VAT_FORECAST_HISTORIC$Nominal_VAT_NET<- (VAT_FORECAST_HISTORIC$Nominal_VAT_NET)*1000000
-                               # FINAL_FORECASTING_PLOTLY<-DATA_PLOT4[1:21,]%>%
-                               #    select(Year,GDP,TAX_SSC_pct)
-                               #    
-                                  
+
                                   fig <- plot_ly(VAT_FORECAST_HISTORIC)
                                   
                                   fig <- fig %>% add_trace(x = ~Year, y = ~Nominal_VAT_NET, type = 'bar', name = 'GDP',
-                                                           marker = list(color = 'dodgerblue4'))#,
-                                                           #hoverinfo = "text")
-                                                          # text = ~paste(Wind, ' mph'))
+                                                           marker = list(color = 'dodgerblue4')
+                                                            )#,
                                 fig <- fig %>% add_trace(x = ~Year, y = ~share_gdp*100, type = 'scatter', mode = 'lines', name = 'Share of VAT in GDP', yaxis = 'y2',
-                                                         line = list(color = 'red'))#,
-                                                        # hoverinfo = "text")
-                                                        ## text = ~paste(Temp, '°F'))
+                                                         #line = list(color = 'red'))#,
+                                                         line = list(dash = "dash")
+                                                         
+                                                         )
                                 fig <- fig %>% layout(title = ' ',
                                                       xaxis = list(title = ""),
                                                       yaxis = list(side = 'left', title = 'Millions denars', showgrid = FALSE, zeroline = FALSE),
                                                       yaxis2 = list(side = 'right', overlaying = "y", title = 'Percentage', showgrid = FALSE, zeroline = FALSE))
-                                #fig <- fig %>% layout(legend = list(x = 0.2, y = 0.95))
-                               # fig <- fig %>% layout(legend = list(orientation = 'h'))
-                                         
-                                   
+
 fig <- fig %>% layout(legend = list(orientation = 'h')) 
    
 fig
