@@ -5,8 +5,8 @@
 
 # Setting up path to directory with data 
 
-        path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT" #<----Set your path here for data 
-        path1<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model" #<----Set your path here for the scripts
+      #path<-"C:/Simulation/VAT-GAP-R/Model/DATA/INPUT" #<----Set your path here for data 
+      #path1<-"C:/Simulation/VAT-GAP-R/" #<----Set your path here for the scripts
         setwd(path)
         getwd()
 
