@@ -1880,7 +1880,7 @@ fig <- plot_ly(data_merged_plot, x = ~total_consumption, y = ~effective_vat_befo
 fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash"))%>%
   layout(
     xaxis = list(title = 'Expenditures in MKD million'),
-    yaxis = list(title = 'Effective VAT rate %'),
+    yaxis = list(title = ''),
     legend = list(x = 0.01, y = 0.99)
   )
 
@@ -1926,7 +1926,7 @@ fig <- plot_ly(vat_effective_final, x = ~centiles, y = ~effective_vat_before_ref
 fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash"))%>%
   layout(
     xaxis = list(title = 'Centiles'),
-    yaxis = list(title = 'Effective VAT rate %'),
+    yaxis = list(title = ''),
     legend = list(x = 0.01, y = 0.99)
   )
 fig
@@ -1995,11 +1995,13 @@ Row
 ### Revenue collection in nominal terms
 
 ```{r}
-Compsition_TaxSSC_Revenues <- plot_ly(t_df_1_pct2, x = ~Years, y = ~value,
+Compsition_TaxSSC_Revenues <- plot_ly(t_df_1_pct2, x = ~Years, y = ~value*1000000,
                                       type = 'bar',
                                       marker = list(color = ~color), name = ~variable) %>%
   layout(title = " ",
-         yaxis = list(title = 'In millions denars'), barmode = 'stack')
+         yaxis = list(title = ''), 
+         xaxis = list(title = ''),
+         barmode = 'stack')
 Compsition_TaxSSC_Revenues<-ggplotly(Compsition_TaxSSC_Revenues)
 Compsition_TaxSSC_Revenues <- Compsition_TaxSSC_Revenues %>% layout(legend = list(orientation = 'h'))           
 Compsition_TaxSSC_Revenues          
@@ -2007,7 +2009,7 @@ Compsition_TaxSSC_Revenues
 
 ```
 
-### Effective tax rate by housholds expenditures
+### VAT revenues and VAT revenues as percentage of GDP
 
 ```{r,eval=TRUE}
 
@@ -2020,19 +2022,20 @@ VAT_FORECAST_HISTORIC<-VAT_FORECAST%>%
                                   fig <- plot_ly(VAT_FORECAST_HISTORIC)
                                   
                                   fig <- fig %>% add_trace(x = ~Year, y = ~Nominal_VAT_NET, type = 'bar', name = 'GDP',
-                                                           marker = list(color = 'dodgerblue4')
-                                                            )#,
-                                fig <- fig %>% add_trace(x = ~Year, y = ~share_gdp*100, type = 'scatter', mode = 'lines', name = 'Share of VAT in GDP', yaxis = 'y2',
-                                                         #line = list(color = 'red'))#,
-                                                         line = list(dash = "dash",width=4)
+                                                           marker = list(color = 'royalblue')
+                                                            )
+                                fig <- fig %>% add_trace(x = ~Year, y = ~share_gdp*100, type = 'scatter', mode = 'lines', name = 'Share of VAT in GDP', yaxis = 'y2', marker = list(color = 'red'),
+                                                         line = list(dash = "dash",width=5)
                                                          
                                                          )
                                 fig <- fig %>% layout(title = ' ',
-                                                      xaxis = list(title = ""),
-                                                      yaxis = list(side = 'left', title = 'Millions denars', showgrid = FALSE, zeroline = FALSE),
-                                                      yaxis2 = list(side = 'right', overlaying = "y", title = 'Percentage', showgrid = FALSE, zeroline = FALSE))
+                                                      xaxis = list(title = "",font = t_8),
+                                                      yaxis = list(side = 'left', title = '', font = t_8,showgrid = FALSE, zeroline = FALSE),
+                                                      yaxis2 = list(side = 'right', overlaying = "y", title = '',font = t_8, showgrid = FALSE, zeroline = FALSE))
 
-fig <- fig %>% layout(legend = list(orientation = 'h')) 
+fig <- fig %>% layout(legend = list(x = 0.01, y = 0.99))
+  
+  #legend = list(orientation = 'h')) 
    
 fig
 
@@ -2041,7 +2044,7 @@ fig
 Row
 -----------------------------------------------------------------------
 
-### Structure of tax and SSC
+### Structure of tax and SSC in percentage
 
 ```{r,eval=TRUE}
  
@@ -2049,9 +2052,12 @@ Compsition_TaxSSC_Revenues <- plot_ly(t_df_pct2, x = ~Years, y = ~value,
                                       type = 'bar',
                                       marker = list(color = ~color), name = ~variable) %>%
   layout(title = " ",
-         yaxis = list(title = 'Percentage'), barmode = 'stack')
+         yaxis = list(title = ''), 
+          xaxis = list(title = ''),
+         barmode = 'stack')
 Compsition_TaxSSC_Revenues<-ggplotly(Compsition_TaxSSC_Revenues)
-Compsition_TaxSSC_Revenues <- Compsition_TaxSSC_Revenues %>% layout(legend = list(orientation = 'h'))           
+Compsition_TaxSSC_Revenues <- Compsition_TaxSSC_Revenues %>% layout(legend = list(orientation = 'h'))         
+
 Compsition_TaxSSC_Revenues
           
 ```
