@@ -7,44 +7,59 @@ setwd(path)
 getwd()
 
 
-
+      # Results from main simulation
       DS<-Results$Simulation$Simulated_Change_in_Revenues.M_of_denars
-      
-    
-
-      
-      
-      # Adding new column
+      TE<-Results$VAT_Gap$Policy_Gap.M_of_denars
+          # Adding new column
       MACRO_FISCAL_INDICATORS<-MACRO_FISCAL_INDICATORS%>%
         dplyr::mutate(
-                      Result_Simulation=0
+                      Result_Simulation=0,
+                      TE_Simulation=0
                       )
 
 # Simulation_VAT_NET=Nominal_VAT_NET,
 
         MACRO_FISCAL_INDICATORS[20,4]<-DS
-        
+        MACRO_FISCAL_INDICATORS[20,5]<-TE
         
         MACRO_FISCAL_INDICATORS<-MACRO_FISCAL_INDICATORS%>%
           dplyr::mutate(
-            DS_Share_VAT=Result_Simulation/Nominal_GDP )
+            DS_Share_VAT=Result_Simulation/Nominal_GDP,
+            TE_Share_VAT=TE_Simulation/Nominal_GDP
+            )
           
-        DS_Share_VAT<-MACRO_FISCAL_INDICATORS[20,5]
+        DS_Share_VAT<-MACRO_FISCAL_INDICATORS[20,6]
+        TE_Share_VAT<-MACRO_FISCAL_INDICATORS[20,7]
         
-        
-        MACRO_FISCAL_INDICATORS[21,5]<-DS_Share_VAT$DS_Share_VAT
-        MACRO_FISCAL_INDICATORS[22,5]<-DS_Share_VAT$DS_Share_VAT
+        MACRO_FISCAL_INDICATORS[21,6]<-DS_Share_VAT$DS_Share_VAT
+        MACRO_FISCAL_INDICATORS[22,6]<-DS_Share_VAT$DS_Share_VAT
 
+        MACRO_FISCAL_INDICATORS[21,7]<-TE_Share_VAT$TE_Share_VAT
+        MACRO_FISCAL_INDICATORS[22,7]<-TE_Share_VAT$TE_Share_VAT
+        
+        MACRO_FISCAL_INDICATORS[23,7]<-TE_Share_VAT$TE_Share_VAT
+        MACRO_FISCAL_INDICATORS[24,7]<-TE_Share_VAT$TE_Share_VAT
+        MACRO_FISCAL_INDICATORS[25,7]<-TE_Share_VAT$TE_Share_VAT
+        MACRO_FISCAL_INDICATORS[26,7]<-TE_Share_VAT$TE_Share_VAT
+        MACRO_FISCAL_INDICATORS[27,7]<-TE_Share_VAT$TE_Share_VAT
+        MACRO_FISCAL_INDICATORS[28,7]<-TE_Share_VAT$TE_Share_VAT
+        
         
         MACRO_FISCAL_INDICATORS<-MACRO_FISCAL_INDICATORS%>%
           dplyr::mutate(
             New_VAT=Nominal_GDP*DS_Share_VAT,
             #New_Simulation_VAT=Nominal_VAT_NET-New_VAT)
-            New_Simulation_VAT=Nominal_VAT_NET+New_VAT)
+            New_Simulation_VAT=Nominal_VAT_NET+New_VAT,
+            Tax_expenditures=Nominal_GDP*TE_Share_VAT
+            )
             
-
-    # 1.First calculation     
         
+        MACRO_FISCAL_INDICATORS_TE<-MACRO_FISCAL_INDICATORS%>%
+        dplyr::select(Year,Tax_expenditures)
+
+# 1.First calculation -------------------------------------------------------
+
+
       FINAL_FORECASTING0<-MACRO_FISCAL_INDICATORS%>%
         select(Year,Nominal_GDP,Nominal_VAT_NET)%>%
         arrange(desc(Year))
@@ -118,7 +133,10 @@ getwd()
           
           
           
-          FINAL_COMPARISON_VAT_REVENUES<-inner_join(FINAL_FORECASTING_BU,FINAL_FORECASTING_SIM, by = "Year")
+          FINAL_COMPARISON_VAT_REVENUES_0<-inner_join(FINAL_FORECASTING_BU,FINAL_FORECASTING_SIM, by = "Year")
+          
+          FINAL_COMPARISON_VAT_REVENUES<-left_join(FINAL_COMPARISON_VAT_REVENUES_0,MACRO_FISCAL_INDICATORS_TE, by = "Year")
+          
           
 
           # Estimation of share of GDP
