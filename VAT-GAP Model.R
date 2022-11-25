@@ -1,14 +1,13 @@
 'VAT-GAP MODEL '          
 
 
-      rm(list=(ls()))
+      #rm(list=(ls()))
 
 # Setting up path to directory with data 
-
-      #path<-"C:/Simulation/VAT-GAP-R/Model/DATA/INPUT" #<----Set your path here for data 
-      #path1<-"C:/Simulation/VAT-GAP-R/" #<----Set your path here for the scripts
-        setwd(path)
-        getwd()
+  #path<-"C:/Simulation/VAT-GAP-model/DATA/INPUT" #<----Set your path here for data 
+  #path1<-"C:/Simulation/VAT-GAP-model" #<----Set your path here for the scripts
+  setwd(path)
+  getwd()
 
 # Importing libraries
 
