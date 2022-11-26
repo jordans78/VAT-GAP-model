@@ -1347,6 +1347,9 @@ plt <- plot_ly(dat) %>%
     barmode = 'group'
      )
 
+
+#plt <- plt %>%layout(legend = list(orientation = 'h'))
+
 plt
     
 ```
@@ -1497,9 +1500,26 @@ t_df1$colr <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange
                                                  "chartreuse","orange","purple", "gold","tomato",
                                                  "darkturquoise", "forestgreen"))
 
-t_df1 %>% plot_ly(labels = ~variable, values = ~value, type = "pie", 
-                hole = .6, marker = list(colors = ~colr)) %>% 
-  layout(title = " ")
+t_df1<-plot_ly(data = t_df1, labels = ~variable, values = ~value, type = "pie",
+        marker = list(colors = ~colr), hole = .6) %>% 
+  layout(title = " ",
+         showlegend = T,
+                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                  yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),#)
+          annotations =
+                            list(x = 0, y = -0.1,
+                                 text = "Source: ",
+                                 showarrow = F,
+                                 xref='paper',
+                                 yref='paper'),font = t)
+
+
+
+
+
+
+t_df1
+
 
 
 ```
@@ -1591,10 +1611,24 @@ t_df1$colr <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange
                                                  "chartreuse","orange","purple", "gold","tomato",
                                                  "darkturquoise", "forestgreen"))
 
-plot_ly(data = t_df1, labels = ~variable, values = ~value, type = "pie",
+t_df1<-plot_ly(data = t_df1, labels = ~variable, values = ~value, type = "pie",
         marker = list(colors = ~colr), hole = .6) %>% 
-  layout(title = " ")
+  layout(title = " ",
+         showlegend = T,
+                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                  yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),#)
+          annotations =
+                            list(x = 0, y = -0.1,
+                                 text = "Source: ",
+                                 showarrow = F,
+                                 xref='paper',
+                                 yref='paper'),font = t)
 
+         
+         
+
+
+t_df1
 
 ```
 
@@ -1978,7 +2012,7 @@ plt <- plot_ly(vat_effective_final) %>%
   add_trace(x = ~deciles, y = ~effective_vat_after_reform, type = 'bar', name = 'With standard VAT rates') %>% 
     layout(
        xaxis = list(title = 'Deciles',font = t_8), 
-    yaxis = list(title = 'Effective VAT rate %'),
+    yaxis = list(title = ''),
     legend = list(x = 0.01, y = 0.99),
     barmode = 'group'
      )
