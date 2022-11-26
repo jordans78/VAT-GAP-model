@@ -2270,7 +2270,7 @@ plt
 Row
 -----------------------------------------------------------------------
 
-### Effective VAT rate by centiles groups
+### Discretionary tax measures
 
 ```{r,eval=TRUE}
  
