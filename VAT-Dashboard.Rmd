@@ -30,6 +30,7 @@ options(warn=-1)
 library(orca)
 library(sm)
 library(ks)
+library(plyr)
 
 
 path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT"
@@ -1485,7 +1486,16 @@ t_df1<-melt(dat_r1, id.vars = c("deciles"))
     # 
     # fig
 
-t_df1$colr <- gradient("viridis", steps = 120)
+#t_df1$colr <- gradient("viridis", steps = 120)
+
+# t_df1$colr <- gradient(c("royalblue", "cyan", "darkorange", "red", "brown",
+#   "chartreuse","orange","purple", "gold","tomato",
+#   "darkturquoise", "forestgreen"),steps = 120)
+
+
+t_df1$colr <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+                                                 "chartreuse","orange","purple", "gold","tomato",
+                                                 "darkturquoise", "forestgreen"))
 
 t_df1 %>% plot_ly(labels = ~variable, values = ~value, type = "pie", 
                 hole = .6, marker = list(colors = ~colr)) %>% 
@@ -1571,7 +1581,15 @@ t_df1<-melt(dat_r1, id.vars = c("deciles"))
 #     fig
 
 
-t_df1$colr <- gradient("viridis", steps = 120)
+#t_df1$colr <- gradient("viridis", steps = 120)
+
+# t_df1$colr <- gradient(c("royalblue", "cyan", "darkorange", "red", "brown",
+#   "chartreuse","orange","purple", "gold","tomato",
+#   "darkturquoise", "forestgreen"),steps = 120)
+
+t_df1$colr <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+                                                 "chartreuse","orange","purple", "gold","tomato",
+                                                 "darkturquoise", "forestgreen"))
 
 plot_ly(data = t_df1, labels = ~variable, values = ~value, type = "pie",
         marker = list(colors = ~colr), hole = .6) %>% 
@@ -1860,8 +1878,8 @@ data_merged_plot<-data.frame(
 
 
 fig <- plot_ly(data_merged_plot, x = ~total_consumption, y = ~effective_vat_before_reform, name = "Before reform", type = 'scatter', mode = 'lines',
-               line = list(dash = "solid"))
-fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash"))%>%
+               line = list(dash = "solid",width=5))
+fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash",width=5))%>%
   layout(
     xaxis = list(title = 'Expenditures in MKD million'),
     yaxis = list(title = ''),
@@ -1906,14 +1924,16 @@ vat_effective_final<-left_join(vat_effective_bu,vat_effective,by = c("centiles")
   data.table()
 
 fig <- plot_ly(vat_effective_final, x = ~centiles, y = ~effective_vat_before_reform, name = "Before reform", type = 'scatter', mode = 'lines',
-               line = list(dash = "solid"))
-fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash"))%>%
+               line = list(dash = "solid",width=5))
+fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash",width=5))%>%
   layout(
     xaxis = list(title = 'Centiles'),
     yaxis = list(title = ''),
     legend = list(x = 0.01, y = 0.99)
   )
 fig
+
+ 
           
 ```
 
@@ -2053,7 +2073,9 @@ VAT_FORECAST_HISTORIC<-VAT_FORECAST%>%
                                                       yaxis = list(side = 'left', title = '', font = t_8,showgrid = FALSE, zeroline = FALSE),
                                                       yaxis2 = list(side = 'right', overlaying = "y", title = '',font = t_8, showgrid = FALSE, zeroline = FALSE))
 
-fig <- fig %>% layout(legend = list(x = 0.01, y = 0.99))
+fig <- fig %>%layout(legend = list(orientation = 'h'))
+  
+  #layout(legend = list(x = 0.01, y = 0.99))
   
   #legend = list(orientation = 'h')) 
    
@@ -2146,7 +2168,7 @@ Forecast
 Row
 -----------------------------------------------------------------------
 
-### Forceast of VAT revenues
+### Forecast of VAT revenues
 
 ```{r}
 
@@ -2158,8 +2180,8 @@ VAT_FORECAST$New_Simulation_VAT<-VAT_FORECAST$New_Simulation_VAT*1000000
 
 
 fig <- plot_ly(VAT_FORECAST, x = ~Year , y = ~Nominal_VAT_NET, name = "Before reform", type = 'scatter', mode = 'lines',
-               line = list(dash = "solid"))
-fig <- fig %>% add_trace(y = ~New_Simulation_VAT, name = "After reform", line = list(dash = "dash"))%>%
+               line = list(dash = "solid",width=5))
+fig <- fig %>% add_trace(y = ~New_Simulation_VAT, name = "After reform", line = list(dash = "dash",width=5))%>%
   layout(
     xaxis = list(title = 'Years'),
     yaxis = list(title = 'VAT revenues'),
@@ -2247,6 +2269,66 @@ fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform",
   )
 fig
           
+# FINAL_CENTILE_PLOT1<-data.frame(vat_effective_final, grp_id=NA, grp_label=NA)
+#   
+#             for (i in 1:length((vat_effective_final$centiles)))
+#           {
+#             if (vat_effective_final$centiles[i]<=50)
+#             {
+#               FINAL_CENTILE_PLOT1$grp_label[i] <- "<=50%"
+#               FINAL_CENTILE_PLOT1$grp_id[i] <- 1
+#             }
+#             else if (51<=vat_effective_final$centiles[i] &vat_effective_final$centiles[i]<=60)
+#             {
+#               FINAL_CENTILE_PLOT1$grp_label[i] <- "51%-60%"
+#               FINAL_CENTILE_PLOT1$grp_id[i] <- 2
+#             }
+#             else if (61<=vat_effective_final$centiles[i] & vat_effective_final$centiles[i]<=70)
+#             {
+#               FINAL_CENTILE_PLOT1$grp_label[i] <- "61%-70%"
+#               FINAL_CENTILE_PLOT1$grp_id[i] <- 3
+#             }
+#             else if (71<=vat_effective_final$centiles[i] & vat_effective_final$centiles[i]<=80)
+#             {
+#               FINAL_CENTILE_PLOT1$grp_label[i] <- "71%-80%"
+#               FINAL_CENTILE_PLOT1$grp_id[i] <- 4
+#             }
+#             else if (81<=vat_effective_final$centiles[i] & vat_effective_final$centiles[i]<=90)
+#             {
+#               FINAL_CENTILE_PLOT1$grp_label[i] <- "81%-90%"
+#               FINAL_CENTILE_PLOT1$grp_id[i] <- 5
+#             }
+#             else if (90<=vat_effective_final$centiles[i] & vat_effective_final$centiles[i]<=98)
+#             {
+#               FINAL_CENTILE_PLOT1$grp_label[i] <- "91%-98%"
+#               FINAL_CENTILE_PLOT1$grp_id[i] <- 6
+#             }
+#             else if (vat_effective_final$centiles[i]==99)
+#             {
+#               FINAL_CENTILE_PLOT1$grp_label[i] <- "=99%"
+#               FINAL_CENTILE_PLOT1$grp_id[i] <- 7
+#             }
+#             else
+#             {
+#               FINAL_CENTILE_PLOT1$grp_label[i] <- ">99%"
+#               FINAL_CENTILE_PLOT1$grp_id[i] <- 8
+#             }
+#           }
+# 
+#           FINAL_CENTILE_PLOT1$grp_label<-factor(FINAL_CENTILE_PLOT1$grp_label)
+#          color_code<-factor(c(rep("dark orange2", 6), "forest green", "dodgerblue4"))
+# 
+#           means_g4<-data.frame(ddply(FINAL_CENTILE_PLOT1,~grp_id+grp_label,summarise,mean=mean(effective_vat_before_reform),sd=sd(effective_vat_before_reform)), color_code)
+# 
+#                   ggplotly(ggplot(data = means_g4, aes(x=factor(grp_id),y=mean, label =mean ))+
+#                                                 scale_x_discrete("Group",breaks=c(1:8), labels=as.character(means_g4$grp_label))+
+#                                                 coord_cartesian(ylim = c(0, 0.2)) +
+#                                                 geom_bar(stat="identity", fill=color_code)+
+#                                                 # geom_bar(stat="identity")+scale_fill_manual(values=c("#999999", "#E69F00"))+
+#                                                 geom_text(aes(y = mean*1.1, label = round(mean,2)), position=position_dodge(0.9))+
+#                                                 theme_light())
+#           
+
 ```
 
 

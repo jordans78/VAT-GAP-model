@@ -75,16 +75,7 @@ getwd()
                                  CALCULATION_VAT_NET=1+(1/100*Nominal_GDP_GROWTH)
                                )
 
-            
-            #FINAL_FORECASTING2<-inner_join(FINAL_FORECASTING2,DS_NEXT_YEARS, by = "Year")
-            
-            
-            
-            
-            # VAT_NET
-            # for (i in 1:length(which(is.na(FINAL_FORECASTING2$Nominal_VAT_NET)))){
-            #   FINAL_FORECASTING2=FINAL_FORECASTING2%>%mutate(Nominal_VAT_NET=if_else(is.na(Nominal_VAT_NET),(CALCULATION_VAT_NET*lag(Nominal_VAT_NET)+ DS_VAT_NET),Nominal_VAT_NET))
-            # }
+
 
           for (i in 1:length(which(is.na(FINAL_FORECASTING2$Nominal_VAT_NET)))){
             FINAL_FORECASTING2=FINAL_FORECASTING2%>%mutate(Nominal_VAT_NET=if_else(is.na(Nominal_VAT_NET),(CALCULATION_VAT_NET*lag(Nominal_VAT_NET)),Nominal_VAT_NET))
@@ -95,11 +86,9 @@ getwd()
           FINAL_FORECASTING_BU<-FINAL_FORECASTING2%>%
             dplyr::select(Year,Nominal_VAT_NET)
           
-          
-        # 2.Second calculation
-          
-       
-          
+
+# 2. Second calculation------------------------------------
+      
           FINAL_FORECASTING0<-MACRO_FISCAL_INDICATORS%>%
             select(Year,Nominal_GDP,New_Simulation_VAT)%>%
             arrange(desc(Year))
