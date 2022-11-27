@@ -2303,65 +2303,6 @@ fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform",
   )
 fig
           
-# FINAL_CENTILE_PLOT1<-data.frame(vat_effective_final, grp_id=NA, grp_label=NA)
-#   
-#             for (i in 1:length((vat_effective_final$centiles)))
-#           {
-#             if (vat_effective_final$centiles[i]<=50)
-#             {
-#               FINAL_CENTILE_PLOT1$grp_label[i] <- "<=50%"
-#               FINAL_CENTILE_PLOT1$grp_id[i] <- 1
-#             }
-#             else if (51<=vat_effective_final$centiles[i] &vat_effective_final$centiles[i]<=60)
-#             {
-#               FINAL_CENTILE_PLOT1$grp_label[i] <- "51%-60%"
-#               FINAL_CENTILE_PLOT1$grp_id[i] <- 2
-#             }
-#             else if (61<=vat_effective_final$centiles[i] & vat_effective_final$centiles[i]<=70)
-#             {
-#               FINAL_CENTILE_PLOT1$grp_label[i] <- "61%-70%"
-#               FINAL_CENTILE_PLOT1$grp_id[i] <- 3
-#             }
-#             else if (71<=vat_effective_final$centiles[i] & vat_effective_final$centiles[i]<=80)
-#             {
-#               FINAL_CENTILE_PLOT1$grp_label[i] <- "71%-80%"
-#               FINAL_CENTILE_PLOT1$grp_id[i] <- 4
-#             }
-#             else if (81<=vat_effective_final$centiles[i] & vat_effective_final$centiles[i]<=90)
-#             {
-#               FINAL_CENTILE_PLOT1$grp_label[i] <- "81%-90%"
-#               FINAL_CENTILE_PLOT1$grp_id[i] <- 5
-#             }
-#             else if (90<=vat_effective_final$centiles[i] & vat_effective_final$centiles[i]<=98)
-#             {
-#               FINAL_CENTILE_PLOT1$grp_label[i] <- "91%-98%"
-#               FINAL_CENTILE_PLOT1$grp_id[i] <- 6
-#             }
-#             else if (vat_effective_final$centiles[i]==99)
-#             {
-#               FINAL_CENTILE_PLOT1$grp_label[i] <- "=99%"
-#               FINAL_CENTILE_PLOT1$grp_id[i] <- 7
-#             }
-#             else
-#             {
-#               FINAL_CENTILE_PLOT1$grp_label[i] <- ">99%"
-#               FINAL_CENTILE_PLOT1$grp_id[i] <- 8
-#             }
-#           }
-# 
-#           FINAL_CENTILE_PLOT1$grp_label<-factor(FINAL_CENTILE_PLOT1$grp_label)
-#          color_code<-factor(c(rep("dark orange2", 6), "forest green", "dodgerblue4"))
-# 
-#           means_g4<-data.frame(ddply(FINAL_CENTILE_PLOT1,~grp_id+grp_label,summarise,mean=mean(effective_vat_before_reform),sd=sd(effective_vat_before_reform)), color_code)
-# 
-#                   ggplotly(ggplot(data = means_g4, aes(x=factor(grp_id),y=mean, label =mean ))+
-#                                                 scale_x_discrete("Group",breaks=c(1:8), labels=as.character(means_g4$grp_label))+
-#                                                 coord_cartesian(ylim = c(0, 0.2)) +
-#                                                 geom_bar(stat="identity", fill=color_code)+
-#                                                 # geom_bar(stat="identity")+scale_fill_manual(values=c("#999999", "#E69F00"))+
-#                                                 geom_text(aes(y = mean*1.1, label = round(mean,2)), position=position_dodge(0.9))+
-#                                                 theme_light())
-#           
 
 ```
 
