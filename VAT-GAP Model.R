@@ -1,18 +1,41 @@
-'VAT-GAP MODEL '          
+'VAT-GAP MODEL 
 
+TIP:
+      To execute this code, you can highlight the code CTRL + A and after that,press CTRL + Enter.
 
-      #rm(list=(ls()))
+      1. Without chaning of policy parametars
+      
+      After pressing CTRL + Enter, a window with Data Editor will appear. If you don't want to change some parameters, 
+      you need to press only X with the mouse in the right corner (dont press on Done).
+
+      2. With changing of policy parametars
+      
+      If you want to change some policy parameters, you can change them in the columns with titles :
+          - Simulation_Toggle_Exempt;
+          - Simulation_Toggle_Reduced_Rate;
+          - Standard_VAT_Rate;
+          - Preferential_VAT_Rate.
+      
+     After changing policy parameters, you need to press the button for synchronizing, and after that the button Done.
+     
+     3. With choosing one this command programm with itterate thorugh other modules and with produce VAT-Dashboard in html format.
+     
+        This dasboard contain interatciteve charts, which can be separately downloaded for their further use such as presentations or analisys.
+     
+        The dashboard you can find in rooth of the VAT-GAP model and you can open it in the browsers (eg, Chrome, Firefox etc.)
+
+    '          
 
 # Setting up path to directory with data 
   #path<-"C:/Simulation/VAT-GAP-model/DATA/INPUT" #<----Set your path here for data 
   #path1<-"C:/Simulation/VAT-GAP-model" #<----Set your path here for the scripts
-  
-setwd(path)
-getwd()
+
 
         # 1.INPUT PARAMETERS FOR SIMULATION -----------------------------------------
 
-  
+
+setwd(path)
+getwd()
             # Importing libraries
             
             library(DataEditR)
