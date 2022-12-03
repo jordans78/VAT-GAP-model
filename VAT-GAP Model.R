@@ -20,7 +20,7 @@ TIP:
      
      3. With choosing one this command programm with itterate thorugh other modules and with produce VAT-Dashboard in html format.
      
-        This dasboard contain interatciteve charts, which can be separately downloaded for their further use such as presentations or analisys.
+        This dashboard contains interactive charts, which can be separately downloaded for their further use such as presentations or analysis.
      
         The dashboard you can find in rooth of the VAT-GAP model and you can open it in the browsers (eg, Chrome, Firefox etc.)
 
@@ -33,9 +33,10 @@ TIP:
 
         # 1.INPUT PARAMETERS FOR SIMULATION -----------------------------------------
 
-
-setwd(path)
-getwd()
+            setwd(path)
+            getwd()
+            
+            
             # Importing libraries
             
             library(DataEditR)

@@ -73,27 +73,6 @@ DATA_PLOT3 <- read_excel("MACRO_FISCAL_INDICATORS.xlsx",
 FINAL_FORECASTING_PLOTLY<-DATA_PLOT3%>%
   select(Year,PIT,CIT,VAT_NET,EXCISE,CUSTOMS_DUTIES,SSC)
 
-# t_df <- data.frame((FINAL_FORECASTING_PLOTLY[,-1]))
-# t_df_pct <- t_df
-# t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)] <-t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)]/rowSums(t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)])
-# Years<-c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
-#          "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019")
-# 
-# t_df_pct1<-cbind(Years ,t_df_pct)
-# t_df_pct1<-t_df_pct1[1:20,]
-# t_df_pct1$Years<- factor(t_df_pct1$Years, levels = c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
-#                                                      "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
-#                                                      ))
-# t_df_pct1$Years<- factor(t_df_pct1$Years)
-# t_df_pct2<-melt(t_df_pct1, id.vars = c("Years"))
-# t_df_pct2$color <- factor(t_df_pct2$variable, labels = c("forestgreen", "brown", "orange", "red", "cyan",
-#                                                          "royalblue"))
-
-
-
-
-
-
 
 color_1 <- "#ba181b"
 
@@ -1347,8 +1326,6 @@ plt <- plot_ly(dat) %>%
     barmode = 'group'
      )
 
-
-#plt <- plt %>%layout(legend = list(orientation = 'h'))
 
 plt
     
