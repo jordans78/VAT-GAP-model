@@ -7,12 +7,15 @@ TIP:
       
       After pressing CTRL + Enter, a window with Data Editor will appear. If you don't want to change some parameters, 
       you need to press only X with the mouse in the right corner (dont press on Done).
+      
+      First, run this scenario to check that all packages are properly installed and all data is loaded correctly by the application.
+      If everything is fine with this scenario, then continue to the scenario explained below.
 
       2. With changing of policy parametars
       
-      If you want to change some policy parameters, you can change them in the columns with titles :
-          - Simulation_Toggle_Exempt;
-          - Simulation_Toggle_Reduced_Rate;
+      If you want to change some policy parameters, you can change them (e.g you can change taxable proportion for exempted or reduced goods and services or tax rates) in the columns with titles :
+          - TP_Exempt;
+          - TP_Reduced_Rate;
           - Standard_VAT_Rate;
           - Preferential_VAT_Rate.
       
@@ -23,7 +26,6 @@ TIP:
         This dashboard contains interactive charts, which can be separately downloaded for their further use such as presentations or analysis.
      
         The dashboard you can find in rooth of the VAT-GAP model and you can open it in the browsers (eg, Chrome, Firefox etc.)
-
     '          
 
 # Setting up path to directory with data 
@@ -42,9 +44,10 @@ TIP:
             library(DataEditR)
             library(data.table)
             library(tidyr)
+            options(tidyr.quiet = TRUE)
             library(readxl)
             library(xlsx)
-            library(dplyr)
+            library(dplyr, warn.conflicts = FALSE)
             options(dplyr.summarise.inform = FALSE)
             library(reshape2)
             library(rccmisc) 
@@ -59,19 +62,18 @@ TIP:
                       data.frame()
 
                     # Input data with taxable proportions (Data for goods comes from import data while other are estimated on the bases COICOP)
-                    
+
                     TAXABLE_PROPORTION_IMPORT<-TAXABLE_PROPORTION_IMPORT%>%
                       dplyr::select("...1","...2","...10","...11","...12","...14","...15")%>%
-                      dplyr:: rename(c("PRODUCT_INDUSTRY_CODE"= "...1",
-                                       "CPA_DIVISION"= "...2",
-                                       "Current_Policy_Exempt"="...10",
-                                       "Current_Policy_Reduced_Rate"= "...11",
-                                       "Current_Policy_Fully_Taxable"="...12",
-                                       "Simulation_Toggles_Exempt"="...14",
-                                       "Simulation_Toggles_Reduced_Rate"="...15"
-                                       ))%>%
-                      dplyr::arrange(PRODUCT_INDUSTRY_CODE)
-
+                      dplyr:: rename(c("CPA"= "...1",
+                                       "Description"= "...2",
+                                       "TP_Exempt"="...10",
+                                       "TP_Reduced_Rate"= "...11",
+                                       "TP_Fully_Taxable"="...12",
+                                       "Simulation_Exempt"="...14",
+                                       "Simulation_Reduced_Rate"="...15"
+                      ))%>%
+                      dplyr::arrange(CPA)
 
                     
                     TAXABLE_PROPORTION_IMPORT[3:5]<-as.numeric(unlist(TAXABLE_PROPORTION_IMPORT[3:5]))
@@ -79,22 +81,21 @@ TIP:
                     #TAXABLE_PROPORTION_IMPORT$Current_Policy_Exempt[41] = 0 #  Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
                     TAXABLE_PROPORTION_IMPORT[7:7]<-as.numeric(unlist(TAXABLE_PROPORTION_IMPORT[7:7]))
                     
-   
+                    # Rename table and continue with simulation
                     SIMULATION<-TAXABLE_PROPORTION_IMPORT
                     SIMULATION$Standard_VAT_Rate = standard_VAT_rate
                     SIMULATION$Standard_VAT_Rate[41] = 0 # This is the industry: Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
                     SIMULATION$Preferential_VAT_Rate = preferential_VAT_rate
-           
-                    
+
         # 2.CHANGE OF SIMULATION POLICIES ------------------------------------------------
                     
                
-                    SIMULATION<-data_edit(SIMULATION) #<---------- Select lines from begging until this line and press Run
-                    
+                    SIMULATION<-data_edit(SIMULATION) #<-----Data Editor
 
+                 
         # 3.RUNNING SIMULATION ---------------------------------------------------
 
-                    
+                    # Iterate through the rest of the modules
                     source(file=paste(path1,"/Data preprocessing-Module.R",sep=""),local=TRUE)
                     source(file=paste(path1,"/TaxCalc-Module.R",sep=""),local=TRUE)
                     source(file=paste(path1,"/Estimation effective VAT rates-Module.R",sep=""),local=TRUE)
