@@ -576,7 +576,7 @@ getwd()
                     Results_1$VAT_Gap$Total_VAT_Gap.Prc <- Results_1$VAT_Gap$Total_VAT_Gap.M_of_denars/Results_1$VAT_Gap$VAT_Control_Total.M_of_denars
                     
                     # Manual input 
-                    
+                    # Test without manual input
                     Results_1$VAT_Gap$Policy_Gap.M_of_denars <- 24407  # <------- Manual input in simulation
                     Results_1$VAT_Gap$Policy_Gap.Prc <- Results_1$VAT_Gap$Policy_Gap.M_of_denars/Results_1$VAT_Gap$VAT_Control_Total.M_of_denars
                     Results_1$VAT_Gap$Compliance_Gap.M_of_denars <- Results_1$VAT_Gap$Total_VAT_Gap.M_of_denars-Results_1$VAT_Gap$Policy_Gap.M_of_denars
@@ -596,7 +596,7 @@ getwd()
                     # Extracting part foR TE
                     # Results$VAT_Gap$Policy_Gap.M_of_denars<-Results_1$VAT_Gap$Policy_Gap.M_of_denars
                     
-                    #View(Results_1)
+                    
                     
                     # 3.1.3 Estimation of effective VAT RATE------------------------------
                     

@@ -5,7 +5,7 @@ TIP:
 
       1. Without chaning of policy parametars
       
-      After pressing CTRL + Enter, a window with Data Editor will appear. If you don't want to change some parameters, 
+      After pressing CTRL + Enter, a window with Data Editor will appear. If you dont want to change some parameters, 
       you need to press only X with the mouse in the right corner (dont press on Done).
       
       First, run this scenario to check that all packages are properly installed and all data is loaded correctly by the application.
@@ -13,7 +13,7 @@ TIP:
 
       2. With changing of policy parametars
       
-      If you want to change some policy parameters, you can change them (e.g you can change taxable proportion for exempted or reduced goods and services or tax rates) in the columns with titles :
+      If you want to change some policy parameters, you can change them (e.g you can change taxable proportion-TP for exempted or reduced goods and services or tax rates) in the columns with titles :
           - TP_Exempt;
           - TP_Reduced_Rate;
           - Standard_VAT_Rate;
@@ -51,7 +51,9 @@ TIP:
             options(dplyr.summarise.inform = FALSE)
             library(reshape2)
             library(rccmisc) 
-  
+            
+            
+                    benchmark_tax_rate <- 0.18
                     standard_VAT_rate = 0.18
                     preferential_VAT_rate = 0.05
                     

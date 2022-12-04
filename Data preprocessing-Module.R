@@ -22,7 +22,7 @@ getwd()
               
               #  The function creates an ntile group vector:
               qgroup = function(numvec, n, na.rm=TRUE){
-                qtile = quantile(numvec, probs = seq(0, 1, 1/n), na.rm)  # will pick up the value from the default setting
+                qtile = quantile(numvec, probs = seq(0, 1, 1/n), na.rm)  
                 out = sapply(numvec, function(x) sum(x >= qtile[-(n+1)]))
                 return(out)
               }
@@ -269,12 +269,10 @@ getwd()
                   NACE_INDUSTRIES <- as.list(c(1:4))
                   names(NACE_INDUSTRIES) = c("Supply", "Use_Purchaser", "Use_VAT", "Use_Basic")
 
-
-                  benchmark_tax_rate <- 0.18
                   RC_prc_of_Constructions_and_construction_works = 0.3
                   Locked_Calibration_Factor <-0.872971938101163     
-                  
                   vat_rate_on_residential_construction = 0.05
+                  
               # 4.1 Supply matrix -----
 
               CPA_PRODUCTS$Supply <- SUPPLY %>% 
