@@ -97,6 +97,13 @@ t_10 <- list(
         face="bold"
       )
 
+
+t_16 <- list(
+        family = "Arial",
+        size = 16,
+        face="bold"
+      )
+
         
 ```
 
@@ -1617,90 +1624,6 @@ Decile groups
 Row {data-height=650}
 -----------------------------------------------------------------------
 
-### Fiscal impact of simulation (in MKD millions)
-```{r,eval=TRUE}
-
-df_plot<-Result_Simulation%>%
-  dplyr::select(Simulated_Change_in_Revenues.M_of_denars)
-
-
-valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.M_of_denars),0),
-         icon="fa-chart-area",
-          color = "blue")
-```
-
-
-### Estimated VAT revenues by decile groups (Before reform)
-
-```{r,eval=TRUE}
-
-# Original
-dat_r<-hbs_bu%>%
-  dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
-colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
-                              "Alcoholic Beverages Tobacco and Narcotics",
-                              "Clothing and footwear",
-                              "Housing Water,Electricity,Gas and Other Fuels",
-                              "Furnishings Household Equipment etc.",
-                              "Health",
-                              "Transport",
-                              "Communication",
-                              "Recreation and Culture",
-                              "Education",
-                              "Restaurants and Hotels",
-                              "Miscellaneous Goods and Services")
-
-
-dat_r1<-dat_r%>%
-  dplyr::group_by(deciles)%>%
-  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
-                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
-                   `Clothing and footwear` = sum(`Clothing and footwear`),
-                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
-                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
-                   `Health` = sum(`Health`),
-                   `Transport` = sum(`Transport`),
-                   `Communication` = sum(`Communication`),
-                   `Recreation and Culture` = sum(`Recreation and Culture`),
-                   `Education` = sum(`Education`),
-                   `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
-                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
-
-
-t_df1<-melt(dat_r1, id.vars = c("deciles"))
-t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
-                                                 "chartreuse","orange","purple", "gold","tomato",
-                                                 "darkturquoise", "forestgreen"))
-
-Expenditure_chart <- plot_ly(t_df1, x = ~deciles, y = ~value,
-                             type = 'bar',
-                             marker = list(color = ~color), name = ~variable) %>%
-                              layout(
-                                xaxis = list(title = ''
-                                ),
-                                yaxis = list(title = ''),
-                                legend = list(x = 0.01, y = 0.99,font = t_10),
-                                tickfont = list(size = 5),
-                                barmode = 'stack')
-
-Expenditure_chart
-
-```
-
-Row
------------------------------------------------------------------------
-
-### Percentage change in VAT revenues
-```{r,eval=TRUE}
-
-df_plot<-Result_Simulation%>%
-  dplyr::select(Simulated_Change_in_Revenues.Prc)
-
-
-valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.Prc),2),
-         icon="fa-chart-pie",
-          color = "red")
-```
 
 
 ### Estimated VAT revenues by decile groups (left bars before reform and right after reform)
@@ -1796,18 +1719,20 @@ t_df1<-t_df1%>%
 
 t_df3<-cbind(t_df1,t_df2)
 
+
 plt <- plot_ly(t_df3) %>%
-  add_trace(x = ~deciles, y = ~value.x, type = 'bar',name = 'Left-Before reform',marker = list(color = ~color.x), name = ~variable.x) %>%
-  add_trace(x = ~deciles, y = ~value, type = 'bar', name = 'Right-After reform',marker = list(color = ~color), name = ~variable) %>%
+  add_trace(x = ~deciles, y = ~value.x, type = 'bar', marker = list(color = ~color.x), name = ~variable.x) %>%
+  add_trace(x = ~deciles+0.4, y = ~value, type = 'bar', marker = list(color = ~color), showlegend = FALSE) %>%
   layout(
-    xaxis = list(title = '',font = t_8),
+    xaxis = list(title = '',font = t_16),
     yaxis = list(title = ''),
     legend = list(x = 0.01, y = 0.99,font = t_10),
-    barmode = 'bar'
+    barmode = 'stack'
   )
 
-
+plt <- layout(p = plt, barmode = "stack")
 plt
+
 
 
 ```
