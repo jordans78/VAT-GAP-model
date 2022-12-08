@@ -104,6 +104,25 @@ t_16 <- list(
         face="bold"
       )
 
+# Colors in treemaps
+
+ colr = c('#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#17becf', '#57a9e2', 
+         '#ffb574', '#5fd35f', '#7f7f7f', '#e77c7c', '#c6aedc', '#bcbd22', 
+         '#bc8b81', '#f4cce8', '#b2b2b2', '#9467bd', '#e2e362', '#e377c2', 
+         '#5fe0ed', '#8c564b', '#103d5d', '#a74e00',
+         
+         '#1f77b4', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#57a9e2', 
+         '#ffb574', '#5fd35f', '#2ca02c', '#e77c7c', '#c6aedc', '#d62728', 
+         '#bc8b81', '#f4cce8', '#b2b2b2', '#9467bd', '#ff7f0e', '#e2e362', 
+         '#5fe0ed', '#8c564b', '#103d5d', '#a74e00',
+         
+         '#1f77b4', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#57a9e2', 
+         '#ffb574', '#5fd35f', '#2ca02c', '#e77c7c', '#c6aedc', '#d62728', 
+         '#bc8b81', '#f4cce8', '#b2b2b2', '#9467bd', '#ff7f0e', '#e2e362', 
+         '#5fe0ed', '#8c564b'
+         
+         )
+    
         
 ```
 
@@ -126,6 +145,179 @@ Definitions for VAT-GAP:
 policy decisions was eliminated; and
 - Compliance Gap: Total VAT gap less the component attributable to policy decisions.
 
+
+
+Historic
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Revenue collection in nominal terms
+
+```{r}
+
+t_df <- data.frame((FINAL_FORECASTING_PLOTLY[,-1]))
+t_df_pct <- t_df
+t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)] <-t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)]/rowSums(t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)])
+Years<-c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019")
+
+t_df_pct1<-cbind(Years ,t_df_pct)
+t_df_pct1<-t_df_pct1[1:20,]
+t_df_pct1$Years<- factor(t_df_pct1$Years, levels = c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+                                                     "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
+                                                     ))
+t_df_pct1$Years<- factor(t_df_pct1$Years)
+t_df_pct2<-melt(t_df_pct1, id.vars = c("Years"))
+t_df_pct2$color <- factor(t_df_pct2$variable, labels = c("forestgreen", "brown", "orange", "red", "cyan",
+                                                         "royalblue"))
+
+
+t_df_1_1 <- data.frame((FINAL_FORECASTING_PLOTLY[,-1]))
+t_df_1_pct <- t_df_1_1
+Years<-c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
+        )
+
+t_df_1_pct1<-cbind(Years ,t_df_1_pct)
+t_df_1_pct1<-t_df_1_pct1[1:20,]
+t_df_1_pct1$Years<- factor(t_df_1_pct1$Years, levels = c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+                                                         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
+                                                         ))
+t_df_1_pct1$Years<- factor(t_df_1_pct1$Years)
+t_df_1_pct2<-melt(t_df_1_pct1, id.vars = c("Years"))
+t_df_1_pct2$color <- factor(t_df_1_pct2$variable, labels = c("forestgreen", "brown", "orange", "red", "cyan",
+                                                             "royalblue"))
+
+
+
+Compsition_TaxSSC_Revenues <- plot_ly(t_df_1_pct2, x = ~Years, y = ~value*1000000,
+                                      type = 'bar',
+                                      marker = list(color = ~color), name = ~variable) %>%
+  layout(title = " ",
+         yaxis = list(title = ''), 
+         xaxis = list(title = ''),
+         barmode = 'stack')
+Compsition_TaxSSC_Revenues<-ggplotly(Compsition_TaxSSC_Revenues)
+Compsition_TaxSSC_Revenues <- Compsition_TaxSSC_Revenues %>% layout(legend = list(orientation = 'h'))           
+Compsition_TaxSSC_Revenues          
+
+
+```
+
+### VAT revenues and VAT revenues as percentage of GDP
+
+```{r,eval=TRUE}
+
+VAT_FORECAST_HISTORIC<-VAT_FORECAST%>%
+  dplyr::filter(Year<2020)%>%
+  dplyr::select(Year,Nominal_VAT_NET,share_gdp)
+  
+ VAT_FORECAST_HISTORIC$Nominal_VAT_NET<- (VAT_FORECAST_HISTORIC$Nominal_VAT_NET)*1000000
+
+                                  fig <- plot_ly(VAT_FORECAST_HISTORIC)
+                                  
+                                  fig <- fig %>% add_trace(x = ~Year, y = ~Nominal_VAT_NET, type = 'bar', name = 'GDP',
+                                                           marker = list(color = 'royalblue')
+                                                            )
+                                fig <- fig %>% add_trace(x = ~Year, y = ~share_gdp*100, type = 'scatter', mode = 'lines', name = 'Share of VAT in GDP', yaxis = 'y2', marker = list(color = 'red'),
+                                                         line = list(dash = "dash",width=5)
+                                                         
+                                                         )
+                                fig <- fig %>% layout(title = ' ',
+                                                      xaxis = list(title = "",font = t_8),
+                                                      yaxis = list(side = 'left', title = '', font = t_8,showgrid = FALSE, zeroline = FALSE),
+                                                      yaxis2 = list(side = 'right', overlaying = "y", title = '',font = t_8, showgrid = FALSE, zeroline = FALSE))
+
+fig <- fig %>%layout(legend = list(orientation = 'h'))
+  
+  #layout(legend = list(x = 0.01, y = 0.99))
+  
+  #legend = list(orientation = 'h')) 
+   
+fig
+
+```
+
+Row
+-----------------------------------------------------------------------
+
+### Structure of tax and SSC in percentage
+
+```{r,eval=TRUE}
+
+
+
+
+Compsition_TaxSSC_Revenues <- plot_ly(t_df_pct2, x = ~Years, y = ~value,
+                                      type = 'bar',
+                                      marker = list(color = ~color), name = ~variable) %>%
+  layout(title = " ",
+         yaxis = list(title = ''), 
+          xaxis = list(title = ''),
+         barmode = 'stack')
+Compsition_TaxSSC_Revenues<-ggplotly(Compsition_TaxSSC_Revenues)
+Compsition_TaxSSC_Revenues <- Compsition_TaxSSC_Revenues %>% layout(legend = list(orientation = 'h'))         
+
+Compsition_TaxSSC_Revenues
+          
+```
+
+
+### Structure of indirect taxes
+
+```{r,eval=TRUE}
+
+
+FINAL_FORECASTING_PLOTLY<-DATA_PLOT3%>%
+  select(Year,VAT_NET,EXCISE)
+
+t_df <- data.frame((FINAL_FORECASTING_PLOTLY[,-1]))
+t_df_pct <- t_df
+t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)] <-t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)]/rowSums(t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)])
+Years<-c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019")
+
+t_df_pct1<-cbind(Years ,t_df_pct)
+t_df_pct1<-t_df_pct1[1:20,]
+t_df_pct1$Years<- factor(t_df_pct1$Years, levels = c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+                                                     "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
+                                                     ))
+t_df_pct1$Years<- factor(t_df_pct1$Years)
+t_df_pct2<-melt(t_df_pct1, id.vars = c("Years"))
+t_df_pct2$color <- factor(t_df_pct2$variable, labels = c("orange", "red"))
+
+
+t_df_1_1 <- data.frame((FINAL_FORECASTING_PLOTLY[,-1]))
+t_df_1_pct <- t_df_1_1
+Years<-c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
+        )
+
+t_df_1_pct1<-cbind(Years ,t_df_1_pct)
+t_df_1_pct1<-t_df_1_pct1[1:20,]
+t_df_1_pct1$Years<- factor(t_df_1_pct1$Years, levels = c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+                                                         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
+                                                         ))
+t_df_1_pct1$Years<- factor(t_df_1_pct1$Years)
+t_df_1_pct2<-melt(t_df_1_pct1, id.vars = c("Years"))
+t_df_1_pct2$color <- factor(t_df_1_pct2$variable, labels = c("orange", "red"))
+
+
+Compsition_TaxSSC_Revenues <- plot_ly(t_df_pct2, x = ~Years, y = ~value,
+                                      type = 'bar',
+                                      marker = list(color = ~color), name = ~variable) %>%
+  layout(title = " ",
+         yaxis = list(title = ''), 
+          xaxis = list(title = ''),
+         barmode = 'stack')
+Compsition_TaxSSC_Revenues<-ggplotly(Compsition_TaxSSC_Revenues)
+Compsition_TaxSSC_Revenues <- Compsition_TaxSSC_Revenues %>% layout(legend = list(orientation = 'h'))         
+
+Compsition_TaxSSC_Revenues
+                       
+```
 
 
 Policy variables
@@ -445,26 +637,50 @@ df<-revenue_vat_total_bu%>%
     df<-melt(df)
 
     df<-df%>%
-      dplyr::mutate(value=round(value),0)
+      dplyr::mutate(value=round(value),0)%>%
+      dplyr::arrange(desc(value))
     
-    df$SUT_division<-"NACE Divisions"
+    df$SUT_division<-"CPA division"
 
-    treemap<-plot_ly(data = df,
-                                 type= "treemap",
-                                 values= ~value,
-                                 labels= ~PRODUCT_INDUSTRY_CODE,
-                                 parents=  ~SUT_division,
-                                 domain= list(column=0),
-                                 name = " ",
-                                 textinfo="label+value+percent parent")  %>%
-                                 layout(title="", font = t,
-                                 annotations =
-                                 list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Intermediate Inputs", 
-                                 text = "Source: WB staff estimation",
-                                 showarrow = F,
-                                 xref='paper',
-                                 yref='paper'),font = t)# )
+    
+    
+   
+    
+  #   treemap %>% 
+  # htmlwidgets::onRender("
+  # function(el, x) {
+  #   cd = el.calcdata[0];
+  #   cols = [];
+  #   for(i = 1; i < cd.length; i++){
+  #     cols.push(cd[i].color)
+  #   }
+  #   console.log(cols);
+  # }")
+
+    
+treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+        parents = ~SUT_division, name = " ",
+        marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+        textinfo="label+value+percent parent")  %>%
+  layout(title="")    
+    
+    # 
+    # treemap<-plot_ly(data = df,
+    #                              type= "treemap",
+    #                              values= ~value,
+    #                              labels= ~PRODUCT_INDUSTRY_CODE,
+    #                              parents=  ~SUT_division,
+    #                              domain= list(column=0),
+    #                              name = " ",
+    #                              textinfo="label+value+percent parent")  %>%
+    #                              layout(title="", font = t,
+    #                              annotations =
+    #                              list(x = 0, y = -0.1,
+    #                              title = "VAT revenues from Intermediate Inputs", 
+    #                              text = "Source: WB staff estimation",
+    #                              showarrow = F,
+    #                              xref='paper',
+    #                              yref='paper'),font = t)# )
     
     treemap
 
@@ -499,28 +715,55 @@ df<-revenue_vat_total_bu%>%
     df<-melt(df)
 
     df<-df%>%
-      dplyr::mutate(value=round(value),0)
+      dplyr::mutate(value=round(value),0)%>%
+      dplyr::arrange(desc(value))
     
-    df$SUT_division<-"NACE Divisions"
+    df$SUT_division<-"CPA Divisions"
 
-    treemap<-plot_ly(data = df,
-                                 type= "treemap",
-                                 values= ~value,
-                                 labels= ~PRODUCT_INDUSTRY_CODE,
-                                 parents=  ~SUT_division,
-                                 domain= list(column=0),
-                                 name = " ",
-                                 textinfo="label+value+percent parent")  %>%
-                                 layout(title="", font = t,
-                                 annotations =
-                                 list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Intermediate Inputs", 
-                                 text = "Source: WB staff estimation",
-                                 showarrow = F,
-                                 xref='paper',
-                                 yref='paper'),font = t)
+        # colr = c('#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#17becf', '#57a9e2', 
+        #  '#ffb574', '#5fd35f', '#7f7f7f', '#e77c7c', '#c6aedc', '#bcbd22', 
+        #  '#bc8b81', '#f4cce8', '#b2b2b2', '#9467bd', '#e2e362', '#e377c2', 
+        #  '#5fe0ed', '#8c564b', '#103d5d', '#a74e00',
+        #  
+        #  '#1f77b4', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#57a9e2', 
+        #  '#ffb574', '#5fd35f', '#2ca02c', '#e77c7c', '#c6aedc', '#d62728', 
+        #  '#bc8b81', '#f4cce8', '#b2b2b2', '#9467bd', '#ff7f0e', '#e2e362', 
+        #  '#5fe0ed', '#8c564b', '#103d5d', '#a74e00',
+        #  
+        #  '#1f77b4', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#57a9e2', 
+        #  '#ffb574', '#5fd35f', '#2ca02c', '#e77c7c', '#c6aedc', '#d62728', 
+        #  '#bc8b81', '#f4cce8', '#b2b2b2', '#9467bd', '#ff7f0e', '#e2e362', 
+        #  '#5fe0ed', '#8c564b'
+        #  
+        #  )
     
-    treemap
+    
+        treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+        parents = ~SUT_division, name = " ",
+        marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+        textinfo="label+value+percent parent")  %>%
+  layout(title="")    
+    
+    # 
+    # treemap<-plot_ly(data = df,
+    #                              type= "treemap",
+    #                              values= ~value,
+    #                              labels= ~PRODUCT_INDUSTRY_CODE,
+    #                              parents=  ~SUT_division,
+    #                              domain= list(column=0),
+    #                              name = " ",
+    #                              textinfo="label+value+percent parent")  %>%
+    #                              layout(title="", font = t,
+    #                              annotations =
+    #                              list(x = 0, y = -0.1,
+    #                              title = "VAT revenues from Intermediate Inputs", 
+    #                              text = "Source: WB staff estimation",
+    #                              showarrow = F,
+    #                              xref='paper',
+    #                              yref='paper'),font = t)
+    # 
+        
+      treemap
 
 ``` 
 
@@ -549,26 +792,35 @@ df<-revenue_vat_total_bu%>%
     df<-melt(df)
 
     df<-df%>%
-      dplyr::mutate(value=round(value),0)
+      dplyr::mutate(value=round(value),0)%>%
+      dplyr::arrange(desc(value))
     
-    df$SUT_division<-"NACE Divisions"
+    df$SUT_division<-"CPA Divisions"
 
-    treemap<-plot_ly(data = df,
-                                 type= "treemap",
-                                 values= ~value,
-                                 labels= ~PRODUCT_INDUSTRY_CODE,
-                                 parents=  ~SUT_division,
-                                 domain= list(column=0),
-                                 name = " ",
-                                 textinfo="label+value+percent parent")  %>%
-                                 layout(title="", font = t,
-                                 annotations =
-                                 list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Intermediate Inputs", 
-                                 text = "Source: WB staff estimation",
-                                 showarrow = F,
-                                 xref='paper',
-                                 yref='paper'),font = t)
+    
+            treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+        parents = ~SUT_division, name = " ",
+        marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+        textinfo="label+value+percent parent")  %>%
+  layout(title="")    
+    
+    
+    # treemap<-plot_ly(data = df,
+    #                              type= "treemap",
+    #                              values= ~value,
+    #                              labels= ~PRODUCT_INDUSTRY_CODE,
+    #                              parents=  ~SUT_division,
+    #                              domain= list(column=0),
+    #                              name = " ",
+    #                              textinfo="label+value+percent parent")  %>%
+    #                              layout(title="", font = t,
+    #                              annotations =
+    #                              list(x = 0, y = -0.1,
+    #                              title = "VAT revenues from Intermediate Inputs", 
+    #                              text = "Source: WB staff estimation",
+    #                              showarrow = F,
+    #                              xref='paper',
+    #                              yref='paper'),font = t)
     treemap
 
 ``` 
@@ -598,26 +850,33 @@ df<-revenue_vat_total_bu%>%
     df<-melt(df)
 
     df<-df%>%
-      dplyr::mutate(value=round(value),0)
+      dplyr::mutate(value=round(value),0)%>%
+      dplyr::arrange(desc(value))
     
-    df$SUT_division<-"NACE Divisions"
+    df$SUT_division<-"CPA Divisions"
 
-    treemap<-plot_ly(data = df,
-                                 type= "treemap",
-                                 values= ~value,
-                                 labels= ~PRODUCT_INDUSTRY_CODE,
-                                 parents=  ~SUT_division,
-                                 domain= list(column=0),
-                                 name = " ",
-                                 textinfo="label+value+percent parent")  %>%
-                                 layout(title="", font = t,
-                                 annotations =
-                                 list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Intermediate Inputs", 
-                                 text = "Source: WB staff estimation",
-                                 showarrow = F,
-                                 xref='paper',
-                                 yref='paper'),font = t)
+    # treemap<-plot_ly(data = df,
+    #                              type= "treemap",
+    #                              values= ~value,
+    #                              labels= ~PRODUCT_INDUSTRY_CODE,
+    #                              parents=  ~SUT_division,
+    #                              domain= list(column=0),
+    #                              name = " ",
+    #                              textinfo="label+value+percent parent")  %>%
+    #                              layout(title="", font = t,
+    #                              annotations =
+    #                              list(x = 0, y = -0.1,
+    #                              title = "VAT revenues from Intermediate Inputs", 
+    #                              text = "Source: WB staff estimation",
+    #                              showarrow = F,
+    #                              xref='paper',
+    #                              yref='paper'),font = t)
+    
+       treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+        parents = ~SUT_division, name = " ",
+        marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+        textinfo="label+value+percent parent")  %>%
+  layout(title="")    
     
     treemap
 ``` 
@@ -859,7 +1118,7 @@ df<-revenue_vat_total_bu%>%
     df<-df%>%
       dplyr::mutate(value=round(value),0)
     
-    df$SUT_division<-"NACE Divisions"
+    df$SUT_division<-"CPA Divisions"
 
     treemap<-plot_ly(data = df,
                                  type= "treemap",
@@ -872,16 +1131,21 @@ df<-revenue_vat_total_bu%>%
                                  layout(title="", font = t,
                                  annotations =
                                  list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Intermediate Inputs", 
+                                 title = "VAT revenues from Intermediate Inputs",
                                  text = "Source: WB staff estimation",
                                  showarrow = F,
                                  xref='paper',
                                  yref='paper'),font = t)# )
-    
+
     treemap
 
+  #          treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+  #       parents = ~SUT_division, name = " ",
+  #       marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+  #       textinfo="label+value+percent parent")  %>%
+  # layout(title="") 
     
-
+#treemap
 
 
 ``` 
@@ -916,7 +1180,7 @@ df<-Revenue_VAT_TOTAL%>%
       dplyr::mutate(value=round(value),0)
     
     
-   df$SUT_division<-"NACE Divisions"
+   df$SUT_division<-"CPA Divisions"
 
     treemap<-plot_ly(data = df,
                                  type= "treemap",
@@ -929,14 +1193,22 @@ df<-Revenue_VAT_TOTAL%>%
                                  layout(title=" ", font = t,
                                  annotations =
                                  list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Households", 
+                                 title = "VAT revenues from Households",
                                  text = "Source: WB staff estimation",
                                  showarrow = F,
                                  xref='paper',
                                  yref='paper'),font = t)
-    
+
     treemap
-    
+
+#     treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+#         parents = ~SUT_division, name = " ",
+#         marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+#         textinfo="label+value+percent parent")  %>%
+#   layout(title="") 
+#     
+# treemap
+#     
 
 
 ```
@@ -976,7 +1248,7 @@ df<-revenue_vat_total_bu%>%
     df<-df%>%
       dplyr::mutate(value=round(value),0)
     
-    df$SUT_division<-"NACE Divisions"
+    df$SUT_division<-"CPA Divisions"
 
     treemap<-plot_ly(data = df,
                                  type= "treemap",
@@ -989,13 +1261,23 @@ df<-revenue_vat_total_bu%>%
                                  layout(title="", font = t,
                                  annotations =
                                  list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Intermediate Inputs", 
+                                 title = "VAT revenues from Intermediate Inputs",
                                  text = "Source: WB staff estimation",
                                  showarrow = F,
                                  xref='paper',
                                  yref='paper'),font = t)
+
     
     treemap
+    
+#      treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+#         parents = ~SUT_division, name = " ",
+#         marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+#         textinfo="label+value+percent parent")  %>%
+#   layout(title="") 
+#     
+# treemap
+
 
 ``` 
 
@@ -1042,13 +1324,22 @@ df<-Revenue_VAT_TOTAL%>%
                                  layout(title=" ", font = t,
                                  annotations =
                                  list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Households", 
+                                 title = "VAT revenues from Households",
                                  text = "Source: WB staff estimation",
                                  showarrow = F,
                                  xref='paper',
                                  yref='paper'),font = t)
     
-    treemap
+   treemap
+   
+#      treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+#         parents = ~SUT_division, name = " ",
+#         marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+#         textinfo="label+value+percent parent")  %>%
+#   layout(title="") 
+#     
+# treemap
+   
     
 
 
@@ -1087,7 +1378,7 @@ df<-revenue_vat_total_bu%>%
     df<-df%>%
       dplyr::mutate(value=round(value),0)
     
-    df$SUT_division<-"NACE Divisions"
+    df$SUT_division<-"CPA Divisions"
 
     treemap<-plot_ly(data = df,
                                  type= "treemap",
@@ -1100,13 +1391,22 @@ df<-revenue_vat_total_bu%>%
                                  layout(title="", font = t,
                                  annotations =
                                  list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Intermediate Inputs", 
+                                 title = "VAT revenues from Intermediate Inputs",
                                  text = "Source: WB staff estimation",
                                  showarrow = F,
                                  xref='paper',
                                  yref='paper'),font = t)
-    
-    treemap
+
+treemap  
+      
+#       treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+#         parents = ~SUT_division, name = " ",
+#         marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+#         textinfo="label+value+percent parent")  %>%
+#   layout(title="") 
+#     
+# treemap
+#     
 
     
 
@@ -1157,15 +1457,22 @@ df<-Revenue_VAT_TOTAL%>%
                                  layout(title=" ", font = t,
                                  annotations =
                                  list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Households", 
+                                 title = "VAT revenues from Households",
                                  text = "Source: WB staff estimation",
                                  showarrow = F,
                                  xref='paper',
                                  yref='paper'),font = t)
-    
-    treemap
-    
 
+    treemap
+
+
+#      treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+#         parents = ~SUT_division, name = " ",
+#         marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+#         textinfo="label+value+percent parent")  %>%
+#   layout(title="") 
+#     
+# treemap
 
 ```
 
@@ -1200,7 +1507,7 @@ df<-revenue_vat_total_bu%>%
     df<-df%>%
       dplyr::mutate(value=round(value),0)
     
-    df$SUT_division<-"NACE Divisions"
+    df$SUT_division<-"CPA Divisions"
 
     treemap<-plot_ly(data = df,
                                  type= "treemap",
@@ -1213,13 +1520,21 @@ df<-revenue_vat_total_bu%>%
                                  layout(title="", font = t,
                                  annotations =
                                  list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Intermediate Inputs", 
+                                 title = "VAT revenues from Intermediate Inputs",
                                  text = "Source: WB staff estimation",
                                  showarrow = F,
                                  xref='paper',
                                  yref='paper'),font = t)
-    
+
     treemap
+
+#       treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+#         parents = ~SUT_division, name = " ",
+#         marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+#         textinfo="label+value+percent parent")  %>%
+#   layout(title="") 
+#     
+# treemap
 
     
 
@@ -1257,7 +1572,7 @@ df<-Revenue_VAT_TOTAL%>%
       dplyr::mutate(value=round(value),0)
     
     
-   df$SUT_division<-"NACE Divisions"
+   df$SUT_division<-"CPA Divisions"
 
     treemap<-plot_ly(data = df,
                                  type= "treemap",
@@ -1270,14 +1585,21 @@ df<-Revenue_VAT_TOTAL%>%
                                  layout(title=" ", font = t,
                                  annotations =
                                  list(x = 0, y = -0.1,
-                                 title = "VAT revenues from Households", 
+                                 title = "VAT revenues from Households",
                                  text = "Source: WB staff estimation",
                                  showarrow = F,
                                  xref='paper',
                                  yref='paper'),font = t)
-    
+
     treemap
     
+#      treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT_INDUSTRY_CODE,
+#         parents = ~SUT_division, name = " ",
+#         marker = list(colors = setNames(colr, unique(df$PRODUCT_INDUSTRY_CODE))), # <- mod here!
+#         textinfo="label+value+percent parent")  %>%
+#   layout(title="") 
+#     
+# treemap
 
 
 ```
@@ -1926,183 +2248,12 @@ plt
 ```
 
 
-Historic
-=======================================================================
 
-Row
------------------------------------------------------------------------
-
-### Revenue collection in nominal terms
-
-```{r}
-
-t_df <- data.frame((FINAL_FORECASTING_PLOTLY[,-1]))
-t_df_pct <- t_df
-t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)] <-t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)]/rowSums(t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)])
-Years<-c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
-         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019")
-
-t_df_pct1<-cbind(Years ,t_df_pct)
-t_df_pct1<-t_df_pct1[1:20,]
-t_df_pct1$Years<- factor(t_df_pct1$Years, levels = c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
-                                                     "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
-                                                     ))
-t_df_pct1$Years<- factor(t_df_pct1$Years)
-t_df_pct2<-melt(t_df_pct1, id.vars = c("Years"))
-t_df_pct2$color <- factor(t_df_pct2$variable, labels = c("forestgreen", "brown", "orange", "red", "cyan",
-                                                         "royalblue"))
-
-
-t_df_1_1 <- data.frame((FINAL_FORECASTING_PLOTLY[,-1]))
-t_df_1_pct <- t_df_1_1
-Years<-c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
-         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
-        )
-
-t_df_1_pct1<-cbind(Years ,t_df_1_pct)
-t_df_1_pct1<-t_df_1_pct1[1:20,]
-t_df_1_pct1$Years<- factor(t_df_1_pct1$Years, levels = c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
-                                                         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
-                                                         ))
-t_df_1_pct1$Years<- factor(t_df_1_pct1$Years)
-t_df_1_pct2<-melt(t_df_1_pct1, id.vars = c("Years"))
-t_df_1_pct2$color <- factor(t_df_1_pct2$variable, labels = c("forestgreen", "brown", "orange", "red", "cyan",
-                                                             "royalblue"))
-
-
-
-Compsition_TaxSSC_Revenues <- plot_ly(t_df_1_pct2, x = ~Years, y = ~value*1000000,
-                                      type = 'bar',
-                                      marker = list(color = ~color), name = ~variable) %>%
-  layout(title = " ",
-         yaxis = list(title = ''), 
-         xaxis = list(title = ''),
-         barmode = 'stack')
-Compsition_TaxSSC_Revenues<-ggplotly(Compsition_TaxSSC_Revenues)
-Compsition_TaxSSC_Revenues <- Compsition_TaxSSC_Revenues %>% layout(legend = list(orientation = 'h'))           
-Compsition_TaxSSC_Revenues          
-
-
-```
-
-### VAT revenues and VAT revenues as percentage of GDP
-
-```{r,eval=TRUE}
-
-VAT_FORECAST_HISTORIC<-VAT_FORECAST%>%
-  dplyr::filter(Year<2020)%>%
-  dplyr::select(Year,Nominal_VAT_NET,share_gdp)
-  
- VAT_FORECAST_HISTORIC$Nominal_VAT_NET<- (VAT_FORECAST_HISTORIC$Nominal_VAT_NET)*1000000
-
-                                  fig <- plot_ly(VAT_FORECAST_HISTORIC)
-                                  
-                                  fig <- fig %>% add_trace(x = ~Year, y = ~Nominal_VAT_NET, type = 'bar', name = 'GDP',
-                                                           marker = list(color = 'royalblue')
-                                                            )
-                                fig <- fig %>% add_trace(x = ~Year, y = ~share_gdp*100, type = 'scatter', mode = 'lines', name = 'Share of VAT in GDP', yaxis = 'y2', marker = list(color = 'red'),
-                                                         line = list(dash = "dash",width=5)
-                                                         
-                                                         )
-                                fig <- fig %>% layout(title = ' ',
-                                                      xaxis = list(title = "",font = t_8),
-                                                      yaxis = list(side = 'left', title = '', font = t_8,showgrid = FALSE, zeroline = FALSE),
-                                                      yaxis2 = list(side = 'right', overlaying = "y", title = '',font = t_8, showgrid = FALSE, zeroline = FALSE))
-
-fig <- fig %>%layout(legend = list(orientation = 'h'))
-  
-  #layout(legend = list(x = 0.01, y = 0.99))
-  
-  #legend = list(orientation = 'h')) 
-   
-fig
-
-```
-
-Row
------------------------------------------------------------------------
-
-### Structure of tax and SSC in percentage
-
-```{r,eval=TRUE}
-
-
-
-
-Compsition_TaxSSC_Revenues <- plot_ly(t_df_pct2, x = ~Years, y = ~value,
-                                      type = 'bar',
-                                      marker = list(color = ~color), name = ~variable) %>%
-  layout(title = " ",
-         yaxis = list(title = ''), 
-          xaxis = list(title = ''),
-         barmode = 'stack')
-Compsition_TaxSSC_Revenues<-ggplotly(Compsition_TaxSSC_Revenues)
-Compsition_TaxSSC_Revenues <- Compsition_TaxSSC_Revenues %>% layout(legend = list(orientation = 'h'))         
-
-Compsition_TaxSSC_Revenues
-          
-```
-
-
-### Structure of indirect taxes
-
-```{r,eval=TRUE}
-
-
-FINAL_FORECASTING_PLOTLY<-DATA_PLOT3%>%
-  select(Year,VAT_NET,EXCISE)
-
-t_df <- data.frame((FINAL_FORECASTING_PLOTLY[,-1]))
-t_df_pct <- t_df
-t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)] <-t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)]/rowSums(t_df_pct[,1:(ncol(FINAL_FORECASTING_PLOTLY)-1)])
-Years<-c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
-         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019")
-
-t_df_pct1<-cbind(Years ,t_df_pct)
-t_df_pct1<-t_df_pct1[1:20,]
-t_df_pct1$Years<- factor(t_df_pct1$Years, levels = c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
-                                                     "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
-                                                     ))
-t_df_pct1$Years<- factor(t_df_pct1$Years)
-t_df_pct2<-melt(t_df_pct1, id.vars = c("Years"))
-t_df_pct2$color <- factor(t_df_pct2$variable, labels = c("orange", "red"))
-
-
-t_df_1_1 <- data.frame((FINAL_FORECASTING_PLOTLY[,-1]))
-t_df_1_pct <- t_df_1_1
-Years<-c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
-         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
-        )
-
-t_df_1_pct1<-cbind(Years ,t_df_1_pct)
-t_df_1_pct1<-t_df_1_pct1[1:20,]
-t_df_1_pct1$Years<- factor(t_df_1_pct1$Years, levels = c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
-                                                         "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019"
-                                                         ))
-t_df_1_pct1$Years<- factor(t_df_1_pct1$Years)
-t_df_1_pct2<-melt(t_df_1_pct1, id.vars = c("Years"))
-t_df_1_pct2$color <- factor(t_df_1_pct2$variable, labels = c("orange", "red"))
-
-
-Compsition_TaxSSC_Revenues <- plot_ly(t_df_pct2, x = ~Years, y = ~value,
-                                      type = 'bar',
-                                      marker = list(color = ~color), name = ~variable) %>%
-  layout(title = " ",
-         yaxis = list(title = ''), 
-          xaxis = list(title = ''),
-         barmode = 'stack')
-Compsition_TaxSSC_Revenues<-ggplotly(Compsition_TaxSSC_Revenues)
-Compsition_TaxSSC_Revenues <- Compsition_TaxSSC_Revenues %>% layout(legend = list(orientation = 'h'))         
-
-Compsition_TaxSSC_Revenues
-                       
-```
 
 Forecast
 =======================================================================
 
-Row
------------------------------------------------------------------------
+
 
 ### Forecast of VAT revenues
 
@@ -2169,93 +2320,3 @@ plt
    
 ```
 
-Row
------------------------------------------------------------------------
-
-### Discretionary tax measures
-
-```{r,eval=TRUE}
- 
-vat_effective_bu<-hbs_bu%>%
-  dplyr::select(centiles,total_consumption,VAT_TOTAL)%>%
-  dplyr::group_by(centiles)%>%
-  dplyr::summarise(total_consumption=sum(total_consumption),VAT_TOTAL=sum(VAT_TOTAL))%>%
-  dplyr::mutate(effective_vat_before_reform=VAT_TOTAL/total_consumption)%>%
-  dplyr::select(centiles,effective_vat_before_reform)
-
-
-vat_effective<-hbs%>%
-  dplyr::select(centiles,total_consumption,VAT_TOTAL)%>%
-  dplyr::group_by(centiles)%>%
-  dplyr::summarise(total_consumption=sum(total_consumption),VAT_TOTAL=sum(VAT_TOTAL))%>%
-  dplyr::mutate(effective_vat_after_reform=VAT_TOTAL/total_consumption)%>%
-  dplyr::select(centiles,effective_vat_after_reform)
-
-
-vat_effective_final<-left_join(vat_effective_bu,vat_effective,by = c("centiles"))%>%
-  data.table()
-
-fig <- plot_ly(vat_effective_final, x = ~centiles, y = ~effective_vat_before_reform, name = "Before reform", type = 'scatter', mode = 'lines',
-               line = list(dash = "solid"))
-fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash"))%>%
-  layout(
-    xaxis = list(title = 'Centiles'),
-    yaxis = list(title = ''),
-    legend = list(x = 0.01, y = 0.99)
-  )
-fig
-          
-
-```
-
-
-### Effective VAT rate by decile groups
-
-```{r,eval=TRUE}
-
-vat_effective_bu<-hbs_bu%>%
-  dplyr::select(deciles,total_consumption,VAT_TOTAL)%>%
-  dplyr::group_by(deciles)%>%
-  dplyr::summarise(total_consumption=sum(total_consumption),VAT_TOTAL=sum(VAT_TOTAL))%>%
-  dplyr::mutate(effective_vat_before_reform=VAT_TOTAL/total_consumption)%>%
-  dplyr::select(deciles,effective_vat_before_reform)
-
-
-vat_effective<-hbs%>%
-  dplyr::select(deciles,total_consumption,VAT_TOTAL)%>%
-  dplyr::group_by(deciles)%>%
-  dplyr::summarise(total_consumption=sum(total_consumption),VAT_TOTAL=sum(VAT_TOTAL))%>%
-  dplyr::mutate(effective_vat_after_reform=VAT_TOTAL/total_consumption)%>%
-  dplyr::select(deciles,effective_vat_after_reform)
-
-
-vat_effective_final<-left_join(vat_effective_bu,vat_effective,by = c("deciles"))%>%
-  data.table()
-
-# fig <- plot_ly(vat_effective_final, x = ~deciles, y = ~effective_vat_before_reform, name = "Before reform", type = 'scatter', mode = 'lines',
-#                line = list(dash = "solid"))
-# fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash"))%>%
-#   layout(
-#     xaxis = list(title = 'Deciles'),
-#     yaxis = list(title = 'Effective VAT rate %'),
-#     legend = list(x = 0.01, y = 0.99)
-#   )
-# fig
-
-
-
-plt <- plot_ly(vat_effective_final) %>% 
-  add_trace(x = ~deciles, y = ~effective_vat_before_reform, type = 'bar', name = 'With current VAT rates') %>% 
-  add_trace(x = ~deciles, y = ~effective_vat_after_reform, type = 'bar', name = 'With standard VAT rates') %>% 
-    layout(
-       xaxis = list(title = 'Deciles',font = t_8), 
-    yaxis = list(title = 'Effective VAT rate %'),
-    legend = list(x = 0.01, y = 0.99),
-    barmode = 'group'
-     )
-
-plt
-
-
-                       
-```
