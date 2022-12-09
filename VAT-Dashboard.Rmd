@@ -247,9 +247,6 @@ Row
 
 ```{r,eval=TRUE}
 
-
-
-
 Compsition_TaxSSC_Revenues <- plot_ly(t_df_pct2, x = ~Years, y = ~value,
                                       type = 'bar',
                                       marker = list(color = ~color), name = ~variable) %>%
@@ -336,9 +333,22 @@ df<-Simulation%>%
 df<-left_join(NACE_NAMES,df,by = c("PRODUCT_INDUSTRY_CODE"))%>%
 dplyr::arrange(PRODUCT_INDUSTRY_CODE)
 
+# # Original
+# df<-df%>%
+#   dplyr::rename(c("NACE Division"= "PRODUCT_INDUSTRY_CODE",
+#                   "Description"= "PRODUCT_INDUSTRY_NAME",
+#                   "Standard Rate"="Standard_VAT_Rate",
+#                   "Preferential rate"="Preferential_VAT_Rate",
+#                   "Exempted Share"="Simulated_Policy_Exempt",
+#                   "Reduced Rate Share"= "Simulated_Policy_Reduced_Rate",
+#                   "Standard Rate Share"= "Simulated_Policy_Fully_Taxable",
+#                   "Exempted Share(%)"="Simulated_Policy_Exempt",
+#                   "Reduced Rate Share (%)"= "Simulated_Policy_Reduced_Rate",
+#                   "Standard Rate Share (%)"= "Simulated_Policy_Fully_Taxable"
+#   ))
 
 df<-df%>%
-  dplyr::rename(c("NACE Division"= "PRODUCT_INDUSTRY_CODE",
+  dplyr::rename(c("CPA Division"= "PRODUCT_INDUSTRY_CODE",
                   "Description"= "PRODUCT_INDUSTRY_NAME",
                   "Standard Rate"="Standard_VAT_Rate",
                   "Preferential rate"="Preferential_VAT_Rate",
@@ -350,8 +360,11 @@ df<-df%>%
                   "Standard Rate Share (%)"= "Simulated_Policy_Fully_Taxable"
   ))
 
-#df$`Reduced Rate Share`<-round(df$`Reduced Rate Share`,4)
-#df$`Standard Rate Share`<-round(df$`Standard Rate Share`,4)
+# df$`Reduced Rate Share`<-round(df$`Reduced Rate Share`,4)
+# df$`Standard Rate Share`<-round(df$`Standard Rate Share`,4)
+
+df$`Reduced Rate Share (%)`<-round(df$`Reduced Rate Share (%)`,4)
+df$`Standard Rate Share (%)`<-round(df$`Standard Rate Share (%)`,4)
 
 
 datatable(df,
@@ -386,31 +399,30 @@ Decomposition of VAT GAP
 Row {data-height=650}
 -----------------------------------------------------------------------
 
-### Comparison VAT Gap (in MKD denars)
+### Comparison VAT Gap (in LCU)
 ```{r,eval=TRUE}
 
-df_plot<-Main_Results%>%
-  dplyr::select(Total_VAT_Gap.M_of_denars,Policy_Gap.M_of_denars,Compliance_Gap.M_of_denars)%>%
+ df_plot<-Main_Results%>%
+  dplyr::select(Benchmark_VAT_M_of_denars,Uncalibrated_VAT_Est.M_of_denars,Calibrated_VAT_Est.M_of_denars)%>%
   data.table()
-colnames(df_plot) <- c('Total VAT Gap', 'Policy Gap ', 'Compliance Gap')
+colnames(df_plot) <- c('Benchmark VAT', 'Uncalibrated VAT', 'Calibrated VAT')
 df_plot<-df_plot*1000000 # Conversion in billions for Plotly
     df <-melt(df_plot) %>%
     dplyr:: arrange(desc(value))%>%
                   data.table()
 
     fig <- plot_ly(df, x = ~variable    , y = ~value, type = 'bar',
-                    marker = list(color = c('#2ca02c', '#ff7f0e','#d62728')))
+                    marker = list(color = c('#2ca02c', '#ff7f0e','#d62728', '#1f77b4','#9370DB','#8c564b')))
     fig <- fig%>% layout(title = " ", xaxis = list(title= ""),yaxis = list(title= " "),
                          annotations =
                            list(x = 0, y = -0.131,
-                                title = "",
-                                text = "",
+                                title = " ",
+                                text = " ",
                                 showarrow = F,
                                 xref='paper',
                                 yref='paper',align='left')) 
 
     fig
-    
 
 ```
 
@@ -497,31 +509,32 @@ gg.gauge(round(df_plot$`Policy Gap`*100,2),breaks=c(0,15,30,100))
 Row
 -----------------------------------------------------------------------
 
-### Comparison VAT revenues (in MKD denars)
+### Comparison VAT revenues (in LCU)
 
 ```{r,eval=TRUE}
  
- df_plot<-Main_Results%>%
-  dplyr::select(Benchmark_VAT_M_of_denars,Uncalibrated_VAT_Est.M_of_denars,Calibrated_VAT_Est.M_of_denars)%>%
+df_plot<-Main_Results%>%
+  dplyr::select(Total_VAT_Gap.M_of_denars,Policy_Gap.M_of_denars,Compliance_Gap.M_of_denars)%>%
   data.table()
-colnames(df_plot) <- c('Benchmark VAT', 'Uncalibrated VAT', 'Calibrated VAT')
+colnames(df_plot) <- c('Total VAT Gap', 'Policy Gap ', 'Compliance Gap')
 df_plot<-df_plot*1000000 # Conversion in billions for Plotly
     df <-melt(df_plot) %>%
     dplyr:: arrange(desc(value))%>%
                   data.table()
 
     fig <- plot_ly(df, x = ~variable    , y = ~value, type = 'bar',
-                    marker = list(color = c('#2ca02c', '#ff7f0e','#d62728', '#1f77b4','#9370DB','#8c564b')))
+                    marker = list(color = c('#2ca02c', '#ff7f0e','#d62728')))
     fig <- fig%>% layout(title = " ", xaxis = list(title= ""),yaxis = list(title= " "),
                          annotations =
                            list(x = 0, y = -0.131,
-                                title = " ",
-                                text = " ",
+                                title = "",
+                                text = "",
                                 showarrow = F,
                                 xref='paper',
                                 yref='paper',align='left')) 
 
     fig
+    
                                   
 
 ```
@@ -614,7 +627,7 @@ VAT structure by sectors
 Row {data-height=650}
 -----------------------------------------------------------------------
 
-### VAT revenues from Industries (in MKD millions)
+### VAT revenues from Industries (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-revenue_vat_total_bu%>%
@@ -693,7 +706,7 @@ treemap<-plot_ly(data = df, type = "treemap", values = ~value, labels = ~PRODUCT
 Row
 -----------------------------------------------------------------------
 
-### VAT revenues from NPISH (in MKD millions)
+### VAT revenues from NPISH (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-revenue_vat_total_bu%>%
@@ -769,7 +782,7 @@ df<-revenue_vat_total_bu%>%
 
 Row
 -----------------------------------------------------------------------
-### VAT revenues from Government (in MKD millions)
+### VAT revenues from Government (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-revenue_vat_total_bu%>%
@@ -828,7 +841,7 @@ df<-revenue_vat_total_bu%>%
 Row
 -----------------------------------------------------------------------
 
-### VAT revenues from households (in MKD millions)
+### VAT revenues from households (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-revenue_vat_total_bu%>%
@@ -887,7 +900,7 @@ Tax expenditures
 Row {data-height=650}
 -----------------------------------------------------------------------
 
-### Total tax expenditures (in MKD millions)
+### Total tax expenditures (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-Simulation_Results_1_te
@@ -898,7 +911,7 @@ valueBox(round(sum(df_plot$Simulation_Results_1_te),0),
 ```
 
 
-### Tax expenditures accross NACE divisions (in MKD millions)
+### Tax expenditures accross CPA divisions (in LCU millions)
 
 ```{r,eval=TRUE}
  
@@ -983,7 +996,7 @@ Simulation results
 Row {data-height=650}
 -----------------------------------------------------------------------
 
-### Fiscal impact of simulation (in MKD millions)
+### Fiscal impact of simulation (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-Result_Simulation%>%
@@ -1048,7 +1061,7 @@ valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.Prc),2),
 ```
 
 
-### Difference of revenue after reform (in MKD millions)
+### Difference of revenue after reform (in LCU millions)
 
 ```{r,eval=TRUE}
 
@@ -1093,7 +1106,7 @@ Industries
 Row {data-height=650}
 -----------------------------------------------------------------------
 
-### VAT revenues from Industries (in MKD millions)
+### VAT revenues from Industries (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-revenue_vat_total_bu%>%
@@ -1153,7 +1166,7 @@ df<-revenue_vat_total_bu%>%
 Row
 -----------------------------------------------------------------------
 
-### VAT revenues from industries (in MKD millions)
+### VAT revenues from industries (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-Revenue_VAT_TOTAL%>%
@@ -1223,7 +1236,7 @@ NPISH
 Row {data-height=650}
 -----------------------------------------------------------------------
 
-### VAT revenues from NPISH (in MKD millions)
+### VAT revenues from NPISH (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-revenue_vat_total_bu%>%
@@ -1284,7 +1297,7 @@ df<-revenue_vat_total_bu%>%
 Row
 -----------------------------------------------------------------------
 
-### VAT revenues from NPISH (in MKD millions)
+### VAT revenues from NPISH (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-Revenue_VAT_TOTAL%>%
@@ -1311,7 +1324,7 @@ df<-Revenue_VAT_TOTAL%>%
       dplyr::mutate(value=round(value),0)
     
     
-   df$SUT_division<-"NACE Divisions"
+   df$SUT_division<-"CPA Divisions"
 
     treemap<-plot_ly(data = df,
                                  type= "treemap",
@@ -1353,7 +1366,7 @@ Government
 Row {data-height=650}
 -----------------------------------------------------------------------
 
-### VAT revenues from Government (in MKD millions)
+### VAT revenues from Government (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-revenue_vat_total_bu%>%
@@ -1417,7 +1430,7 @@ treemap
 Row
 -----------------------------------------------------------------------
 
-### VAT revenues from Government (in MKD millions)
+### VAT revenues from Government (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-Revenue_VAT_TOTAL%>%
@@ -1444,7 +1457,7 @@ df<-Revenue_VAT_TOTAL%>%
       dplyr::mutate(value=round(value),0)
     
     
-   df$SUT_division<-"NACE Divisions"
+   df$SUT_division<-"CPA Divisions"
 
     treemap<-plot_ly(data = df,
                                  type= "treemap",
@@ -1482,7 +1495,7 @@ Households
 Row {data-height=650}
 -----------------------------------------------------------------------
 
-### VAT revenues from households (in MKD millions)
+### VAT revenues from households (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-revenue_vat_total_bu%>%
@@ -1545,7 +1558,7 @@ df<-revenue_vat_total_bu%>%
 Row
 -----------------------------------------------------------------------
 
-### VAT revenues from households (in MKD millions)
+### VAT revenues from households (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-Revenue_VAT_TOTAL%>%
@@ -1610,7 +1623,7 @@ Effective VAT rates
 Row {data-height=850}
 -----------------------------------------------------------------------
 
-### Fiscal impact of simulation (in MKD millions)
+### Fiscal impact of simulation (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-Result_Simulation%>%
@@ -1625,7 +1638,7 @@ valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.M_of_denars),0),
 
 
 
-### Effective VAT rates accross NACE division
+### Effective VAT rates accross CPA division
 
 ```{r,eval=TRUE}
 
@@ -1722,7 +1735,7 @@ COICOP
 Row {data-height=650}
 -----------------------------------------------------------------------
 
-### Fiscal impact of simulation (in MKD millions)
+### Fiscal impact of simulation (in LCU millions)
 ```{r,eval=TRUE}
 
 df_plot<-Result_Simulation%>%
@@ -2097,7 +2110,7 @@ fig <-plot_ly(
 )
 
 fig <- fig %>% layout(title = ' ',
-                      xaxis = list(title = 'Expenditures in MKD million'),
+                      xaxis = list(title = 'Expenditures in LCU million'),
                       yaxis = list(title = 'Number of households'))
 
 fig
@@ -2139,7 +2152,7 @@ fig <- plot_ly(data_merged_plot, x = ~total_consumption, y = ~effective_vat_befo
                line = list(dash = "solid",width=5))
 fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash",width=5))%>%
   layout(
-    xaxis = list(title = 'Expenditures in MKD million'),
+    xaxis = list(title = 'Expenditures in LCU million'),
     yaxis = list(title = ''),
     legend = list(x = 0.01, y = 0.99)
   )
