@@ -18,8 +18,12 @@ getwd()
                 tax_base_TOTAL=Final_Demand_Total/standard_VAT_rate)%>%
               dplyr::select(PRODUCT_INDUSTRY_CODE,tax_base_INDUSTRIES,tax_base_HH,tax_base_NPISH,tax_base_GOVERMENT,tax_base_TOTAL)
             
+             TAX_BASE_TOTAL[2:6]<-abs(TAX_BASE_TOTAL[2:6])
             
             
+          
+
+
             # EFFECTIVE_VAT_RATES<-left_join(TAX_BASE_TOTAL,SIMULATION_3,by = c("PRODUCT_INDUSTRY_CODE"))%>%
             EFFECTIVE_VAT_RATES<-left_join(TAX_BASE_TOTAL,SIMULATION,by = c("PRODUCT_INDUSTRY_CODE"))%>%
               dplyr::select(PRODUCT_INDUSTRY_CODE,Standard_VAT_Rate,Preferential_VAT_Rate,tax_base_INDUSTRIES,
