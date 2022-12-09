@@ -55,7 +55,7 @@ TIP:
             library(rccmisc) 
             
             
-                    benchmark_tax_rate <- 0.18
+                    benchmark_tax_rate <- 0.18#0.18
                     standard_VAT_rate = 0.18
                     preferential_VAT_rate = 0.05
                     
