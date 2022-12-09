@@ -91,6 +91,9 @@ TIP:
                     SIMULATION$Standard_VAT_Rate[41] = 0 # This is the industry: Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
                     SIMULATION$Preferential_VAT_Rate = preferential_VAT_rate
 
+                    # Base for calculation 
+                    SIMULATION_CALIBRATION_FACTOR<-SIMULATION
+                    
         # 2.CHANGE OF SIMULATION POLICIES ------------------------------------------------
                     
                

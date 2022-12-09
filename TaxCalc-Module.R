@@ -2,7 +2,6 @@
 SIMULATION-MODULE
 
 '
-
 setwd(path)
 getwd()
 
@@ -210,6 +209,29 @@ getwd()
                         
                     # 2. SIMULATION ----
                         # 2.1 Pre-processing COICOP and setting parameters for simulation ------------------------------------------
+                        # 2.1.0 Estimation of Calibration factor -----------------------------------------------------
+                        '
+                              Warning
+                              This part begins with copy-paste of the parameters entered previously and from this point begins with their new calculation with the aim of obtaining TE
+                              '
+                        SIMULATION_0 = copy(SIMULATION_CALIBRATION_FACTOR)
+                        
+                        colnames(SIMULATION_0) <- c("PRODUCT_INDUSTRY_CODE","CPA_DIVISION",
+                                                  "Current_Policy_Exempt","Current_Policy_Reduced_Rate","Current_Policy_Fully_Taxable",
+                                                  "Simulation_Toggles_Exempt","Simulation_Toggles_Reduced_Rate",
+                                                  "Standard_VAT_Rate","Preferential_VAT_Rate")
+                        
+                        
+                        # SIMULATION_0$Simulation_Toggles_Reduced_Rate<-TE_EXEMPT
+                        # SIMULATION_0$Simulation_Toggles_Exempt<-TE_REDUCED_RATE
+                        
+                        
+                        SIMULATION_0 <- SIMULATION_0 %>%
+                          dplyr::mutate(Simulated_Policy_Exempt = ifelse(is.na(Simulation_Toggles_Exempt), Current_Policy_Exempt, Simulation_Toggles_Exempt),
+                                        Simulated_Policy_Reduced_Rate = ifelse(is.na(Simulation_Toggles_Reduced_Rate), Current_Policy_Reduced_Rate, Simulation_Toggles_Reduced_Rate),
+                                        Simulated_Policy_Fully_Taxable = 1-Simulated_Policy_Exempt-Simulated_Policy_Reduced_Rate)
+                        
+                        
                           # 2.1.1 Aggregate table for COICOP----------------------------------------
                           
                           # New  Aggregation for FINAL COICOP TABLE
@@ -284,16 +306,12 @@ getwd()
                           # 2.1.3 Estimation of effective VAT RATE ----------------------------------------------------------
                           
                           SIMULATION_2 = copy(SIMULATION)
-                          
                           SIMULATION_2$Simulation_Toggles_Reduced_Rate<-TE_EXEMPT
-                          
-                          
                           
                           SIMULATION_2 <- SIMULATION_2 %>%
                             dplyr::mutate(Simulated_Policy_Exempt = ifelse(is.na(Simulation_Toggles_Exempt), Current_Policy_Exempt, Simulation_Toggles_Exempt),
                                           Simulated_Policy_Reduced_Rate = ifelse(is.na(Simulation_Toggles_Reduced_Rate), Current_Policy_Reduced_Rate, Simulation_Toggles_Reduced_Rate),
                                           Simulated_Policy_Fully_Taxable = 1-Simulated_Policy_Exempt-Simulated_Policy_Reduced_Rate)
-                          
                           
                         # 2.2 Benchmark revenues -----
                         
@@ -333,6 +351,33 @@ getwd()
                         Sum_of_Final_Demand_Total = sum(CPA_PRODUCTS$BM_Rev$Final_Demand_Total)
                         
                         # 2.3 Est.IS ----
+                          # 2.3.0 Estimation of Calibration factor ---------------------------------------------------
+                        
+                        # Copy paste table
+                        SUPPLY_DOM_0 = copy(SUPPLY_DOM)
+                        NACE_INDUSTRIES_0 = copy(NACE_INDUSTRIES)
+                        
+                        EST.IS_0 <- merge.data.frame(SUPPLY_DOM_0, SIMULATION_0, key = "PRODUCT_INDUSTRY_CODE")
+                        EST.IS_0$value = EST.IS_0$value*EST.IS_0$Simulated_Policy_Exempt
+                        
+                        EST.IS_0 <- EST.IS_0 %>% select(PRODUCT_INDUSTRY_CODE, PRODUCT_INDUSTRY_NAME, INDUSTRY_CODE, INDUSTRY_NAME, value)
+                        EST.IS_0$value[is.na(EST.IS_0$value)] <- 0
+                        
+                        NACE_INDUSTRIES_0$Est.IS <- EST.IS_0 %>% 
+                          dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
+                          dplyr::group_by(INDUSTRY_CODE, INDUSTRY_NAME) %>%
+                          dplyr::summarise(Industry_Share = sum(value, na.rm = T))
+                        
+                        NACE_INDUSTRIES_0$Est.IS <- NACE_INDUSTRIES_0$Est.IS %>%
+                          dplyr::arrange(INDUSTRY_CODE)
+                        
+                        NACE_INDUSTRIES_0$Supply_Dom <- NACE_INDUSTRIES_0$Supply_Dom %>%
+                          dplyr::arrange(INDUSTRY_CODE)
+                        
+                        NACE_INDUSTRIES_0$Est.IS$Industry_Share <- NACE_INDUSTRIES_0$Est.IS$Industry_Share/NACE_INDUSTRIES_0$Supply_Dom$Total_output_by_industries_at_basic_prices
+                        
+                        NACE_INDUSTRIES_0$Est.IS$Industry_Share[is.na(NACE_INDUSTRIES_0$Est.IS$Industry_Share)] <- 0
+                        
                           # 2.3.1 Main estimation  --------------------------------------------------
                           
                           EST.IS <- merge.data.frame(SUPPLY_DOM, SIMULATION, key = "PRODUCT_INDUSTRY_CODE")
@@ -410,6 +455,44 @@ getwd()
                           NACE_INDUSTRIES_2$Est.IS$Industry_Share[is.na(NACE_INDUSTRIES_2$Est.IS$Industry_Share)] <- 0
                           
                         # 2.4 Est Rev ----
+                          # 2.4.0 Estimation of Calibration factor ---------------------------------------------------
+                          USE_K_DOM_NETPURCH_0 = copy(USE_K_DOM_NETPURCH)
+                          CPA_PRODUCTS_0 = copy(CPA_PRODUCTS)
+                          
+                          EST_REV_0 <- USE_K_DOM_NETPURCH_0 %>% 
+                            merge.data.frame(NACE_INDUSTRIES_0$Est.IS, key = "INDUSTRY_NAME") %>%
+                            merge.data.frame(SIMULATION_0, key = "PRODUCT_INDUSTRY_NAME") %>%
+                            dplyr::mutate(value = (Simulated_Policy_Reduced_Rate*Preferential_VAT_Rate+Simulated_Policy_Fully_Taxable*Standard_VAT_Rate)*Industry_Share*value) %>%
+                            dplyr::arrange(PRODUCT_INDUSTRY_CODE, INDUSTRY_CODE)
+                          
+                          CPA_PRODUCTS_0$Est_Rev <- EST_REV_0 %>% 
+                            dplyr::group_by(PRODUCT_INDUSTRY_CODE, PRODUCT_INDUSTRY_NAME) %>%
+                            dplyr::summarise(Total_Revenues_from_Intermediate_Inputs = sum(value, na.rm = T)) %>%
+                            dplyr::arrange(PRODUCT_INDUSTRY_CODE)
+                          
+                          CPA_PRODUCTS_0$Est_Rev <- CPA_PRODUCTS_0$Use_K_NetPurch %>% 
+                            merge.data.frame(SIMULATION_0, key = "PRODUCT_INDUSTRY_NAME") %>%
+                            dplyr::mutate(Final_Demand_HH = (Simulated_Policy_Reduced_Rate*Preferential_VAT_Rate+Simulated_Policy_Fully_Taxable*Standard_VAT_Rate)*
+                                            Final_consumption_expenditure_by_households,
+                                          Final_Demand_NPISH = (Simulated_Policy_Reduced_Rate*Preferential_VAT_Rate+Simulated_Policy_Fully_Taxable*Standard_VAT_Rate)*
+                                            Final_consumption_expenditure_NPISH,
+                                          Final_Demand_Government = (Simulated_Policy_Reduced_Rate*Preferential_VAT_Rate+Simulated_Policy_Fully_Taxable*Standard_VAT_Rate)*
+                                            Final_consumption_expenditure_by_government) %>%
+                            merge.data.frame(CPA_PRODUCTS_0$Est_Rev, key = "PRODUCT_INDUSTRY_NAME") %>%
+                            dplyr::select(PRODUCT_INDUSTRY_CODE, PRODUCT_INDUSTRY_NAME, Total_Revenues_from_Intermediate_Inputs, Final_Demand_HH, Final_Demand_NPISH, Final_Demand_Government) %>%
+                            dplyr::arrange(PRODUCT_INDUSTRY_NAME)
+                          
+                          
+                          CPA_PRODUCTS_0$Est_Rev$Final_Demand_HH[CPA_PRODUCTS_0$Est_Rev$PRODUCT_INDUSTRY_NAME == "Constructions and construction works"] <- 
+                            CPA_PRODUCTS_0$Use_K_NetPurch$Final_consumption_expenditure_by_households[CPA_PRODUCTS_0$Use_K_NetPurch$PRODUCT_INDUSTRY_NAME == "Constructions and construction works"]*
+                            (1-SIMULATION$Simulated_Policy_Exempt[62])*vat_rate_on_residential_construction
+                          
+                          CPA_PRODUCTS_0$Est_Rev$Final_Demand_Total = psum(CPA_PRODUCTS_0$Est_Rev$Total_Revenues_from_Intermediate_Inputs, 
+                                                                           CPA_PRODUCTS_0$Est_Rev$Final_Demand_HH, 
+                                                                           CPA_PRODUCTS_0$Est_Rev$Final_Demand_NPISH, 
+                                                                           CPA_PRODUCTS_0$Est_Rev$Final_Demand_Government, na.rm = T) 
+                          
+                        
                           # 2.4.1 Main estimation ----------------------------------------------------
                           EST_REV <- USE_K_DOM_NETPURCH %>% 
                             merge.data.frame(NACE_INDUSTRIES$Est.IS, key = "INDUSTRY_NAME") %>%
@@ -529,6 +612,90 @@ getwd()
                           
                           
                     # 3. SIMULATION RESULTS ----  
+                          # 3.1.0 Estimation of Calibration factor ---------------------------------------------------
+                          Results_0 <- as.list(c("VAT_Gap", "Simulation"))
+                          names(Results_0) <- c("VAT_Gap", "Simulation")
+                          
+                          # NEW
+                          Results_0$VAT_Gap <- as.data.frame(sum(CPA_PRODUCTS_0$BM_Rev$Final_Demand_Total))
+                          colnames(Results_0$VAT_Gap) <- "Benchmark_VAT_M_of_denars"
+                          
+                          
+                          
+                          # 
+                          # Results_0$VAT_Gap$Uncalibrated_VAT_Est.M_of_denars <- sum(CPA_PRODUCTS_0$Est_Rev$Final_Demand_Total, na.rm = T)
+                          # Results_0$VAT_Gap$VAT_Control_Total.M_of_denars <- sum(CPA_PRODUCTS_0$Use_VAT$Total_use_at_basic_prices, na.rm = T) - sum(CPA_PRODUCTS_0$Use_VAT$Exports_FOB, na.rm = T)
+                          
+                          Uncalibrated_VAT<- sum(CPA_PRODUCTS_0$Est_Rev$Final_Demand_Total, na.rm = T)
+                          VAT_control<-sum(CPA_PRODUCTS_0$Use_VAT$Total_use_at_basic_prices, na.rm = T) - sum(CPA_PRODUCTS_0$Use_VAT$Exports_FOB, na.rm = T)
+                          
+                          Locked_Calibration_Factor_TEST<-VAT_control/Uncalibrated_VAT
+                          
+                          Locked_Calibration_Factor<-Locked_Calibration_Factor_TEST
+                          #View(Locked_Calibration_Factor_TEST)
+                          # Results_0$VAT_Gap$Calibrated_VAT_Est.M_of_denars <- sum(CPA_PRODUCTS_0$Est_Rev$Final_Demand_Total, na.rm = T)*Locked_Calibration_Factor
+                          # Results_0$VAT_Gap$VAT_Control_Total.M_of_denars <- sum(CPA_PRODUCTS_0$Use_VAT$Total_use_at_basic_prices, na.rm = T) - sum(CPA_PRODUCTS_0$Use_VAT$Exports_FOB, na.rm = T)
+                          # #Results_0$VAT_Gap$Total_VAT_Gap.M_of_denars <- Results_0$VAT_Gap$Benchmark_VAT_M_of_denars - Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
+                          # Results_0$VAT_Gap$Total_VAT_Gap.Prc <- Results_0$VAT_Gap$Total_VAT_Gap.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
+                          # 
+                          # Manual input 
+                          # Test without manual input
+                          # Results_0$VAT_Gap$Policy_Gap.M_of_denars <- 24407  # <------- Manual input in simulation
+                          # New
+                          #Results_0$VAT_Gap$Policy_Gap.Prc <- Results_0$VAT_Gap$Policy_Gap.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
+                          #Results_0$VAT_Gap$Compliance_Gap.M_of_denars <- Results_0$VAT_Gap$Total_VAT_Gap.M_of_denars-Results_0$VAT_Gap$Policy_Gap.M_of_denars
+                          #Results_0$VAT_Gap$Compliance_Gap.Prc <- Results_0$VAT_Gap$Compliance_Gap.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
+                          #Results_0$VAT_Gap$Calibration_Factor <- Locked_Calibration_Factor 
+                          
+                          
+                          # Final output - Change in Revenues
+                          
+                          # 
+                          # Results_0$Simulation <- as.data.frame(as.integer(Results_0$VAT_Gap$Calibrated_VAT_Est.M_of_denars-Results_0$VAT_Gap$VAT_Control_Total.M_of_denars))
+                          # colnames(Results_0$Simulation) <- "Simulated_Change_in_Revenues.M_of_denars"
+                          # 
+                          # Results_0$Simulation$Simulated_Change_in_Revenues.Prc <- (Results_0$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars)*100
+                          # 
+                          # 3.1.1 Main estimation --------------------------------------------------
+                          
+                          Results <- as.list(c("VAT_Gap", "Simulation"))
+                          names(Results) <- c("VAT_Gap", "Simulation")
+                          
+                          
+                          Results$VAT_Gap <- as.data.frame(sum(CPA_PRODUCTS$BM_Rev$Final_Demand_Total))
+                          colnames(Results$VAT_Gap) <- "Benchmark_VAT_M_of_denars"
+                          
+                          Results$VAT_Gap$Uncalibrated_VAT_Est.M_of_denars <- sum(CPA_PRODUCTS$Est_Rev$Final_Demand_Total, na.rm = T)
+                          
+                          
+                          
+                          Results$VAT_Gap$Calibrated_VAT_Est.M_of_denars <- sum(CPA_PRODUCTS$Est_Rev$Final_Demand_Total, na.rm = T)*Locked_Calibration_Factor
+                          Results$VAT_Gap$VAT_Control_Total.M_of_denars <- sum(CPA_PRODUCTS$Use_VAT$Total_use_at_basic_prices, na.rm = T) - sum(CPA_PRODUCTS$Use_VAT$Exports_FOB, na.rm = T)
+                          Results$VAT_Gap$Total_VAT_Gap.M_of_denars <- Results$VAT_Gap$Benchmark_VAT_M_of_denars - Results$VAT_Gap$VAT_Control_Total.M_of_denars
+                          Results$VAT_Gap$Total_VAT_Gap.Prc <- Results$VAT_Gap$Total_VAT_Gap.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars
+                          
+                    
+                          # This part is replaced below
+                          # # Results$VAT_Gap$Policy_Gap.M_of_denars <- 24407  # <------- Manual input in simulation
+                          # Results$VAT_Gap$Policy_Gap.M_of_denars <-Results_1$Simulation$Simulated_Change_in_Revenues.M_of_denars  
+                          # Results$VAT_Gap$Policy_Gap.Prc <- Results$VAT_Gap$Policy_Gap.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars
+                          # Results$VAT_Gap$Compliance_Gap.M_of_denars <- Results$VAT_Gap$Total_VAT_Gap.M_of_denars-Results$VAT_Gap$Policy_Gap.M_of_denars
+                          # Results$VAT_Gap$Compliance_Gap.Prc <- Results$VAT_Gap$Compliance_Gap.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars
+                          # Results$VAT_Gap$Calibration_Factor <- Locked_Calibration_Factor 
+                          # 
+                          
+                          
+                          # Final output - Change in Revenues
+                          
+                          
+                          Results$Simulation <- as.data.frame(as.integer(Results$VAT_Gap$Calibrated_VAT_Est.M_of_denars-Results$VAT_Gap$VAT_Control_Total.M_of_denars))
+                          colnames(Results$Simulation) <- "Simulated_Change_in_Revenues.M_of_denars"
+                          
+                          Results$Simulation$Simulated_Change_in_Revenues.Prc <- (Results$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars)*100
+                          
+                          
+                          
+                          
                           # 3.1.2 Estimation of TE part ---------------------------------------------------
                           
                           Results_1 <- as.list(c("VAT_Gap", "Simulation"))
@@ -569,47 +736,17 @@ getwd()
                           #View(Results_1)
                           
                           
-                          # 3.1.1 Main estimation --------------------------------------------------
-                          
-                          Results <- as.list(c("VAT_Gap", "Simulation"))
-                          names(Results) <- c("VAT_Gap", "Simulation")
-                          
-                          
-                          Results$VAT_Gap <- as.data.frame(sum(CPA_PRODUCTS$BM_Rev$Final_Demand_Total))
-                          colnames(Results$VAT_Gap) <- "Benchmark_VAT_M_of_denars"
-                          
-                          Results$VAT_Gap$Uncalibrated_VAT_Est.M_of_denars <- sum(CPA_PRODUCTS$Est_Rev$Final_Demand_Total, na.rm = T)
-                          
-                          
-                          
-                          Results$VAT_Gap$Calibrated_VAT_Est.M_of_denars <- sum(CPA_PRODUCTS$Est_Rev$Final_Demand_Total, na.rm = T)*Locked_Calibration_Factor
-                          Results$VAT_Gap$VAT_Control_Total.M_of_denars <- sum(CPA_PRODUCTS$Use_VAT$Total_use_at_basic_prices, na.rm = T) - sum(CPA_PRODUCTS$Use_VAT$Exports_FOB, na.rm = T)
-                          Results$VAT_Gap$Total_VAT_Gap.M_of_denars <- Results$VAT_Gap$Benchmark_VAT_M_of_denars - Results$VAT_Gap$VAT_Control_Total.M_of_denars
-                          Results$VAT_Gap$Total_VAT_Gap.Prc <- Results$VAT_Gap$Total_VAT_Gap.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars
-                          
-                          # Manual input 
-                          
-                         # Results$VAT_Gap$Policy_Gap.M_of_denars <- 24407  # <------- Manual input in simulation
-                          Results$VAT_Gap$Policy_Gap.M_of_denars <-Results_1$Simulation$Simulated_Change_in_Revenues.M_of_denars  
+                          # 3.1.1 a ----------------------------------------------------------------
+                             # This part is from 3.1.1 main estimation
+                          Results$VAT_Gap$Policy_Gap.M_of_denars <-Results_1$Simulation$Simulated_Change_in_Revenues.M_of_denars
                           Results$VAT_Gap$Policy_Gap.Prc <- Results$VAT_Gap$Policy_Gap.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars
                           Results$VAT_Gap$Compliance_Gap.M_of_denars <- Results$VAT_Gap$Total_VAT_Gap.M_of_denars-Results$VAT_Gap$Policy_Gap.M_of_denars
                           Results$VAT_Gap$Compliance_Gap.Prc <- Results$VAT_Gap$Compliance_Gap.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars
-                          Results$VAT_Gap$Calibration_Factor <- Locked_Calibration_Factor 
+                          Results$VAT_Gap$Calibration_Factor <- Locked_Calibration_Factor
                           
+                         
                           
-                          
-                          # Final output - Change in Revenues
-                          
-                          
-                          Results$Simulation <- as.data.frame(as.integer(Results$VAT_Gap$Calibrated_VAT_Est.M_of_denars-Results$VAT_Gap$VAT_Control_Total.M_of_denars))
-                          colnames(Results$Simulation) <- "Simulated_Change_in_Revenues.M_of_denars"
-                          
-                          Results$Simulation$Simulated_Change_in_Revenues.Prc <- (Results$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars)*100
-                          
-                      
-                          
-                      
-                          # 3.1.3 Estimation of effective VAT RATE------------------------------
+                          # 3.1.3 Estimation of effective VAT RATE ------------------------------
                           
                           Results_2 <- as.list(c("VAT_Gap", "Simulation"))
                           names(Results_2) <- c("VAT_Gap", "Simulation")
