@@ -53,6 +53,31 @@ TIP:
             options(dplyr.summarise.inform = FALSE)
             library(reshape2)
             library(rccmisc) 
+            library(flexdashboard)
+            library(ggplot2)
+            library(plotly)
+            library(data.table)
+            library(tidyr)
+            library(dplyr)
+            library(shades)
+            library(knitr)
+            library(DT)
+            library(rpivotTable)
+            library(forecast)
+            library(openintro)
+            library(highcharter)
+            library(ggvis)
+            library(DataCombine)
+            library(viridisLite)
+            library(readxl)
+            library(reshape2)
+            options(warn=-1)
+            library(orca)
+            library(sm)
+            library(ks)
+            library(plyr)
+            
+            
             
             
                     benchmark_tax_rate <- 0.18#0.18
