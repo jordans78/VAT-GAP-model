@@ -2029,20 +2029,31 @@ t_df1<-t_df1%>%
 
 t_df3<-cbind(t_df1,t_df2)
 
+# 
+# plt <- plot_ly(t_df3) %>%
+#   add_trace(x = ~deciles, y = ~value.x, type = 'bar', marker = list(color = ~color.x), name = ~variable.x) %>%
+#   add_trace(x = ~deciles+0.4, y = ~value, type = 'bar', marker = list(color = ~color), showlegend = FALSE) %>%
+#   layout(
+#     xaxis = list(title = '',font = t_16),
+#     yaxis = list(title = ''),
+#     legend = list(x = 0.01, y = 0.99,font = t_10),
+#     barmode = 'stack'
+#   )
+# 
+# plt <- layout(p = plt, barmode = "stack")
+# plt
 
-plt <- plot_ly(t_df3) %>%
-  add_trace(x = ~deciles, y = ~value.x, type = 'bar', marker = list(color = ~color.x), name = ~variable.x) %>%
-  add_trace(x = ~deciles+0.4, y = ~value, type = 'bar', marker = list(color = ~color), showlegend = FALSE) %>%
-  layout(
-    xaxis = list(title = '',font = t_16),
-    yaxis = list(title = ''),
-    legend = list(x = 0.01, y = 0.99,font = t_10),
-    barmode = 'stack'
-  )
+t_df4 <- pivot_longer(t_df3, cols = c(value, value.x),
+                      names_to = "group") %>% 
+  mutate(group = ifelse(group == "value", "Before reform",
+                        "After reform"))
 
-plt <- layout(p = plt, barmode = "stack")
-plt
-
+plot_ly(t_df4, x = ~list(deciles, group), y = ~value, 
+        color = ~variable, colors = ~as.character(color), type = "bar") %>% 
+  layout(barmode = "stack",
+         xaxis = list(title = ''),
+         yaxis = list(title = ''),
+         legend = list(x = 0.01, y = 0.99))
 
 
 ```

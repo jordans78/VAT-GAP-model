@@ -1,5 +1,5 @@
 '
-SIMULATION-MODULE
+TAX CALCULATOR-MODULE
 
 '
 setwd(path)

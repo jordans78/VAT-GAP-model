@@ -277,7 +277,7 @@ getwd()
                   #Locked_Calibration_Factor <-0.872971938101163     
                   vat_rate_on_residential_construction = 0.05
                   
-              # 4.1 Supply matrix -----
+            # 4.1 Supply matrix -----
 
               CPA_PRODUCTS$Supply <- SUPPLY %>% 
                 dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
@@ -313,7 +313,7 @@ getwd()
                 dplyr::group_by(INDUSTRY_CODE, INDUSTRY_NAME) %>%
                 dplyr::summarise(Total_output_by_industries_at_basic_prices = sum(value, na.rm = T))
 
-              # 4.2 Use Purchaser matrix ----
+            # 4.2 Use Purchaser matrix ----
 
               CPA_PRODUCTS$Use_Purchaser <- USE_PURCHASER %>% 
                 dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
@@ -376,7 +376,7 @@ getwd()
                 dplyr::summarise(Total_intermediate_consumption_by_industries_at_purchasers_prices = sum(value, na.rm = T))
 
 
-              # 4.3 Use Basic matrix ----
+            # 4.3 Use Basic matrix ----
 
               CPA_PRODUCTS$Use_Basic <- USE_BASIC %>% 
                 dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
@@ -438,7 +438,6 @@ getwd()
                                                           na.rm=TRUE),
                   Total_use_at_basic_prices = psum(Total_intermediate_consumption_at_basic_prices,
                                                    Total_final_uses_at_basic_prices,
-                                                   # Exports_FOB,
                                                    na.rm=TRUE))
               
               
@@ -448,7 +447,7 @@ getwd()
                 dplyr::summarise(Total_intermediate_consumption_by_industries_at_basic_prices = sum(value, na.rm = T))
 
 
-              # 4.4 Use VAT matrix----
+            # 4.4 Use VAT matrix----
 
               CPA_PRODUCTS$Use_VAT <- USE_VAT %>% 
                 dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
