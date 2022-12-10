@@ -134,6 +134,6 @@ TIP:
                     source(file=paste(path1,"/Estimation effective VAT rates-Module.R",sep=""),local=TRUE)
                     source(file=paste(path1,"/Forecast-Module.R",sep=""),local=TRUE)
                     source(file=paste(path1,"/Export-Module.R",sep=""),local=TRUE)
-                    dashboard <- rmarkdown::render((file=paste(path1,"/VAT-Dashboard.Rmd",sep="")),params=list(args = myarg))
-                    rstudioapi::viewer(dashboard)
+                   dashboard <- rmarkdown::render((file=paste(path1,"/VAT-Dashboard.Rmd",sep="")),params=list(args = myarg))
+                   rstudioapi::viewer(dashboard)
                     

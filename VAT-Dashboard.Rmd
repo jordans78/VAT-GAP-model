@@ -8,9 +8,45 @@ output:
 
 ```{r setup, include=FALSE}
 
+library(DataEditR)
+            library(data.table)
+            library(tidyr)
+            options(tidyr.quiet = TRUE)
+            library(readxl)
+            library(xlsx)
+            library(dplyr, warn.conflicts = FALSE)
+            options(dplyr.summarise.inform = FALSE)
+            library(reshape2)
+            library(rccmisc) 
+            library(flexdashboard)
+            library(ggplot2)
+            library(plotly)
+            library(data.table)
+            library(tidyr)
+            library(dplyr)
+            library(shades)
+            library(knitr)
+            library(DT)
+            library(rpivotTable)
+            library(forecast)
+            library(openintro)
+            library(highcharter)
+            library(ggvis)
+            library(DataCombine)
+            library(viridisLite)
+            library(readxl)
+            library(reshape2)
+            options(warn=-1)
+            library(orca)
+            library(sm)
+            library(ks)
+            library(plyr)
+
+
 path<-"C:/Users/User/Documents/WB/VAT-GAP/3-New Version/VAT GAP in R/Model/DATA/INPUT"
 setwd(path)
 getwd()
+
 
 
 # Import data business as usual
@@ -1704,359 +1740,6 @@ plt
                     
 ```
 
-COICOP 
-=======================================================================
-
-Row {data-height=650}
------------------------------------------------------------------------
-
-### Fiscal impact of simulation (in LCU millions)
-```{r,eval=TRUE}
-
-df_plot<-Result_Simulation%>%
-  dplyr::select(Simulated_Change_in_Revenues.M_of_denars)
-
-
-valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.M_of_denars),0),
-         icon="fa-chart-area",
-          color = "blue")
-```
-
-
-### VAT revenues from households by COICOP (Before reform)
-
-```{r,eval=TRUE}
-
-dat_r<-hbs_bu%>%
-  dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
-colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
-                              "Alcoholic Beverages Tobacco and Narcotics",
-                              "Clothing and footwear",
-                              "Housing Water,Electricity,Gas and Other Fuels",
-                              "Furnishings Household Equipment etc.",
-                              "Health",
-                              "Transport",
-                              "Communication",
-                              "Recreation and Culture",
-                              "Education",
-                              "Restaurants and Hotels",
-                              "Miscellaneous Goods and Services")
-                              
-
-dat_r1<-dat_r%>%
-  dplyr::group_by(deciles)%>%
-  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
-                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
-                   `Clothing and footwear` = sum(`Clothing and footwear`),
-                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
-                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
-                   `Health` = sum(`Health`),
-                   `Transport` = sum(`Transport`),
-                   `Communication` = sum(`Communication`),
-                   `Recreation and Culture` = sum(`Recreation and Culture`),
-                   `Education` = sum(`Education`),
-                   `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
-                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
-                   
-                   
-    
-t_df1<-melt(dat_r1, id.vars = c("deciles"))
-# t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
-#                                                  "chartreuse","orange","purple", "gold","tomato",
-#                                                  "darkturquoise", "forestgreen"))
-
-
-    # fig<-t_df1 %>% 
-    #     plot_ly(labels = ~variable, values = ~value)
-    #     fig <- fig %>% add_pie(hole = 0.6)
-    #     fig <- fig %>% layout(
-    #               title = " ",  
-    #               showlegend = T,
-    #               xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-    #               yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-    #               annotations =
-    #                        list(x = 0, y = -0.1,
-    #                             text = "Source: ",
-    #                             showarrow = F,
-    #                             xref='paper',
-    #                             yref='paper'),font = t)
-    # 
-    # fig
-
-#t_df1$colr <- gradient("viridis", steps = 120)
-
-# t_df1$colr <- gradient(c("royalblue", "cyan", "darkorange", "red", "brown",
-#   "chartreuse","orange","purple", "gold","tomato",
-#   "darkturquoise", "forestgreen"),steps = 120)
-
-
-t_df1$colr <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
-                                                 "chartreuse","orange","purple", "gold","tomato",
-                                                 "darkturquoise", "forestgreen"))
-
-t_df1<-plot_ly(data = t_df1, labels = ~variable, values = ~value, type = "pie",
-        marker = list(colors = ~colr), hole = .6) %>% 
-  layout(title = " ",
-         showlegend = T,
-                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                  yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),#)
-          annotations =
-                            list(x = 0, y = -0.1,
-                                 text = "Source: ",
-                                 showarrow = F,
-                                 xref='paper',
-                                 yref='paper'),font = t)
-
-
-
-
-
-
-t_df1
-
-
-
-```
-
-Row
------------------------------------------------------------------------
-
-### Percentage change in VAT revenues
-```{r,eval=TRUE}
-
-df_plot<-Result_Simulation%>%
-  dplyr::select(Simulated_Change_in_Revenues.Prc)
-
-
-valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.Prc),2),
-         icon="fa-chart-pie",
-          color = "red")
-```
-
-
-### VAT revenues from households by COICOP (After reform)
-
-```{r,eval=TRUE}
-
-dat_r<-hbs%>%
-  dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
-colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
-                              "Alcoholic Beverages Tobacco and Narcotics",
-                              "Clothing and footwear",
-                              "Housing Water,Electricity,Gas and Other Fuels",
-                              "Furnishings Household Equipment etc.",
-                              "Health",
-                              "Transport",
-                              "Communication",
-                              "Recreation and Culture",
-                              "Education",
-                              "Restaurants and Hotels",
-                              "Miscellaneous Goods and Services")
-                              
-
-dat_r1<-dat_r%>%
-  dplyr::group_by(deciles)%>%
-  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
-                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
-                   `Clothing and footwear` = sum(`Clothing and footwear`),
-                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
-                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
-                   `Health` = sum(`Health`),
-                   `Transport` = sum(`Transport`),
-                   `Communication` = sum(`Communication`),
-                   `Recreation and Culture` = sum(`Recreation and Culture`),
-                   `Education` = sum(`Education`),
-                   `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
-                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
-                   
-                 
-t_df1<-melt(dat_r1, id.vars = c("deciles"))
-# t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
-#                                                  "chartreuse","orange","purple", "gold","tomato",
-#                                                  "darkturquoise", "forestgreen"))
-
-# 
-#     fig<-t_df1 %>% 
-#         plot_ly(labels = ~variable, values = ~value)
-#         fig <- fig %>% add_pie(hole = 0.6)
-#         fig <- fig %>% layout(
-#                   title = " ",  
-#                   showlegend = T,
-#                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-#                   yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-#                   annotations =
-#                            list(x = 0, y = -0.1,
-#                                 text = "Source: ",
-#                                 showarrow = F,
-#                                 xref='paper',
-#                                 yref='paper'),font = t)
-# 
-#         
-#     fig
-
-
-#t_df1$colr <- gradient("viridis", steps = 120)
-
-# t_df1$colr <- gradient(c("royalblue", "cyan", "darkorange", "red", "brown",
-#   "chartreuse","orange","purple", "gold","tomato",
-#   "darkturquoise", "forestgreen"),steps = 120)
-
-t_df1$colr <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
-                                                 "chartreuse","orange","purple", "gold","tomato",
-                                                 "darkturquoise", "forestgreen"))
-
-t_df1<-plot_ly(data = t_df1, labels = ~variable, values = ~value, type = "pie",
-        marker = list(colors = ~colr), hole = .6) %>% 
-  layout(title = " ",
-         showlegend = T,
-                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                  yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),#)
-          annotations =
-                            list(x = 0, y = -0.1,
-                                 text = "Source: ",
-                                 showarrow = F,
-                                 xref='paper',
-                                 yref='paper'),font = t)
-
-         
-         
-
-
-t_df1
-
-```
-
-
-
-Decile groups 
-=======================================================================
-
-Row {data-height=650}
------------------------------------------------------------------------
-
-
-
-### Estimated VAT revenues by decile groups (left bars before reform and right after reform)
-
-```{r,eval=TRUE}
-
-dat_r<-hbs_bu%>%
-  dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
-colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
-                              "Alcoholic Beverages Tobacco and Narcotics",
-                              "Clothing and footwear",
-                              "Housing Water,Electricity,Gas and Other Fuels",
-                              "Furnishings Household Equipment etc.",
-                              "Health",
-                              "Transport",
-                              "Communication",
-                              "Recreation and Culture",
-                              "Education",
-                              "Restaurants and Hotels",
-                              "Miscellaneous Goods and Services")
-
-
-dat_r1<-dat_r%>%
-  dplyr::group_by(deciles)%>%
-  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
-                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
-                   `Clothing and footwear` = sum(`Clothing and footwear`),
-                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
-                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
-                   `Health` = sum(`Health`),
-                   `Transport` = sum(`Transport`),
-                   `Communication` = sum(`Communication`),
-                   `Recreation and Culture` = sum(`Recreation and Culture`),
-                   `Education` = sum(`Education`),
-                   `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
-                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
-
-
-t_df1<-melt(dat_r1, id.vars = c("deciles"))
-t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
-                                                 "chartreuse","orange","purple", "gold","tomato",
-                                                 "darkturquoise", "forestgreen"))
-
-
-dat_r<-hbs%>%
-  dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
-colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
-                              "Alcoholic Beverages Tobacco and Narcotics",
-                              "Clothing and footwear",
-                              "Housing Water,Electricity,Gas and Other Fuels",
-                              "Furnishings Household Equipment etc.",
-                              "Health",
-                              "Transport",
-                              "Communication",
-                              "Recreation and Culture",
-                              "Education",
-                              "Restaurants and Hotels",
-                              "Miscellaneous Goods and Services")
-
-
-dat_r1<-dat_r%>%
-  dplyr::group_by(deciles)%>%
-  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
-                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
-                   `Clothing and footwear` = sum(`Clothing and footwear`),
-                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
-                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
-                   `Health` = sum(`Health`),
-                   `Transport` = sum(`Transport`),
-                   `Communication` = sum(`Communication`),
-                   `Recreation and Culture` = sum(`Recreation and Culture`),
-                   `Education` = sum(`Education`),
-                   `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
-                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
-
-
-t_df2<-melt(dat_r1, id.vars = c("deciles"))
-t_df2$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
-                                                 "chartreuse","orange","purple", "gold","tomato",
-                                                 "darkturquoise", "forestgreen"))
-
-
-t_df3<-left_join(t_df1,t_df2,by = c("variable"))
-
-t_df1<-t_df1%>%
-  dplyr:: rename(c("variable.x"= "variable",
-                   "value.x"="value",
-                   "color.x"="color"
-
-  ))
-
-
-
-t_df3<-cbind(t_df1,t_df2)
-
-# 
-# plt <- plot_ly(t_df3) %>%
-#   add_trace(x = ~deciles, y = ~value.x, type = 'bar', marker = list(color = ~color.x), name = ~variable.x) %>%
-#   add_trace(x = ~deciles+0.4, y = ~value, type = 'bar', marker = list(color = ~color), showlegend = FALSE) %>%
-#   layout(
-#     xaxis = list(title = '',font = t_16),
-#     yaxis = list(title = ''),
-#     legend = list(x = 0.01, y = 0.99,font = t_10),
-#     barmode = 'stack'
-#   )
-# 
-# plt <- layout(p = plt, barmode = "stack")
-# plt
-
-t_df4 <- pivot_longer(t_df3, cols = c(value, value.x),
-                      names_to = "group") %>% 
-  mutate(group = ifelse(group == "value", "Before reform",
-                        "After reform"))
-
-plot_ly(t_df4, x = ~list(deciles, group), y = ~value, 
-        color = ~variable, colors = ~as.character(color), type = "bar") %>% 
-  layout(barmode = "stack",
-         xaxis = list(title = ''),
-         yaxis = list(title = ''),
-         legend = list(x = 0.01, y = 0.99))
-
-
-```
 
 HBS
 =======================================================================
@@ -2245,6 +1928,685 @@ plt
 
                        
 ```
+
+
+
+HBS1
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Distribution of expenditures
+
+```{r,eval=TRUE}
+
+dat_r<-hbs_bu%>%
+  dplyr::select(deciles,"Food and Non-Alcoholic Beverages",
+                              "Alcoholic Beverages Tobacco and Narcotics",
+                              "Clothing and footwear",
+                              "Housing Water,Electricity,Gas and Other Fuels",
+                              "Furnishings Household Equipment etc.",
+                              "Health",
+                              "Transport",
+                              "Communication",
+                              "Recreation and Culture",
+                              "Education",
+                              "Restaurants and Hotels",
+                              "Miscellaneous Goods and Services")
+                              
+
+dat_r1<-dat_r%>%
+  dplyr::group_by(deciles)%>%
+  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
+                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
+                   `Clothing and footwear` = sum(`Clothing and footwear`),
+                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
+                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
+                   `Health` = sum(`Health`),
+                   `Transport` = sum(`Transport`),
+                   `Communication` = sum(`Communication`),
+                   `Recreation and Culture` = sum(`Recreation and Culture`),
+                   `Education` = sum(`Education`),
+                   `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
+                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
+                   
+ 
+t_df1<-melt(dat_r1, id.vars = c("deciles"))
+t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+                                                 "chartreuse","orange","purple", "gold","tomato",
+                                                 "darkturquoise", "forestgreen"))
+
+Expenditure_chart <- plot_ly(t_df1, x = ~deciles, y = ~value,
+                                   type = 'bar',
+                                   marker = list(color = ~color), name = ~variable) %>%
+        #layout(yaxis = list(title = 'Millions denars'), barmode = 'stack')
+        #layout(title = " ",yaxis = list(title = 'Millions denars'), barmode = 'stack')
+  layout(barmode = "stack",
+         xaxis = list(title = ''),
+         yaxis = list(title = ''),
+         legend = list(x = 0.01, y = 0.99))
+ Expenditure_chart   
+
+```
+
+### Used assets according to the purpose of consumption, per household in percentage
+
+```{r,eval=FALSE}
+
+#t_df2 <- data.frame((DATA_PLOT7[,-1]))
+      # t_df2_pct <- t_df2
+      # t_df2_pct[,1:(ncol(DATA_PLOT7)-1)] <- t_df2_pct[,1:(ncol(DATA_PLOT7)-1)]/rowSums(t_df2_pct[,1:(ncol(DATA_PLOT7)-1)])
+      # 
+      # DECILE_THRESHOLD<-c("First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eight","Ninth","Tenth")
+      # t_df2_pct1<-cbind(DECILE_THRESHOLD ,t_df2_pct)
+      # t_df2_pct1$DECILE_THRESHOLD<- factor(t_df2_pct1$DECILE_THRESHOLD, levels = c("First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eight","Ninth","Tenth"))
+      # 
+      
+      t_df1$value<-as.factor(t_df1$value)
+
+      t_df1$Pct<-prop.table(t_df1$value)
+      
+      t_df2_pct2<-melt(t_df2_pct1, id.vars = c("DECILE_THRESHOLD"))
+      t_df2_pct2$color <- factor(t_df2_pct2$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+                                                               "chartreuse","orange","purple", "gold","tomato",
+                                                               "darkturquoise", "forestgreen", "magenta"))
+      #CHART
+      Expenditure_chart_pct <- plot_ly(t_df2_pct2, x = ~DECILE_THRESHOLD, y = ~value,
+                                       type = 'bar',
+                                       marker = list(color = ~color), name = ~variable) %>%
+        layout(title = " ",
+               yaxis = list(title = 'Percentage'), barmode = 'stack')
+      Expenditure_chart_pct<-ggplotly(Expenditure_chart_pct)
+      Expenditure_chart_pct
+
+```
+
+Row
+-----------------------------------------------------------------------
+
+### Effective VAT rate by centiles groups
+
+```{r,eval=TRUE}
+ 
+vat_effective_bu<-hbs_bu%>%
+  dplyr::select(centiles,total_consumption,VAT_TOTAL)%>%
+  dplyr::group_by(centiles)%>%
+  dplyr::summarise(total_consumption=sum(total_consumption),VAT_TOTAL=sum(VAT_TOTAL))%>%
+  dplyr::mutate(effective_vat_before_reform=VAT_TOTAL/total_consumption)%>%
+  dplyr::select(centiles,effective_vat_before_reform)
+
+
+vat_effective<-hbs%>%
+  dplyr::select(centiles,total_consumption,VAT_TOTAL)%>%
+  dplyr::group_by(centiles)%>%
+  dplyr::summarise(total_consumption=sum(total_consumption),VAT_TOTAL=sum(VAT_TOTAL))%>%
+  dplyr::mutate(effective_vat_after_reform=VAT_TOTAL/total_consumption)%>%
+  dplyr::select(centiles,effective_vat_after_reform)
+
+
+vat_effective_final<-left_join(vat_effective_bu,vat_effective,by = c("centiles"))%>%
+  data.table()
+
+fig <- plot_ly(vat_effective_final, x = ~centiles, y = ~effective_vat_before_reform, name = "Before reform", type = 'scatter', mode = 'lines',
+               line = list(dash = "solid",width=5))
+fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash",width=5))%>%
+  layout(
+    xaxis = list(title = 'Centiles'),
+    yaxis = list(title = ''),
+    legend = list(x = 0.01, y = 0.99)
+  )
+fig
+
+ 
+          
+```
+
+
+### Effective VAT rate by decile groups
+
+```{r,eval=TRUE}
+
+vat_effective_bu<-hbs_bu%>%
+  dplyr::select(deciles,total_consumption,VAT_TOTAL)%>%
+  dplyr::group_by(deciles)%>%
+  dplyr::summarise(total_consumption=sum(total_consumption),VAT_TOTAL=sum(VAT_TOTAL))%>%
+  dplyr::mutate(effective_vat_before_reform=VAT_TOTAL/total_consumption)%>%
+  dplyr::select(deciles,effective_vat_before_reform)
+
+
+vat_effective<-hbs%>%
+  dplyr::select(deciles,total_consumption,VAT_TOTAL)%>%
+  dplyr::group_by(deciles)%>%
+  dplyr::summarise(total_consumption=sum(total_consumption),VAT_TOTAL=sum(VAT_TOTAL))%>%
+  dplyr::mutate(effective_vat_after_reform=VAT_TOTAL/total_consumption)%>%
+  dplyr::select(deciles,effective_vat_after_reform)
+
+
+vat_effective_final<-left_join(vat_effective_bu,vat_effective,by = c("deciles"))%>%
+  data.table()
+
+# fig <- plot_ly(vat_effective_final, x = ~deciles, y = ~effective_vat_before_reform, name = "Before reform", type = 'scatter', mode = 'lines',
+#                line = list(dash = "solid"))
+# fig <- fig %>% add_trace(y = ~effective_vat_after_reform, name = "After reform", line = list(dash = "dash"))%>%
+#   layout(
+#     xaxis = list(title = 'Deciles'),
+#     yaxis = list(title = 'Effective VAT rate %'),
+#     legend = list(x = 0.01, y = 0.99)
+#   )
+# fig
+
+
+
+plt <- plot_ly(vat_effective_final) %>% 
+  add_trace(x = ~deciles, y = ~effective_vat_before_reform, type = 'bar', name = 'With current VAT rates') %>% 
+  add_trace(x = ~deciles, y = ~effective_vat_after_reform, type = 'bar', name = 'With standard VAT rates') %>% 
+    layout(
+       xaxis = list(title = 'Deciles',font = t_8), 
+    yaxis = list(title = ''),
+    legend = list(x = 0.01, y = 0.99),
+    barmode = 'group'
+     )
+
+plt
+
+
+                       
+```
+
+
+
+COICOP 
+=======================================================================
+
+Row {data-height=650}
+-----------------------------------------------------------------------
+
+### Fiscal impact of simulation (in LCU millions)
+```{r,eval=TRUE}
+
+df_plot<-Result_Simulation%>%
+  dplyr::select(Simulated_Change_in_Revenues.M_of_denars)
+
+
+valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.M_of_denars),0),
+         icon="fa-chart-area",
+          color = "blue")
+```
+
+
+### VAT revenues from households by COICOP (Before reform)
+
+```{r,eval=TRUE}
+
+# #Original
+# dat_r<-hbs_bu%>%
+#   dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
+# colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
+#                               "Alcoholic Beverages Tobacco and Narcotics",
+#                               "Clothing and footwear",
+#                               "Housing Water,Electricity,Gas and Other Fuels",
+#                               "Furnishings Household Equipment etc.",
+#                               "Health",
+#                               "Transport",
+#                               "Communication",
+#                               "Recreation and Culture",
+#                               "Education",
+#                               "Restaurants and Hotels",
+#                               "Miscellaneous Goods and Services")
+                              
+
+dat_r<-hbs_bu%>%
+  dplyr::select(deciles,"Food and Non-Alcoholic Beverages-VAT",
+                              "Alcoholic Beverages Tobacco and Narcotics-VAT",
+                              "Clothing and footwear-VAT",
+                              "Housing Water,Electricity,Gas and Other Fuels-VAT",
+                              "Furnishings Household Equipment etc.-VAT",
+                              "Health-VAT",
+                              "Transport-VAT",
+                              "Communication-VAT",
+                              "Recreation and Culture-VAT",
+                              "Education-VAT",
+                              "Restaurants and Hotels-VAT",
+                              "Miscellaneous Goods and Services-VAT")
+                              
+
+
+
+dat_r1<-dat_r%>%
+  dplyr::group_by(deciles)%>%
+  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages-VAT`),
+                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics-VAT`),
+                   `Clothing and footwear` = sum(`Clothing and footwear-VAT`),
+                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels-VAT`),
+                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.-VAT`),
+                   `Health` = sum(`Health-VAT`),
+                   `Transport` = sum(`Transport-VAT`),
+                   `Communication` = sum(`Communication-VAT`),
+                   `Recreation and Culture` = sum(`Recreation and Culture-VAT`),
+                   `Education` = sum(`Education-VAT`),
+                   `Restaurants and Hotels` = sum(`Restaurants and Hotels-VAT`),
+                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services-VAT`))
+                   
+                   
+    
+t_df1<-melt(dat_r1, id.vars = c("deciles"))
+# t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+#                                                  "chartreuse","orange","purple", "gold","tomato",
+#                                                  "darkturquoise", "forestgreen"))
+
+
+    # fig<-t_df1 %>% 
+    #     plot_ly(labels = ~variable, values = ~value)
+    #     fig <- fig %>% add_pie(hole = 0.6)
+    #     fig <- fig %>% layout(
+    #               title = " ",  
+    #               showlegend = T,
+    #               xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+    #               yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+    #               annotations =
+    #                        list(x = 0, y = -0.1,
+    #                             text = "Source: ",
+    #                             showarrow = F,
+    #                             xref='paper',
+    #                             yref='paper'),font = t)
+    # 
+    # fig
+
+#t_df1$colr <- gradient("viridis", steps = 120)
+
+# t_df1$colr <- gradient(c("royalblue", "cyan", "darkorange", "red", "brown",
+#   "chartreuse","orange","purple", "gold","tomato",
+#   "darkturquoise", "forestgreen"),steps = 120)
+
+
+t_df1$colr <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+                                                 "chartreuse","orange","purple", "gold","tomato",
+                                                 "darkturquoise", "forestgreen"))
+
+t_df1<-plot_ly(data = t_df1, labels = ~variable, values = ~value, type = "pie",
+        marker = list(colors = ~colr), hole = .6) %>% 
+  layout(title = " ",
+         showlegend = T,
+                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                  yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),#)
+          annotations =
+                            list(x = 0, y = -0.1,
+                                 text = "Source: ",
+                                 showarrow = F,
+                                 xref='paper',
+                                 yref='paper'),font = t)
+
+
+
+
+
+
+t_df1
+
+
+
+```
+
+Row
+-----------------------------------------------------------------------
+
+### Percentage change in VAT revenues
+```{r,eval=TRUE}
+
+df_plot<-Result_Simulation%>%
+  dplyr::select(Simulated_Change_in_Revenues.Prc)
+
+
+valueBox(round(sum(df_plot$Simulated_Change_in_Revenues.Prc),2),
+         icon="fa-chart-pie",
+          color = "red")
+```
+
+
+### VAT revenues from households by COICOP (After reform)
+
+```{r,eval=TRUE}
+
+# dat_r<-hbs%>%
+#   dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
+# colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
+#                               "Alcoholic Beverages Tobacco and Narcotics",
+#                               "Clothing and footwear",
+#                               "Housing Water,Electricity,Gas and Other Fuels",
+#                               "Furnishings Household Equipment etc.",
+#                               "Health",
+#                               "Transport",
+#                               "Communication",
+#                               "Recreation and Culture",
+#                               "Education",
+#                               "Restaurants and Hotels",
+#                               "Miscellaneous Goods and Services")
+#                               
+# 
+# dat_r1<-dat_r%>%
+#   dplyr::group_by(deciles)%>%
+#   dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
+#                    `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
+#                    `Clothing and footwear` = sum(`Clothing and footwear`),
+#                    `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
+#                    `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
+#                    `Health` = sum(`Health`),
+#                    `Transport` = sum(`Transport`),
+#                    `Communication` = sum(`Communication`),
+#                    `Recreation and Culture` = sum(`Recreation and Culture`),
+#                    `Education` = sum(`Education`),
+#                    `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
+#                    `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
+                   
+
+
+dat_r<-hbs%>%
+  dplyr::select(deciles,"Food and Non-Alcoholic Beverages-VAT",
+                              "Alcoholic Beverages Tobacco and Narcotics-VAT",
+                              "Clothing and footwear-VAT",
+                              "Housing Water,Electricity,Gas and Other Fuels-VAT",
+                              "Furnishings Household Equipment etc.-VAT",
+                              "Health-VAT",
+                              "Transport-VAT",
+                              "Communication-VAT",
+                              "Recreation and Culture-VAT",
+                              "Education-VAT",
+                              "Restaurants and Hotels-VAT",
+                              "Miscellaneous Goods and Services-VAT")
+                              
+
+
+
+dat_r1<-dat_r%>%
+  dplyr::group_by(deciles)%>%
+  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages-VAT`),
+                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics-VAT`),
+                   `Clothing and footwear` = sum(`Clothing and footwear-VAT`),
+                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels-VAT`),
+                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.-VAT`),
+                   `Health` = sum(`Health-VAT`),
+                   `Transport` = sum(`Transport-VAT`),
+                   `Communication` = sum(`Communication-VAT`),
+                   `Recreation and Culture` = sum(`Recreation and Culture-VAT`),
+                   `Education` = sum(`Education-VAT`),
+                   `Restaurants and Hotels` = sum(`Restaurants and Hotels-VAT`),
+                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services-VAT`))
+
+                 
+t_df1<-melt(dat_r1, id.vars = c("deciles"))
+# t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+#                                                  "chartreuse","orange","purple", "gold","tomato",
+#                                                  "darkturquoise", "forestgreen"))
+
+# 
+#     fig<-t_df1 %>% 
+#         plot_ly(labels = ~variable, values = ~value)
+#         fig <- fig %>% add_pie(hole = 0.6)
+#         fig <- fig %>% layout(
+#                   title = " ",  
+#                   showlegend = T,
+#                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+#                   yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+#                   annotations =
+#                            list(x = 0, y = -0.1,
+#                                 text = "Source: ",
+#                                 showarrow = F,
+#                                 xref='paper',
+#                                 yref='paper'),font = t)
+# 
+#         
+#     fig
+
+
+#t_df1$colr <- gradient("viridis", steps = 120)
+
+# t_df1$colr <- gradient(c("royalblue", "cyan", "darkorange", "red", "brown",
+#   "chartreuse","orange","purple", "gold","tomato",
+#   "darkturquoise", "forestgreen"),steps = 120)
+
+t_df1$colr <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+                                                 "chartreuse","orange","purple", "gold","tomato",
+                                                 "darkturquoise", "forestgreen"))
+
+t_df1<-plot_ly(data = t_df1, labels = ~variable, values = ~value, type = "pie",
+        marker = list(colors = ~colr), hole = .6) %>% 
+  layout(title = " ",
+         showlegend = T,
+                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                  yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),#)
+          annotations =
+                            list(x = 0, y = -0.1,
+                                 text = "Source: ",
+                                 showarrow = F,
+                                 xref='paper',
+                                 yref='paper'),font = t)
+
+         
+         
+
+
+t_df1
+
+```
+
+
+
+Decile groups 
+=======================================================================
+
+Row {data-height=650}
+-----------------------------------------------------------------------
+
+
+
+### Estimated VAT revenues by decile groups (left bars before reform and right after reform)
+
+```{r,eval=TRUE}
+# 
+# dat_r<-hbs_bu%>%
+#   dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
+# colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
+#                               "Alcoholic Beverages Tobacco and Narcotics",
+#                               "Clothing and footwear",
+#                               "Housing Water,Electricity,Gas and Other Fuels",
+#                               "Furnishings Household Equipment etc.",
+#                               "Health",
+#                               "Transport",
+#                               "Communication",
+#                               "Recreation and Culture",
+#                               "Education",
+#                               "Restaurants and Hotels",
+#                               "Miscellaneous Goods and Services")
+# 
+# 
+# dat_r1<-dat_r%>%
+#   dplyr::group_by(deciles)%>%
+#   dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
+#                    `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
+#                    `Clothing and footwear` = sum(`Clothing and footwear`),
+#                    `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
+#                    `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
+#                    `Health` = sum(`Health`),
+#                    `Transport` = sum(`Transport`),
+#                    `Communication` = sum(`Communication`),
+#                    `Recreation and Culture` = sum(`Recreation and Culture`),
+#                    `Education` = sum(`Education`),
+#                    `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
+#                    `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
+# 
+# 
+# t_df1<-melt(dat_r1, id.vars = c("deciles"))
+# t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+#                                                  "chartreuse","orange","purple", "gold","tomato",
+#                                                  "darkturquoise", "forestgreen"))
+
+
+
+dat_r<-hbs_bu%>%
+  dplyr::select(deciles,"Food and Non-Alcoholic Beverages-VAT",
+                              "Alcoholic Beverages Tobacco and Narcotics-VAT",
+                              "Clothing and footwear-VAT",
+                              "Housing Water,Electricity,Gas and Other Fuels-VAT",
+                              "Furnishings Household Equipment etc.-VAT",
+                              "Health-VAT",
+                              "Transport-VAT",
+                              "Communication-VAT",
+                              "Recreation and Culture-VAT",
+                              "Education-VAT",
+                              "Restaurants and Hotels-VAT",
+                              "Miscellaneous Goods and Services-VAT")
+                              
+
+
+
+dat_r1<-dat_r%>%
+  dplyr::group_by(deciles)%>%
+  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages-VAT`),
+                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics-VAT`),
+                   `Clothing and footwear` = sum(`Clothing and footwear-VAT`),
+                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels-VAT`),
+                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.-VAT`),
+                   `Health` = sum(`Health-VAT`),
+                   `Transport` = sum(`Transport-VAT`),
+                   `Communication` = sum(`Communication-VAT`),
+                   `Recreation and Culture` = sum(`Recreation and Culture-VAT`),
+                   `Education` = sum(`Education-VAT`),
+                   `Restaurants and Hotels` = sum(`Restaurants and Hotels-VAT`),
+                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services-VAT`))
+                   
+                   
+    
+t_df1<-melt(dat_r1, id.vars = c("deciles"))
+ t_df1$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+                                                  "chartreuse","orange","purple", "gold","tomato",
+                                                  "darkturquoise", "forestgreen"))
+
+
+# Reform simulation
+ 
+# dat_r<-hbs%>%
+#   dplyr::select(deciles,`01`,`02`,`03`,`04`,`05`,`06`,`07`,`08`,`09`,`10`,`11`,`12`)
+# colnames(dat_r)[c(2:13)] <- c("Food and Non-Alcoholic Beverages",
+#                               "Alcoholic Beverages Tobacco and Narcotics",
+#                               "Clothing and footwear",
+#                               "Housing Water,Electricity,Gas and Other Fuels",
+#                               "Furnishings Household Equipment etc.",
+#                               "Health",
+#                               "Transport",
+#                               "Communication",
+#                               "Recreation and Culture",
+#                               "Education",
+#                               "Restaurants and Hotels",
+#                               "Miscellaneous Goods and Services")
+# 
+# 
+# dat_r1<-dat_r%>%
+#   dplyr::group_by(deciles)%>%
+#   dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages`),
+#                    `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics`),
+#                    `Clothing and footwear` = sum(`Clothing and footwear`),
+#                    `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels`),
+#                    `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.`),
+#                    `Health` = sum(`Health`),
+#                    `Transport` = sum(`Transport`),
+#                    `Communication` = sum(`Communication`),
+#                    `Recreation and Culture` = sum(`Recreation and Culture`),
+#                    `Education` = sum(`Education`),
+#                    `Restaurants and Hotels` = sum(`Restaurants and Hotels`),
+#                    `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services`))
+# 
+# 
+# t_df2<-melt(dat_r1, id.vars = c("deciles"))
+# t_df2$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+#                                                  "chartreuse","orange","purple", "gold","tomato",
+#                                                  "darkturquoise", "forestgreen"))
+
+
+dat_r<-hbs%>%
+  dplyr::select(deciles,"Food and Non-Alcoholic Beverages-VAT",
+                              "Alcoholic Beverages Tobacco and Narcotics-VAT",
+                              "Clothing and footwear-VAT",
+                              "Housing Water,Electricity,Gas and Other Fuels-VAT",
+                              "Furnishings Household Equipment etc.-VAT",
+                              "Health-VAT",
+                              "Transport-VAT",
+                              "Communication-VAT",
+                              "Recreation and Culture-VAT",
+                              "Education-VAT",
+                              "Restaurants and Hotels-VAT",
+                              "Miscellaneous Goods and Services-VAT")
+                              
+
+
+
+dat_r1<-dat_r%>%
+  dplyr::group_by(deciles)%>%
+  dplyr::summarise(`Food and Non-Alcoholic Beverages` = sum(`Food and Non-Alcoholic Beverages-VAT`),
+                   `Alcoholic Beverages Tobacco and Narcotics` = sum(`Alcoholic Beverages Tobacco and Narcotics-VAT`),
+                   `Clothing and footwear` = sum(`Clothing and footwear-VAT`),
+                   `Housing Water,Electricity,Gas and Other Fuels` = sum(`Housing Water,Electricity,Gas and Other Fuels-VAT`),
+                   `Furnishings Household Equipment etc.` = sum(`Furnishings Household Equipment etc.-VAT`),
+                   `Health` = sum(`Health-VAT`),
+                   `Transport` = sum(`Transport-VAT`),
+                   `Communication` = sum(`Communication-VAT`),
+                   `Recreation and Culture` = sum(`Recreation and Culture-VAT`),
+                   `Education` = sum(`Education-VAT`),
+                   `Restaurants and Hotels` = sum(`Restaurants and Hotels-VAT`),
+                   `Miscellaneous Goods and Services` = sum(`Miscellaneous Goods and Services-VAT`))
+
+                 
+
+t_df2<-melt(dat_r1, id.vars = c("deciles"))
+t_df2$color <- factor(t_df1$variable, labels = c("royalblue", "cyan", "darkorange", "red", "brown",
+                                                  "chartreuse","orange","purple", "gold","tomato",
+                                                  "darkturquoise", "forestgreen"))
+
+
+
+# Merging two databases
+t_df3<-left_join(t_df1,t_df2,by = c("variable"))
+
+t_df1<-t_df1%>%
+  dplyr:: rename(c("variable.x"= "variable",
+                   "value.x"="value",
+                   "color.x"="color"
+
+  ))
+
+
+
+t_df3<-cbind(t_df1,t_df2)
+
+# 
+# plt <- plot_ly(t_df3) %>%
+#   add_trace(x = ~deciles, y = ~value.x, type = 'bar', marker = list(color = ~color.x), name = ~variable.x) %>%
+#   add_trace(x = ~deciles+0.4, y = ~value, type = 'bar', marker = list(color = ~color), showlegend = FALSE) %>%
+#   layout(
+#     xaxis = list(title = '',font = t_16),
+#     yaxis = list(title = ''),
+#     legend = list(x = 0.01, y = 0.99,font = t_10),
+#     barmode = 'stack'
+#   )
+# 
+# plt <- layout(p = plt, barmode = "stack")
+# plt
+
+t_df4 <- pivot_longer(t_df3, cols = c(value.x,value ),
+                      names_to = "group") %>% 
+  mutate(group = ifelse(group == "value", " After reform",
+                        "Before reform"))
+
+plot_ly(t_df4, x = ~list(deciles, group), y = ~value, 
+        color = ~variable, colors = ~as.character(color), type = "bar") %>% 
+  layout(barmode = "stack",
+         xaxis = list(title = ''),
+         yaxis = list(title = ''),
+         legend = list(x = 0.01, y = 0.99))
+
+
+```
+
 
 
 
