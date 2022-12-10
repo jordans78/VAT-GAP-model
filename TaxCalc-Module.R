@@ -5,211 +5,9 @@ SIMULATION-MODULE
 setwd(path)
 getwd()
 
-                    # 1. ESTIMATION -----
-                        # 1.1 Arrange Aggregate Industries and Products ---------------------------
-                        # Arrange Aggregate Industries
-                        NACE_INDUSTRIES$Supply <- NACE_INDUSTRIES$Supply %>%
-                          dplyr::arrange(INDUSTRY_CODE)
-                        NACE_INDUSTRIES$Use_Purchaser <- NACE_INDUSTRIES$Use_Purchaser %>%
-                          dplyr::arrange(INDUSTRY_CODE)
-                        NACE_INDUSTRIES$Use_VAT <- NACE_INDUSTRIES$Use_VAT %>%
-                          dplyr::arrange(INDUSTRY_CODE)
-                        NACE_INDUSTRIES$Use_Basic <- NACE_INDUSTRIES$Use_Basic %>%
-                          dplyr::arrange(INDUSTRY_CODE)
-                        
-                       
-                        CPA_PRODUCTS$Supply <- CPA_PRODUCTS$Supply %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE)
-                        CPA_PRODUCTS$Use_Purchaser <- CPA_PRODUCTS$Use_Purchaser %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE)
-                        CPA_PRODUCTS$Use_VAT <- CPA_PRODUCTS$Use_VAT %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE)
-                        CPA_PRODUCTS$Use_Basic <- CPA_PRODUCTS$Use_Basic %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE)
-                        
-                       
-                        
-                        # 1.2 Domestic Share matrix-----
-                        
-                        CPA_PRODUCTS$Dom_Share <- CPA_PRODUCTS$Supply %>%
-                          dplyr::select(PRODUCT_INDUSTRY_CODE, PRODUCT_INDUSTRY_NAME) %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE)
-                        
-                        CPA_PRODUCTS$Dom_Share$Domestic_share_of_output_commodity <- 
-                          pmax(1-CPA_PRODUCTS$Use_Basic$Exports_FOB/CPA_PRODUCTS$Supply$Total_output,0)
-                        
-                        
-                        DOM_SHARE <- SUPPLY %>%
-                          dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
-                          dplyr::group_by(PRODUCT_INDUSTRY_CODE) %>%
-                          dplyr::arrange(INDUSTRY_CODE) %>%
-                          dplyr::mutate(value = value/NACE_INDUSTRIES$Supply$Total_output_by_industries_at_basic_prices) %>%
-                          merge.data.frame(CPA_PRODUCTS$Dom_Share, key = "PRODUCT_INDUSTRY_CODE") %>%
-                          dplyr::mutate(value = value*Domestic_share_of_output_commodity) %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE, INDUSTRY_CODE)
-                        
-                        
-                        NACE_INDUSTRIES$Dom_Share <- DOM_SHARE %>% 
-                          dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
-                          dplyr::group_by(INDUSTRY_CODE, INDUSTRY_NAME) %>%
-                          dplyr::summarise(Domestic_Share_of_Output_Industry = sum(value, na.rm = T))
-                        
-                        
-                        # 1.3 Net purchaser prices -----------
-                        
-                        USE_NETPURCH <- USE_PURCHASER %>%
-                          dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE, INDUSTRY_CODE)
-                        
-                        
-                        USE_VAT_temp <- USE_VAT %>% 
-                          dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE, INDUSTRY_CODE)
-                        
-                        USE_NETPURCH$value[is.na(USE_NETPURCH$value)] <- 0
-                        USE_VAT_temp$value[is.na(USE_VAT_temp$value)] <- 0
-                        
-                        USE_NETPURCH$value <- USE_NETPURCH$value - USE_VAT_temp$value 
-                        
-                        CPA_PRODUCTS$Use_NetPurch <- USE_NETPURCH %>% 
-                          dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
-                          dplyr::group_by(PRODUCT_INDUSTRY_CODE, PRODUCT_INDUSTRY_NAME) %>%
-                          dplyr::summarise(Total_intermediate_consumption_net_purchasers_prices = sum(value, na.rm = T))
-                        
-                        
-                        CPA_PRODUCTS$Use_NetPurch <- CPA_PRODUCTS$Use_NetPurch %>% 
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE)
-                        
-                        
-                        CPA_PRODUCTS$Use_Purchaser$Gross_fixed_capital_formation[is.na(CPA_PRODUCTS$Use_Purchaser$Gross_fixed_capital_formation)] <- 0
-                        CPA_PRODUCTS$Use_VAT$Gross_fixed_capital_formation[is.na(CPA_PRODUCTS$Use_VAT$Gross_fixed_capital_formation)] <- 0
-                        
-                        
-                        CPA_PRODUCTS$Use_NetPurch$Gross_fixed_capital_formation = 
-                          CPA_PRODUCTS$Use_Purchaser$Gross_fixed_capital_formation - 
-                          CPA_PRODUCTS$Use_VAT$Gross_fixed_capital_formation    
-                        
-                        
-                        CPA_PRODUCTS$Use_NetPurch$Gross_fixed_capital_formation[is.na(CPA_PRODUCTS$Use_NetPurch$Gross_fixed_capital_formation)] <- 0
-                        
-                        CPA_PRODUCTS$Use_Purchaser$Final_consumption_expenditure_by_households[is.na( CPA_PRODUCTS$Use_Purchaser$Final_consumption_expenditure_by_households)] <- 0
-                        CPA_PRODUCTS$Use_VAT$Final_consumption_expenditure_by_households[is.na(CPA_PRODUCTS$Use_VAT$Final_consumption_expenditure_by_households)] <- 0
-                        
-                        CPA_PRODUCTS$Use_NetPurch$Final_consumption_expenditure_by_households = 
-                          CPA_PRODUCTS$Use_Purchaser$Final_consumption_expenditure_by_households - 
-                          CPA_PRODUCTS$Use_VAT$Final_consumption_expenditure_by_households
-                        
-                        CPA_PRODUCTS$Use_Purchaser$Final_consumption_expenditure_NPISH[is.na(CPA_PRODUCTS$Use_Purchaser$Final_consumption_expenditure_NPISH)] <- 0
-                        CPA_PRODUCTS$Use_VAT$Final_consumption_expenditure_NPISH[is.na(CPA_PRODUCTS$Use_VAT$Final_consumption_expenditure_NPISH)] <- 0
-                        
-                        
-                        CPA_PRODUCTS$Use_NetPurch$Final_consumption_expenditure_NPISH = 
-                          CPA_PRODUCTS$Use_Purchaser$Final_consumption_expenditure_NPISH - 
-                          CPA_PRODUCTS$Use_VAT$Final_consumption_expenditure_NPISH
-                        
-                        CPA_PRODUCTS$Use_Purchaser$Final_consumption_expenditure_by_government[is.na(CPA_PRODUCTS$Use_Purchaser$Final_consumption_expenditure_by_government)] <- 0
-                        CPA_PRODUCTS$Use_VAT$Final_consumption_expenditure_by_government[is.na( CPA_PRODUCTS$Use_VAT$Final_consumption_expenditure_by_government)] <- 0
-                        
-                        CPA_PRODUCTS$Use_NetPurch$Final_consumption_expenditure_by_government =
-                          CPA_PRODUCTS$Use_Purchaser$Final_consumption_expenditure_by_government - 
-                          CPA_PRODUCTS$Use_VAT$Final_consumption_expenditure_by_government
-                        
-                        
-                        # 1.4 Capital Shift Map ----
-                        
-                        
-                        CPA_PRODUCTS$K_Shift_Map <- USE_NETPURCH %>% 
-                          dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
-                          dplyr::distinct(PRODUCT_INDUSTRY_CODE, PRODUCT_INDUSTRY_NAME) %>%
-                          dplyr::select(PRODUCT_INDUSTRY_CODE, PRODUCT_INDUSTRY_NAME) %>%
-                          dplyr::mutate(Share_of_K_in_HH_FD = 0)
-                        
-                        CPA_PRODUCTS$K_Shift_Map$Share_of_K_in_HH_FD[grepl("Constructions and construction works", CPA_PRODUCTS$K_Shift_Map$PRODUCT_INDUSTRY_NAME)] = 
-                          RC_prc_of_Constructions_and_construction_works
-          
-                        K_SHIFT_MAP <- USE_NETPURCH %>%
-                          merge.data.frame(CPA_PRODUCTS$Use_NetPurch, key = "PRODUCT_INDUSTRY_CODE") %>%
-                          merge.data.frame(CPA_PRODUCTS$K_Shift_Map, key = "PRODUCT_INDUSTRY_CODE") %>%
-                          dplyr::mutate(value = value/Total_intermediate_consumption_net_purchasers_prices*(1-Share_of_K_in_HH_FD)) %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE, INDUSTRY_CODE) %>%
-                          dplyr::select(-Share_of_K_in_HH_FD)
-                        
-                        
-                        CPA_PRODUCTS$K_Shift_Map$Final_consumption_expenditure_by_households = CPA_PRODUCTS$K_Shift_Map$Share_of_K_in_HH_FD
-                        CPA_PRODUCTS$K_Shift_Map$Final_consumption_expenditure_NPISH = 0
-                        CPA_PRODUCTS$K_Shift_Map$Final_consumption_expenditure_by_government = 0
-                        
-                        # 1.5 Use Capital net purchaser prices -----
-                        
-                        USE_K_NETPURCH <- K_SHIFT_MAP %>%
-                          merge.data.frame(CPA_PRODUCTS$Use_NetPurch, key = "PRODUCT_INDUSTRY_CODE") %>%
-                          dplyr::mutate(value = value*Gross_fixed_capital_formation) %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE, INDUSTRY_CODE)
-                        
-                        USE_NETPURCH <- USE_NETPURCH %>% dplyr::arrange(PRODUCT_INDUSTRY_CODE, INDUSTRY_CODE)
-                        
-                        
-                        USE_K_NETPURCH$value <- USE_K_NETPURCH$value + USE_NETPURCH$value 
-                        
-                        
-                        CPA_PRODUCTS$Use_NetPurch <- CPA_PRODUCTS$Use_NetPurch %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE, PRODUCT_INDUSTRY_NAME)
-                        
-                        CPA_PRODUCTS$K_Shift_Map <- CPA_PRODUCTS$K_Shift_Map %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE, PRODUCT_INDUSTRY_NAME)
-                        
-                        
-                        CPA_PRODUCTS$Use_K_NetPurch <- CPA_PRODUCTS$Use_NetPurch %>%
-                          dplyr::select(PRODUCT_INDUSTRY_CODE, PRODUCT_INDUSTRY_NAME)
-                        
-                        CPA_PRODUCTS$Use_K_NetPurch$Final_consumption_expenditure_by_households <-
-                          CPA_PRODUCTS$Use_NetPurch$Final_consumption_expenditure_by_households+
-                          CPA_PRODUCTS$K_Shift_Map$Final_consumption_expenditure_by_households*
-                          CPA_PRODUCTS$Use_NetPurch$Gross_fixed_capital_formation
-                        
-                        CPA_PRODUCTS$Use_K_NetPurch$Final_consumption_expenditure_NPISH <-
-                          CPA_PRODUCTS$Use_NetPurch$Final_consumption_expenditure_NPISH+
-                          CPA_PRODUCTS$K_Shift_Map$Final_consumption_expenditure_NPISH*
-                          CPA_PRODUCTS$Use_NetPurch$Gross_fixed_capital_formation
-                        
-                        
-                        # Replace NAs with zero
-                        CPA_PRODUCTS$Use_K_NetPurch$Final_consumption_expenditure_NPISH[is.na(CPA_PRODUCTS$Use_K_NetPurch$Final_consumption_expenditure_NPISH)] <- 0
-                        
-                        
-                        CPA_PRODUCTS$Use_K_NetPurch$Final_consumption_expenditure_by_government <-
-                          CPA_PRODUCTS$Use_NetPurch$Final_consumption_expenditure_by_government+
-                          CPA_PRODUCTS$K_Shift_Map$Final_consumption_expenditure_by_government*
-                          CPA_PRODUCTS$Use_NetPurch$Gross_fixed_capital_formation
-                        
-                        # Replace NAs with zero
-                        CPA_PRODUCTS$Use_K_NetPurch$Final_consumption_expenditure_by_government[is.na(CPA_PRODUCTS$Use_K_NetPurch$Final_consumption_expenditure_by_government)] <- 0
-                        
-                        # 1.6 Use_K_Dom_NetPurch -----
-                        
-                        USE_K_DOM_NETPURCH <- USE_K_NETPURCH %>%
-                          dplyr::select(PRODUCT_INDUSTRY_NAME, PRODUCT_INDUSTRY_CODE, INDUSTRY_NAME, INDUSTRY_CODE, value) %>%
-                          merge.data.frame(NACE_INDUSTRIES$Dom_Share, key = "INDUSTRY_CODE") %>%
-                          dplyr::mutate(value = value*Domestic_Share_of_Output_Industry) %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE, INDUSTRY_CODE)
-                        
-                        
-                        # 1.7 Supply_Dom -----
-                        
-                        SUPPLY_DOM <- SUPPLY %>%
-                          dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
-                          merge.data.frame(CPA_PRODUCTS$Dom_Share, key = "PRODUCT_INDUSTRY_CODE") %>%
-                          dplyr::mutate(value = value*Domestic_share_of_output_commodity) %>%
-                          dplyr::arrange(PRODUCT_INDUSTRY_CODE, INDUSTRY_CODE)
-                        
-                        NACE_INDUSTRIES$Supply_Dom <- SUPPLY_DOM %>% 
-                          dplyr::filter(PRODUCT_INDUSTRY_CODE != "NA" & INDUSTRY_CODE != "NA") %>%
-                          dplyr::group_by(INDUSTRY_CODE, INDUSTRY_NAME) %>%
-                          dplyr::summarise(Total_output_by_industries_at_basic_prices = sum(value, na.rm = T))
-                        
-                    # 2. SIMULATION ----
-                        # 2.1 Pre-processing COICOP and setting parameters for simulation ------------------------------------------
-                        # 2.1.0 Estimation of Calibration factor -----------------------------------------------------
+                    # 1. SIMULATION ----
+                        # 1.1 Pre-processing COICOP and setting parameters for simulation ------------------------------------------
+                          # 1.1.0 Estimation of Calibration factor -----------------------------------------------------
                         '
                               Warning
                               This part begins with copy-paste of the parameters entered previously and from this point begins with their new calculation with the aim of obtaining TE
@@ -220,11 +18,7 @@ getwd()
                                                   "Current_Policy_Exempt","Current_Policy_Reduced_Rate","Current_Policy_Fully_Taxable",
                                                   "Simulation_Toggles_Exempt","Simulation_Toggles_Reduced_Rate",
                                                   "Standard_VAT_Rate","Preferential_VAT_Rate")
-                        
-                        
-                        # SIMULATION_0$Simulation_Toggles_Reduced_Rate<-TE_EXEMPT
-                        # SIMULATION_0$Simulation_Toggles_Exempt<-TE_REDUCED_RATE
-                        
+
                         
                         SIMULATION_0 <- SIMULATION_0 %>%
                           dplyr::mutate(Simulated_Policy_Exempt = ifelse(is.na(Simulation_Toggles_Exempt), Current_Policy_Exempt, Simulation_Toggles_Exempt),
@@ -232,7 +26,7 @@ getwd()
                                         Simulated_Policy_Fully_Taxable = 1-Simulated_Policy_Exempt-Simulated_Policy_Reduced_Rate)
                         
                         
-                          # 2.1.1 Aggregate table for COICOP----------------------------------------
+                          # 1.1.1 Aggregate table for COICOP----------------------------------------
                           
                           # New  Aggregation for FINAL COICOP TABLE
                           SUPPLY_DOM_AGGREGATE_1<-SUPPLY_DOM%>%
@@ -286,7 +80,7 @@ getwd()
                           
                           COICOP_MERGED[is.na(COICOP_MERGED)] <- 0
                           
-                          # 2.1.2 Estimation of TE part -----------------------------------------------------
+                          # 1.1.2 Estimation of TE part -----------------------------------------------------
                           '
                               Warning
                               This part begins with copy-paste of the parameters entered previously and from this point begins with their new calculation with the aim of obtaining TE
@@ -303,7 +97,7 @@ getwd()
                                           Simulated_Policy_Fully_Taxable = 1-Simulated_Policy_Exempt-Simulated_Policy_Reduced_Rate)
                           
                           
-                          # 2.1.3 Estimation of effective VAT RATE ----------------------------------------------------------
+                          # 1.1.3 Estimation of effective VAT RATE ----------------------------------------------------------
                           
                           SIMULATION_2 = copy(SIMULATION)
                           SIMULATION_2$Simulation_Toggles_Reduced_Rate<-TE_EXEMPT
@@ -313,7 +107,7 @@ getwd()
                                           Simulated_Policy_Reduced_Rate = ifelse(is.na(Simulation_Toggles_Reduced_Rate), Current_Policy_Reduced_Rate, Simulation_Toggles_Reduced_Rate),
                                           Simulated_Policy_Fully_Taxable = 1-Simulated_Policy_Exempt-Simulated_Policy_Reduced_Rate)
                           
-                        # 2.2 Benchmark revenues -----
+                        # 1.2 Benchmark revenues -----
                         
                         benchmark_tax_rate <- benchmark_tax_rate
                        
@@ -350,7 +144,7 @@ getwd()
                         
                         Sum_of_Final_Demand_Total = sum(CPA_PRODUCTS$BM_Rev$Final_Demand_Total)
                         
-                        # 2.3 Est.IS ----
+                        # 1.3 Est.IS ----
                           # 2.3.0 Estimation of Calibration factor ---------------------------------------------------
                         
                         # Copy paste table
@@ -454,7 +248,7 @@ getwd()
                           
                           NACE_INDUSTRIES_2$Est.IS$Industry_Share[is.na(NACE_INDUSTRIES_2$Est.IS$Industry_Share)] <- 0
                           
-                        # 2.4 Est Rev ----
+                        # 1.4 Est Rev ----
                           # 2.4.0 Estimation of Calibration factor ---------------------------------------------------
                           USE_K_DOM_NETPURCH_0 = copy(USE_K_DOM_NETPURCH)
                           CPA_PRODUCTS_0 = copy(CPA_PRODUCTS)
@@ -611,8 +405,8 @@ getwd()
                                                                            CPA_PRODUCTS_2$Est_Rev$Final_Demand_Government, na.rm = T) 
                           
                           
-                    # 3. SIMULATION RESULTS ----  
-                          # 3.1.0 Estimation of Calibration factor ---------------------------------------------------
+                    # 2. SIMULATION RESULTS ----  
+                          # 2.1.0 Estimation of Calibration factor ---------------------------------------------------
                           Results_0 <- as.list(c("VAT_Gap", "Simulation"))
                           names(Results_0) <- c("VAT_Gap", "Simulation")
                           
@@ -656,7 +450,7 @@ getwd()
                           # 
                           # Results_0$Simulation$Simulated_Change_in_Revenues.Prc <- (Results_0$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars)*100
                           # 
-                          # 3.1.1 Main estimation --------------------------------------------------
+                          # 2.1.1 Main estimation --------------------------------------------------
                           
                           Results <- as.list(c("VAT_Gap", "Simulation"))
                           names(Results) <- c("VAT_Gap", "Simulation")
@@ -696,7 +490,7 @@ getwd()
                           
                           
                           
-                          # 3.1.2 Estimation of TE part ---------------------------------------------------
+                          # 2.1.2 Estimation of TE part ---------------------------------------------------
                           
                           Results_1 <- as.list(c("VAT_Gap", "Simulation"))
                           names(Results_1) <- c("VAT_Gap", "Simulation")
@@ -736,7 +530,7 @@ getwd()
                           #View(Results_1)
                           
                           
-                          # 3.1.1 a ----------------------------------------------------------------
+                          # 2.1.1 a ----------------------------------------------------------------
                              # This part is from 3.1.1 main estimation
                           Results$VAT_Gap$Policy_Gap.M_of_denars <-Results_1$Simulation$Simulated_Change_in_Revenues.M_of_denars
                           Results$VAT_Gap$Policy_Gap.Prc <- Results$VAT_Gap$Policy_Gap.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars
@@ -746,7 +540,7 @@ getwd()
                           
                          
                           
-                          # 3.1.3 Estimation of effective VAT RATE ------------------------------
+                          # 2.1.3 Estimation of effective VAT RATE ------------------------------
                           
                           Results_2 <- as.list(c("VAT_Gap", "Simulation"))
                           names(Results_2) <- c("VAT_Gap", "Simulation")
@@ -785,7 +579,7 @@ getwd()
                           Results_2$Simulation$Simulated_Change_in_Revenues.Prc <- (Results_2$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results_2$VAT_Gap$VAT_Control_Total.M_of_denars)*100
                           
                           
-                          # 3.1.4 Other files -------------------------------------------------------
+                          # 2.1.4 Other files -------------------------------------------------------
                           
                           Export_Main_Results<- Results$VAT_Gap 
                           Simulation_Results<-Results$Simulation
@@ -806,5 +600,7 @@ getwd()
                           
                           
                           Est_Rev1<-CPA_PRODUCTS_1$Est_Rev
+                          
+                          
                           
                           

@@ -129,6 +129,7 @@ TIP:
 
                     # Iterate through the rest of the modules
                     source(file=paste(path1,"/Data preprocessing-Module.R",sep=""),local=TRUE)
+                    source(file=paste(path1,"/VAT estimation-Module.R",sep=""),local=TRUE)
                     source(file=paste(path1,"/TaxCalc-Module.R",sep=""),local=TRUE)
                     source(file=paste(path1,"/Estimation effective VAT rates-Module.R",sep=""),local=TRUE)
                     source(file=paste(path1,"/Forecast-Module.R",sep=""),local=TRUE)
