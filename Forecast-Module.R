@@ -10,7 +10,7 @@ getwd()
       # Results from main simulation
       DS<-Results$Simulation$Simulated_Change_in_Revenues.M_of_denars
       TE<-Results$VAT_Gap$Policy_Gap.M_of_denars
-          # Adding new column
+      # Adding new column
       MACRO_FISCAL_INDICATORS<-MACRO_FISCAL_INDICATORS%>%
         dplyr::mutate(
                       Result_Simulation=0,

@@ -6,11 +6,16 @@ setwd(path)
 getwd()
           # 1. CONSOLIDATED SIMULATION TABLE  --------
 
-        colnames(SIMULATION) <- c("PRODUCT_INDUSTRY_CODE","CPA_DIVISION",
-                          "Current_Policy_Exempt","Current_Policy_Reduced_Rate","Current_Policy_Fully_Taxable",
-                          "Simulation_Toggles_Exempt","Simulation_Toggles_Reduced_Rate",
-                          "Standard_VAT_Rate","Preferential_VAT_Rate")
+        # colnames(SIMULATION) <- c("PRODUCT_INDUSTRY_CODE","CPA_DIVISION",
+        #                   "Current_Policy_Exempt","Current_Policy_Reduced_Rate","Current_Policy_Fully_Taxable",
+        #                   "Simulation_Toggles_Exempt","Simulation_Toggles_Reduced_Rate",
+        #                   "Standard_VAT_Rate","Preferential_VAT_Rate")
 
+
+        # colnames(SIMULATION) <- c("PRODUCT_INDUSTRY_CODE",
+        #                   "Current_Policy_Exempt","Current_Policy_Reduced_Rate","Current_Policy_Fully_Taxable",
+        #                   "Simulation_Toggles_Exempt","Simulation_Toggles_Reduced_Rate",
+        #                   "Standard_VAT_Rate","Preferential_VAT_Rate")
 
 
         SIMULATION <- SIMULATION %>%

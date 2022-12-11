@@ -2068,7 +2068,7 @@ Row
 
 ```{r,eval=TRUE}
 
-dat_r<-hbs%>%
+dat_r<-hbs_bu%>%
   dplyr::select(deciles,"Food and Non-Alcoholic Beverages-VAT",
                                                                     "Alcoholic Beverages Tobacco and Narcotics-VAT",
                                                                     "Clothing and footwear-VAT",
@@ -2120,7 +2120,7 @@ Expenditure_chart <- plot_ly(t_df1, x = ~deciles, y = ~value,
 ### Structure of VAT revenues according to the purpose of consumption, per households decile groups
 
 ```{r,eval=TRUE}
-dat_r<-hbs%>%
+dat_r<-hbs_bu%>%
   dplyr::select(deciles,"Food and Non-Alcoholic Beverages-VAT",
                                                                     "Alcoholic Beverages Tobacco and Narcotics-VAT",
                                                                     "Clothing and footwear-VAT",

@@ -14,10 +14,10 @@ getwd()
                               '
                         SIMULATION_0 = copy(SIMULATION_CALIBRATION_FACTOR)
                         
-                        colnames(SIMULATION_0) <- c("PRODUCT_INDUSTRY_CODE","CPA_DIVISION",
-                                                  "Current_Policy_Exempt","Current_Policy_Reduced_Rate","Current_Policy_Fully_Taxable",
-                                                  "Simulation_Toggles_Exempt","Simulation_Toggles_Reduced_Rate",
-                                                  "Standard_VAT_Rate","Preferential_VAT_Rate")
+                        # colnames(SIMULATION_0) <- c("PRODUCT_INDUSTRY_CODE","CPA_DIVISION",
+                        #                           "Current_Policy_Exempt","Current_Policy_Reduced_Rate","Current_Policy_Fully_Taxable",
+                        #                           "Simulation_Toggles_Exempt","Simulation_Toggles_Reduced_Rate",
+                        #                           "Standard_VAT_Rate","Preferential_VAT_Rate")
 
                         
                         SIMULATION_0 <- SIMULATION_0 %>%
