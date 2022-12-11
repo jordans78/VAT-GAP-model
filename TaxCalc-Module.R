@@ -426,30 +426,33 @@ getwd()
                           Locked_Calibration_Factor_TEST<-VAT_control/Uncalibrated_VAT
                           
                           Locked_Calibration_Factor<-Locked_Calibration_Factor_TEST
+                          
                           #View(Locked_Calibration_Factor_TEST)
-                          # Results_0$VAT_Gap$Calibrated_VAT_Est.M_of_denars <- sum(CPA_PRODUCTS_0$Est_Rev$Final_Demand_Total, na.rm = T)*Locked_Calibration_Factor
-                          # Results_0$VAT_Gap$VAT_Control_Total.M_of_denars <- sum(CPA_PRODUCTS_0$Use_VAT$Total_use_at_basic_prices, na.rm = T) - sum(CPA_PRODUCTS_0$Use_VAT$Exports_FOB, na.rm = T)
-                          # #Results_0$VAT_Gap$Total_VAT_Gap.M_of_denars <- Results_0$VAT_Gap$Benchmark_VAT_M_of_denars - Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
-                          # Results_0$VAT_Gap$Total_VAT_Gap.Prc <- Results_0$VAT_Gap$Total_VAT_Gap.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
-                          # 
-                          # Manual input 
+                          Results_0$VAT_Gap$Calibrated_VAT_Est.M_of_denars <- sum(CPA_PRODUCTS_0$Est_Rev$Final_Demand_Total, na.rm = T)*Locked_Calibration_Factor
+                          Results_0$VAT_Gap$VAT_Control_Total.M_of_denars <- sum(CPA_PRODUCTS_0$Use_VAT$Total_use_at_basic_prices, na.rm = T) - sum(CPA_PRODUCTS_0$Use_VAT$Exports_FOB, na.rm = T)
+                          Results_0$VAT_Gap$Total_VAT_Gap.M_of_denars <- Results_0$VAT_Gap$Benchmark_VAT_M_of_denars - Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
+                          Results_0$VAT_Gap$Total_VAT_Gap.Prc <- Results_0$VAT_Gap$Total_VAT_Gap.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
+
+                          # Manual input
                           # Test without manual input
-                          # Results_0$VAT_Gap$Policy_Gap.M_of_denars <- 24407  # <------- Manual input in simulation
-                          # New
-                          #Results_0$VAT_Gap$Policy_Gap.Prc <- Results_0$VAT_Gap$Policy_Gap.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
-                          #Results_0$VAT_Gap$Compliance_Gap.M_of_denars <- Results_0$VAT_Gap$Total_VAT_Gap.M_of_denars-Results_0$VAT_Gap$Policy_Gap.M_of_denars
-                          #Results_0$VAT_Gap$Compliance_Gap.Prc <- Results_0$VAT_Gap$Compliance_Gap.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
-                          #Results_0$VAT_Gap$Calibration_Factor <- Locked_Calibration_Factor 
-                          
-                          
-                          # Final output - Change in Revenues
-                          
+                          #Results_0$VAT_Gap$Policy_Gap.M_of_denars <- 24407  # <------- Manual input in simulation
+                          # #New
+                          # Results_0$VAT_Gap$Policy_Gap.Prc <- Results_0$VAT_Gap$Policy_Gap.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
+                          # Results_0$VAT_Gap$Compliance_Gap.M_of_denars <- Results_0$VAT_Gap$Total_VAT_Gap.M_of_denars-Results_0$VAT_Gap$Policy_Gap.M_of_denars
+                          # Results_0$VAT_Gap$Compliance_Gap.Prc <- Results_0$VAT_Gap$Compliance_Gap.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
+                          # Results_0$VAT_Gap$Calibration_Factor <- Locked_Calibration_Factor
+                          # 
+                          # 
+                          # # Final output - Change in Revenues
+                          # 
                           # 
                           # Results_0$Simulation <- as.data.frame(as.integer(Results_0$VAT_Gap$Calibrated_VAT_Est.M_of_denars-Results_0$VAT_Gap$VAT_Control_Total.M_of_denars))
                           # colnames(Results_0$Simulation) <- "Simulated_Change_in_Revenues.M_of_denars"
                           # 
                           # Results_0$Simulation$Simulated_Change_in_Revenues.Prc <- (Results_0$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars)*100
-                          # 
+
+                          #View(Results_0)
+                          
                           # 2.1.1 Main estimation --------------------------------------------------
                           
                           Results <- as.list(c("VAT_Gap", "Simulation"))
@@ -530,15 +533,35 @@ getwd()
                           #View(Results_1)
                           
                           
-                          # 2.1.1 a ----------------------------------------------------------------
-                             # This part is from 3.1.1 main estimation
+                          # 2.1.1 Adding TE'S ----------------------------------------------------------------
+                             # This part is from 1.1.1 main estimation
                           Results$VAT_Gap$Policy_Gap.M_of_denars <-Results_1$Simulation$Simulated_Change_in_Revenues.M_of_denars
                           Results$VAT_Gap$Policy_Gap.Prc <- Results$VAT_Gap$Policy_Gap.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars
                           Results$VAT_Gap$Compliance_Gap.M_of_denars <- Results$VAT_Gap$Total_VAT_Gap.M_of_denars-Results$VAT_Gap$Policy_Gap.M_of_denars
                           Results$VAT_Gap$Compliance_Gap.Prc <- Results$VAT_Gap$Compliance_Gap.M_of_denars/Results$VAT_Gap$VAT_Control_Total.M_of_denars
                           Results$VAT_Gap$Calibration_Factor <- Locked_Calibration_Factor
                           
-                         
+                         # This part is for calibration factor
+                          Results_0$VAT_Gap$Policy_Gap.M_of_denars <- Results_1$Simulation$Simulated_Change_in_Revenues.M_of_denars
+                          
+                          #New
+                          Results_0$VAT_Gap$Policy_Gap.Prc <- Results_0$VAT_Gap$Policy_Gap.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
+                          Results_0$VAT_Gap$Compliance_Gap.M_of_denars <- Results_0$VAT_Gap$Total_VAT_Gap.M_of_denars-Results_0$VAT_Gap$Policy_Gap.M_of_denars
+                          Results_0$VAT_Gap$Compliance_Gap.Prc <- Results_0$VAT_Gap$Compliance_Gap.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars
+                          Results_0$VAT_Gap$Calibration_Factor <- Locked_Calibration_Factor
+                          
+                          
+                          # Final output - Change in Revenues
+                          
+                          
+                          Results_0$Simulation <- as.data.frame(as.integer(Results_0$VAT_Gap$Calibrated_VAT_Est.M_of_denars-Results_0$VAT_Gap$VAT_Control_Total.M_of_denars))
+                          colnames(Results_0$Simulation) <- "Simulated_Change_in_Revenues.M_of_denars"
+                          
+                          Results_0$Simulation$Simulated_Change_in_Revenues.Prc <- (Results_0$Simulation$Simulated_Change_in_Revenues.M_of_denars/Results_0$VAT_Gap$VAT_Control_Total.M_of_denars)*100
+                          
+                          
+                          
+                          
                           
                           # 2.1.3 Estimation of effective VAT RATE ------------------------------
                           
