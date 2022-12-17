@@ -56,7 +56,6 @@ TIP:
             library(ggplot2)
             library(plotly)
             library(data.table)
-            #library(tidyr)
             library(dplyr)
             library(shades)
             library(knitr)
@@ -84,44 +83,7 @@ TIP:
                     
                     # # Name of the version of model
                      version_vat_model<-c("VAT_Model_v9.15b.xlsx")
-                    # 
-                    # TAXABLE_PROPORTION_IMPORT <- read_excel(version_vat_model, sheet = "Simulation", col_names = F)[c(-1,-2,-3),] %>%
-                    #   data.frame()
-                    # 
-                    # # Input data with taxable proportions (Data for goods comes from import data while other are estimated on the bases COICOP)
-                    # 
-                    # TAXABLE_PROPORTION_IMPORT<-TAXABLE_PROPORTION_IMPORT%>%
-                    #   dplyr::select("...1","...2","...10","...11","...12","...14","...15")%>%
-                    #   dplyr:: rename(c("CPA"= "...1",
-                    #                    "Description"= "...2",
-                    #                    "TP_Exempt"="...10",
-                    #                    "TP_Reduced_Rate"= "...11",
-                    #                    "TP_Fully_Taxable"="...12",
-                    #                    "Simulation_Exempt"="...14",
-                    #                    "Simulation_Reduced_Rate"="...15"
-                    #   ))%>%
-                    #   dplyr::arrange(CPA)
-                    # 
-                    # 
-                    # TAXABLE_PROPORTION_IMPORT[3:5]<-as.numeric(unlist(TAXABLE_PROPORTION_IMPORT[3:5]))
-                    # TAXABLE_PROPORTION_IMPORT[6:6]<-as.numeric(unlist(TAXABLE_PROPORTION_IMPORT[6:6]))
-                    # #TAXABLE_PROPORTION_IMPORT$Current_Policy_Exempt[41] = 0 #  Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
-                    # TAXABLE_PROPORTION_IMPORT[7:7]<-as.numeric(unlist(TAXABLE_PROPORTION_IMPORT[7:7]))
-                    # 
-                    # # Rename table and continue with simulation
-                    # SIMULATION<-TAXABLE_PROPORTION_IMPORT
-                    # SIMULATION$Standard_VAT_Rate = standard_VAT_rate
-                    # SIMULATION$Standard_VAT_Rate[41] = 0 # This is the industry: Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
-                    # SIMULATION$Preferential_VAT_Rate = preferential_VAT_rate
-                    # 
-                    # 
-                    # SIMULATION[6:7] <- lapply(SIMULATION[6:7], as.numeric)
-                    # 
-                    # # Base for calculation 
-                    # SIMULATION_CALIBRATION_FACTOR<-SIMULATION
-                    
-                    ####----------------------------------------------------
-                    # Old version
+                  
                     
                     TAXABLE_PROPORTION_IMPORT <- read_excel(version_vat_model, sheet = "Simulation", col_names = F)[c(-1,-2,-3),] %>%
                       data.frame()
@@ -139,7 +101,7 @@ TIP:
 
                     TAXABLE_PROPORTION_IMPORT[2:4]<-as.numeric(unlist(TAXABLE_PROPORTION_IMPORT[2:4]))
 
-                    # Warning !!! This line only is applied for data for import
+                   
                     SIMULATION<-TAXABLE_PROPORTION_IMPORT
                     SIMULATION$Current_Policy_Exempt[41] = 0 #  Imputed rents of owner-occupied dwellings with the industry code: 68A/ 68A
                     SIMULATION$Standard_VAT_Rate = standard_VAT_rate
