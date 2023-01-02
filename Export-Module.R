@@ -17,7 +17,6 @@ getwd()
 # write.xlsx(as.data.frame(Simulation_Results_1_te), file="export_data_bu.xlsx", sheetName="te_bu",append=TRUE, row.names=FALSE)
 
 
-
 # Unweight sample
 write.xlsx(as.data.frame(Export_Main_Results), file="export_data.xlsx", sheetName="Main_Results", row.names=FALSE)
 write.xlsx(as.data.frame(Revenue_VAT_TOTAL), file="export_data.xlsx", sheetName="Revenue_VAT_TOTAL", append=TRUE, row.names=FALSE)
